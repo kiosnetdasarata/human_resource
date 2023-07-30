@@ -10,8 +10,31 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Employee extends Model
 {
     use HasFactory;
-
-    public $timestamp = false;
+    protected $primaryKey = 'nip_pgwi';
+    protected $guard = [
+        'nip_pgwi'
+    ];
+    protected $fillable = [
+        'brach_company_id',
+        'divisi_id',
+        'jabatan_id',
+        'no_tlpn',
+        'email',
+        'nik',
+        'nama',
+        'jk',
+        'province_id',
+        'regencie_id',
+        'district_id',
+        'village_id',
+        'almt_detail',
+        'tgl_lahir',
+        'agama',
+        'status_perkawinan',
+        'tempat_lahir',
+        'nama_instansi',
+        'tahun_lulus'
+    ];
 
     public function division(): BelongsTo
     {
