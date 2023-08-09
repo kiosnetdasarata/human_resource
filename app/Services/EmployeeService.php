@@ -26,11 +26,6 @@ class EmployeeService
     public function store($request)
     {
         $request['tgl_lahir'] = date_format(date_create_from_format('d/m/Y', $request['tgl_lahir']), 'Y-m-d');
-
-        $validate = Validator::make($request, [
-            'nik' => 'unique|employees',
-            'no_tlpn' => 'unique|employees'
-        ]);
         
         return $this->employeeRepositoryInterface->create($request);
         
