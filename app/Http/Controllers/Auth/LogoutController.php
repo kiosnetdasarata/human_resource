@@ -11,9 +11,6 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class LogoutController extends Controller
 {
-    public function __construct(private AuthService $authService)
-    {    
-    }
     /**
      * Handle the incoming request.
      */

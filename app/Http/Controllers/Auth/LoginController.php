@@ -17,7 +17,6 @@ class LoginController extends Controller
      */
     public function __invoke(LoginRequest $request)
     {
-        // dd(Auth::user());
         try {
             if ($token = auth()->guard('api')->attempt($request->safe()->only('karyawan_nip', 'password'))) {
                 
