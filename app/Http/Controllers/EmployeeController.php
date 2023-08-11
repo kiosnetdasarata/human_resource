@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Services\EmployeeService;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\MessageBag;
-use App\Http\Requests\EmployeeRequest;
+use App\Http\Requests\Employee\EmployeeRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeController extends Controller

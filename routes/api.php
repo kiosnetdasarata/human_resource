@@ -20,7 +20,10 @@ use App\Http\Controllers\Auth\LogoutController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-Route::apiResource('employee', EmployeeController::class);
-Route::post('login', LoginController::class);
-Route::middleware('auth:api')->post('logout', LogoutController::class);
+Route::middleware('jwt:api')->group(function() {
+    Route::apiResource('employee', EmployeeController::class);
+    Route::post('logout', LogoutController::class);
+});
+Route::middleware('guest:api')->group(function() {
+    Route::post('login', LoginController::class);
+});
