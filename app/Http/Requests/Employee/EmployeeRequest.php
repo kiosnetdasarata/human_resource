@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Employee;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,18 +26,18 @@ class EmployeeRequest extends FormRequest
             'brach_company_id' => 'required|int',
             'divisi_id' => 'required|int',
             'jabatan_id' => 'required|int',
-            'no_tlpn' => 'required|string|min:10|max:15',
-            'nik' => 'required|string|size:16',
-            'nama' => 'required|string',
-            'jk' => ['required', Rule::in(['Laki-Laki', 'Perempuan'])],
-            'province_id' => 'required|numeric',
-            'regencie_id' => 'required|numeric',
-            'district_id' => 'required|numeric',
-            'village_id' => 'required|numeric',
-            'almt_detail' => 'required|string',
-            'tgl_lahir' => 'required|date_format:Y-m-d',
-            'agama' => ['required', Rule::in(['Islam', 'Kristen', 'Katolik', 'Budha', 'Hindu'])],
-            'status_perkawinan' => 'required|string',
+            // 'no_tlpn' => 'required|string|min:10|max:15',
+            // 'nik' => 'required|string|size:16',
+            // 'nama' => 'required|string',
+            // 'jk' => ['required', Rule::in(['Laki-Laki', 'Perempuan'])],
+            // 'province_id' => 'required|numeric',
+            // 'regencie_id' => 'required|numeric',
+            // 'district_id' => 'required|numeric',
+            // 'village_id' => 'required|numeric',
+            // 'almt_detail' => 'required|string',
+            // 'tgl_lahir' => 'required|date_format:Y-m-d',
+            // 'agama' => ['required', Rule::in(['Islam', 'Kristen', 'Katolik', 'Budha', 'Hindu'])],
+            // 'status_perkawinan' => 'required|string',
         ];
 
         if ($this->method() === 'ADD') {

@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Services\AuthService;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
