@@ -17,6 +17,11 @@ class Level extends Model
     
     public function sales(): HasMany
     {
-        return $this->hasMany(Sales::class, 'jabatan_id');
+        return $this->hasMany(Sales::class);
+    }
+
+    public function branch() : HasMany
+    {
+        return $this->hasMany(Branch::class, 'branch_company_id');
     }
 }

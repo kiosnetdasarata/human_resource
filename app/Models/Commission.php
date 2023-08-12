@@ -11,13 +11,13 @@ class Commission extends Model
 {
     use HasFactory;
 
-    public function level() : BelongsTo
+    public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
     }
 
-    public function sales() : HasMany
+    public function sales(): HasMany
     {
-        return $this->hasMany(Sales::class);
+        return $this->hasMany(Sales::class, 'komisi_id');
     }
 }

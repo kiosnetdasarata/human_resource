@@ -17,9 +17,14 @@ class JobTitle extends Model
         return $this->hasMany(Employee::class, 'jabatan_id');
     }
 
+    public function employeesHistory(): HasMany
+    {
+        return $this->hasMany(EmployeeHistory::class, 'job_titles_id');
+    }
+
     public function division(): BelongsTo
     {
-        return $this->belongsTo(Division::class);
+        return $this->belongsTo(Division::class, 'divisions_id');
     }
 
     public function sales(): HasMany

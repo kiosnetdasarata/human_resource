@@ -18,7 +18,7 @@ class Regency extends Model
 
     public function employees(): HasMany
     {
-        return $this->hasMany(Employee::class);
+        return $this->hasMany(Employee::class, 'regencie_id');
     }
 
     public function province(): BelongsTo

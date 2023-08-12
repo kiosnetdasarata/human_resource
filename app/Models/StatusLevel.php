@@ -6,14 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class TechnicianTeam extends Model
+class StatusLevel extends Model
 {
     use HasFactory;
 
-    protected $connection = 'mysql2';
-
-    public function technician(): HasMany
+    public function employees() : HasMany
     {
-        return $this->hasMany(Technician::class, 'team_id');
+        return $this->hasMany(Employee::class);
     }
 }

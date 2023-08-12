@@ -15,5 +15,8 @@ class Division extends Model
         return $this->hasMany(Employee::class, 'divisi_id');
     }
 
-    public $timestamp = false;
+    public function jobTitle(): HasMany
+    {
+        return $this->hasMany(JobTitle::class, 'divisions_id');
+    }
 }

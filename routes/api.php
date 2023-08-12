@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\RegisterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,4 +27,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // });
 Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);
+    Route::post('register', RegisterController::class);
 });

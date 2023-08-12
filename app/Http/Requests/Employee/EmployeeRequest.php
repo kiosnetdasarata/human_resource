@@ -27,7 +27,7 @@ class EmployeeRequest extends FormRequest
             'divisi_id' => 'required|int',
             'jabatan_id' => 'required|int',
             'no_tlpn' => 'required|string|min:10|max:15',
-            'nik' => 'required|string|size:16',
+            'nik' => 'required|digit:16',
             'nama' => 'required|string',
             'jk' => ['required', Rule::in(['Laki-Laki', 'Perempuan'])],
             'province_id' => 'required|numeric',

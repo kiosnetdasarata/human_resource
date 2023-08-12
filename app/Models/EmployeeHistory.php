@@ -13,7 +13,7 @@ class EmployeeHistory extends Model
 
     public function jobTitle(): BelongsTo
     {
-        return $this->belongsTo(JobTitle::class);
+        return $this->belongsTo(JobTitle::class, 'job_titles_id');
     }
 
     public function jobTitleDivision(): BelongsTo
