@@ -17,6 +17,6 @@ class Technician extends Model
 
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'employees_id');
+        return $this->belongsTo(Employee::class, 'employees_nip');
     }
 }

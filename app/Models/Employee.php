@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Branch;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Employee extends Model
 {
@@ -15,26 +16,34 @@ class Employee extends Model
         'nip_pgwi'
     ];
     protected $fillable = [
-        'brach_company_id',
+        'branch_company_id',
         'divisi_id',
         'jabatan_id',
+        'status_level_id',
+        'tgl_mulai_kerja',
         'no_tlpn',
         'email',
         'nik',
         'nama',
+        'nickname',
+        'agama',
         'jk',
+        'tgl_lahir',
+        'tempat_lahir',
+        'almt_detail',
         'province_id',
         'regencie_id',
         'district_id',
         'village_id',
-        'almt_detail',
-        'tgl_lahir',
-        'agama',
         'status_perkawinan',
-        'tempat_lahir',
         'nama_instansi',
         'tahun_lulus'
     ];
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class, 'branch_company_id');
+    }
 
     public function division(): BelongsTo
     {
@@ -44,6 +53,11 @@ class Employee extends Model
     public function jobTitle(): BelongsTo
     {
         return $this->belongsTo(JobTitle::class, 'jabatan_id');
+    }
+
+    public function statusLevel(): BelongsTo
+    {
+        return $this->belongsTo(StatusLevel::class);
     }
 
     public function province(): BelongsTo
@@ -68,16 +82,18 @@ class Employee extends Model
 
     public function sales(): HasOne
     {
-        return $this->hasOne(Sales::class);
+        return $this->hasOne(Sales::class, 'karyawan_nip');
     }
 
     public function technician(): HasOne
     {
-        return $this->hasOne(Technician::class);
+        return $this->hasOne(Technician::class, 'employees_nip');
     }
 
     public function user(): HasOne
     {
-        return $this->hssOne(User::class, 'karyawan_nip');
+        return $this->hasOne(User::class, 'karyawan_nip');
     }
+
+
 }
