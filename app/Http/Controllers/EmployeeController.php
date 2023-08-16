@@ -7,6 +7,7 @@ use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\MessageBag;
 use App\Http\Requests\Employee\EmployeeRequest;
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeController extends Controller
@@ -78,6 +79,7 @@ class EmployeeController extends Controller
      */
     public function update(EmployeeRequest $request, $id)
     {
+        // dd(strlen($request->nik));
         try {
             $newEmployee = $this->employeeService->update($id,$request->validated());
             
@@ -102,7 +104,7 @@ class EmployeeController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $e->getMessage()
             ], 500);
         }
     }

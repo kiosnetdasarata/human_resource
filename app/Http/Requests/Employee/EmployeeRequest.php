@@ -27,22 +27,26 @@ class EmployeeRequest extends FormRequest
             'divisi_id' => 'required|int',
             'jabatan_id' => 'required|int',
             'no_tlpn' => 'required|string|min:10|max:15',
-            'nik' => 'required|digit:16',
+            'nik' => 'required|digits:16',
             'nama' => 'required|string',
             'jk' => ['required', Rule::in(['Laki-Laki', 'Perempuan'])],
+            'status_level_id' => 'required|integer',
+            'email' => 'required|email',
+            'nickname' => 'required|string',
             'province_id' => 'required|numeric',
             'regencie_id' => 'required|numeric',
             'district_id' => 'required|numeric',
             'village_id' => 'required|numeric',
             'almt_detail' => 'required|string',
-            'tgl_lahir' => 'required|date_format:Y-m-d',
+            'tgl_lahir' => 'required|date_format:d/m/Y',
             'agama' => ['required', Rule::in(['Islam', 'Kristen', 'Katolik', 'Budha', 'Hindu'])],
             'status_perkawinan' => 'required|string',
         ];
 
-        if ($this->method() === 'ADD') {
-            $rules['nik'] = 'required|string|min:10|max:15|unique|employees';
-            $rules['no_tlpn'] = 'required|string|size:16|unique|employees';
+        if ($this->isMethod('post')) {
+            $rules['no_tlpn'] = 'required|string|min:10|max:15|unique:employees';
+            $rules['nik'] = 'required|digits:16|unique:employees';
+            $rules['tgl_mulai_kerja'] = 'required|date_format:d/m/Y';
         }
 
         return $rules;

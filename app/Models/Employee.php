@@ -3,19 +3,27 @@
 namespace App\Models;
 
 use App\Models\Branch;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+
 class Employee extends Model
 {
-    use HasFactory;
-    protected $primaryKey = 'nip_pgwi';
+    use HasFactory, HasUuids;
+
+    protected $primaryKey = 'uuid';
+    public $incrementing = false;
     protected $guard = [
-        'nip_pgwi'
+        
     ];
+
     protected $fillable = [
+        'nip_pgwi',
+        'slug',
         'branch_company_id',
         'divisi_id',
         'jabatan_id',
@@ -39,6 +47,19 @@ class Employee extends Model
         'nama_instansi',
         'tahun_lulus'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($employee) {
+            $employee->slug = Str::slug($employee->nama);
+        });
+
+        static::updating(function($employee) {
+            $employee->slug = Str::slug($employee->nama);
+        });
+    }
 
     public function branch(): BelongsTo
     {
