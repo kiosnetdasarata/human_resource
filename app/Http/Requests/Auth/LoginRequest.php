@@ -21,9 +21,9 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return [    
             'karyawan_nip' => 'required|integer',
-            'password' => 'current_password:api',
+            'password' => 'required',
         ];
     }
 }
