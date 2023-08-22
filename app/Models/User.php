@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Ramsey\Uuid\Uuid;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
@@ -14,16 +16,28 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $fillable = [
+        'uuid',
+        'karyawan_nip',
+        'is_leader',
+        'password',
+    ];
+    
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($user) {
+            $user->uuid = Uuid::uuid4()->getHex();
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'karyawan_nip',
-        'is_leader',
-        'password',
-    ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -65,11 +79,13 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function employee(): BelongsTo {
+    public function employee(): BelongsTo 
+    {
         return $this->belongsTo(Employee::class, 'karyawan_nip');
     }
 
-    public function division(): BelongsTo {
+    public function division(): BelongsTo 
+    {
         return $this->belongsTo(Division::class);
     }
 

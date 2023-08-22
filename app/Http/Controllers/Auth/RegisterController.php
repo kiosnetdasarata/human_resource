@@ -2,26 +2,23 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\RegisterRequest;
-use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Interfaces\UserRepositoryInterface;
 
 class RegisterController extends Controller
 {
+    public function __construct(private UserRepositoryInterface $userRepositoryInterface)
+    {
+    }
     /**
      * Handle the incoming request.
      */
     public function __invoke(RegisterRequest $request)
     {
         try {
-            $user = User::create([
-                'karyawan_nip' => $request['karyawan_nip'],
-                'is_leader' => $request['is_leader'],
-                'password' => Hash::make($request['password']),
-            ]);
+            $user = $this->userRepositoryInterface->create($request->validated());
 
             if ($token = auth()->guard('api')->login($user)) {
                 return response()->json([
