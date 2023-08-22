@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
+use Ramsey\Uuid\Uuid;
 use App\Models\Branch;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Employee extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
@@ -22,6 +22,7 @@ class Employee extends Model
     ];
 
     protected $fillable = [
+        'uuid',
         'nip_pgwi',
         'slug',
         'branch_company_id',
@@ -54,6 +55,7 @@ class Employee extends Model
 
         static::creating(function($employee) {
             $employee->slug = Str::slug($employee->nama);
+            $employee->uuid = Uuid::uuid4()->getHex();
         });
 
         static::updating(function($employee) {

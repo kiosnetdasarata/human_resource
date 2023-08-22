@@ -18,9 +18,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         return $this->employee->get();
     }
 
-    public function find($id)
+    public function find($uuid)
     {
-        return $this->employee->findOrFail($id);
+        return $this->employee->where('uuid', $uuid)->firstOrFail();
     }
     
     public function create($request)

@@ -17,9 +17,9 @@ class EmployeeService
         return $this->employeeRepositoryInterface->getAll();
     }
 
-    public function find($id)
+    public function find($uuid)
     {
-        return $this->employeeRepositoryInterface->find($id);
+        return $this->employeeRepositoryInterface->find($uuid);
     }
 
     public function store($request)
