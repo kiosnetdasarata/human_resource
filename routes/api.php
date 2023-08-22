@@ -26,6 +26,6 @@ Route::middleware('jwt:api')->group(function() {
     Route::post('logout', LogoutController::class);
 });
 // Route::middleware('guest:api')->group(function() {
-    Route::post('login', [LoginController::class, 'index']);
+    Route::post('login', LoginController::class);
     Route::post('register', RegisterController::class);
 // });
