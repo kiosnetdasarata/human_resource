@@ -46,22 +46,9 @@ class Employee extends Model
         'village_id',
         'status_perkawinan',
         'nama_instansi',
-        'tahun_lulus'
+        'tahun_lulus',
+        'pendidikan_terakhir',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function($employee) {
-            $employee->slug = Str::slug($employee->nama);
-            $employee->uuid = Uuid::uuid4()->getHex();
-        });
-
-        static::updating(function($employee) {
-            $employee->slug = Str::slug($employee->nama);
-        });
-    }
 
     public function branch(): BelongsTo
     {

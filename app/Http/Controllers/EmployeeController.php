@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\MessageBag;
-use App\Http\Requests\Employee\EmployeeRequest;
-use App\Models\Employee;
+use App\Http\Requests\Employee\StoreEmployeeRequest;
+use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeController extends Controller
@@ -30,7 +29,7 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(EmployeeRequest $request)
+    public function store(StoreEmployeeRequest $request)
     {
         $employee = $this->employeeService->store($request->validated());
 
@@ -77,9 +76,8 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(EmployeeRequest $request, $id)
+    public function update(UpdateEmployeeRequest $request, $id)
     {
-        // dd(strlen($request->nik));
         try {
             $newEmployee = $this->employeeService->update($id,$request->validated());
             
@@ -88,7 +86,7 @@ class EmployeeController extends Controller
                     'status' => 'error',
                     'message' => $newEmployee,
                     'data' => $request,
-                ],422);
+                ], 422);
             }
             
             return response()->json([

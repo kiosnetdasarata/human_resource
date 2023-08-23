@@ -5,7 +5,7 @@ namespace App\Http\Requests\Employee;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EmployeeRequest extends FormRequest
+class StoreEmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,28 +26,27 @@ class EmployeeRequest extends FormRequest
             'branch_company_id' => 'required|int',
             'divisi_id' => 'required|int',
             'jabatan_id' => 'required|int',
-            'no_tlpn' => 'required|string|min:10|max:15',
-            'nik' => 'required|digits:16',
-            'nama' => 'required|string',
-            'jk' => ['required', Rule::in(['Laki-Laki', 'Perempuan'])],
             'status_level_id' => 'required|integer',
+            'no_tlpn' => 'required|string|min:10|max:15|unique:employees',
             'email' => 'required|email',
+            'nik' => 'required|digits:16|unique:employees',
+            'nama' => 'required|string',
             'nickname' => 'required|string',
+            'agama' => 'required|in:Islam,Kristen,Katolik,Budha,Hindu',
+            'jk' => 'required|in:Laki-Laki,Perempuan',
+            'tgl_lahir' => 'required|date_format:d/m/Y',
+            'tempat_lahir' => 'required|string',
+            'almt_detail' => 'required|string',
             'province_id' => 'required|numeric',
             'regencie_id' => 'required|numeric',
             'district_id' => 'required|numeric',
             'village_id' => 'required|numeric',
-            'almt_detail' => 'required|string',
-            'tgl_lahir' => 'required|date_format:d/m/Y',
-            'agama' => ['required', Rule::in(['Islam', 'Kristen', 'Katolik', 'Budha', 'Hindu'])],
             'status_perkawinan' => 'required|string',
+            'pendidikan_terakhir' => 'required|string',
+            'nama_instansi' => 'required|string',
+            'tahun_lulus' => 'required|digits:4',
+            'tgl_mulai_kerja' =>'required|date_format:d/m/Y'
         ];
-
-        if ($this->isMethod('post')) {
-            $rules['no_tlpn'] = 'required|string|min:10|max:15|unique:employees';
-            $rules['nik'] = 'required|digits:16|unique:employees';
-            $rules['tgl_mulai_kerja'] = 'required|date_format:d/m/Y';
-        }
 
         return $rules;
     }
