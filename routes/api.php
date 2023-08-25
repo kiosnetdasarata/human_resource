@@ -18,13 +18,13 @@ use App\Http\Controllers\Auth\RegisterController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-// Route::middleware('jwt:api')->group(function() {
-    Route::apiResource('employee', EmployeeController::class);
-    // Route::post('logout', LogoutController::class);
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
 // });
+Route::middleware('jwt:api')->group(function() {
+    Route::apiResource('employee', EmployeeController::class);
+    Route::post('logout', LogoutController::class);
+});
 Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);
     Route::post('register', RegisterController::class);

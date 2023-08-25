@@ -2,20 +2,29 @@
 
 namespace App\Models;
 
+use Ramsey\Uuid\Uuid;
 use App\Models\Branch;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+
 class Employee extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'nip_pgwi';
+
+    protected $primaryKey = 'uuid';
+    public $incrementing = false;
     protected $guard = [
-        'nip_pgwi'
+        
     ];
+
     protected $fillable = [
+        'uuid',
+        'nip_pgwi',
+        'slug',
         'branch_company_id',
         'divisi_id',
         'jabatan_id',
@@ -37,7 +46,8 @@ class Employee extends Model
         'village_id',
         'status_perkawinan',
         'nama_instansi',
-        'tahun_lulus'
+        'tahun_lulus',
+        'pendidikan_terakhir',
     ];
 
     public function branch(): BelongsTo
