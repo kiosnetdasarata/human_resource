@@ -38,7 +38,6 @@ class EmployeeService
             '_' . $count+1 : '') ;
         $request['uuid'] = Uuid::uuid4()->getHex();
         $request['tgl_lahir'] = date_create_from_format('d/m/Y', $request['tgl_lahir'])->format('Y-m-d');
-        $request['tgl_lahir'] = Carbon::createFormatDate('y-m-d', $request['tgl_lah']);
         $request['tgl_mulai_kerja'] = date_create_from_format('d/m/Y', $request['tgl_mulai_kerja'])->format('Y-m-d');
         $request['nip_pgwi'] = $this->generateNip($request['tgl_mulai_kerja'], $request['jk']);
 
