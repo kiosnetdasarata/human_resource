@@ -23,7 +23,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         return $this->employee->where('uuid', $uuid)->firstOrFail();
     }
 
-    public function findSlug($slug)
+    public function findBySlug($slug)
     {
         return $this->employee->where('slug', 'LIKE', $slug.'%')->get();
     }

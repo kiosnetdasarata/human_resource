@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class JobTitle extends Model
 {
     use HasFactory;
+    
+    protected $fillable = [
+        'divisions_id',
+        'nama_jabatan',
+        'slug'
+    ];
+
+    static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($jobTitle) {
+            $jobTitle->slug = Str::slug($jobTitle->nama_jabatan, '_');
+        });
+        
+        static::updating(function ($jobTitle) {
+            $jobTitle->slug = Str::slug($jobTitle->nama_jabatan, '_');
+        });
+    }
+
 
     public function employees(): HasMany
     {
