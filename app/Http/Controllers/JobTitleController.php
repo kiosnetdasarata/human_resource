@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JobTitle;
-use Illuminate\Http\Request;
 use App\Http\Requests\JobTitle\JobTitleRequest;
 use App\Interfaces\JobTitleRepositoryInterface;
 
