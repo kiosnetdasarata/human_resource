@@ -33,44 +33,43 @@ class EmployeeService
     public function store($request)
     {
         $employee = collect($request);
-        $employee->merge([
-            'slug' => Str::slug($employee->nama, '_')
-                        . (($count = count($this->findSlug($employee->nama))) > 0 ? '_' . $count+1 : ''),
+        $employee = $employee->merge([
+            'slug' => Str::slug($employee["nama"], '_')
+                        . (($count = count($this->findSlug($employee["nama"]))) > 0 ? '_' . $count+1 : ''),
             'uuid' => Uuid::uuid4()->getHex(),
-            'nip_pgwi' => $this->generateNip($employee->tgl_mulai_kerja, $employee->jk),
-            'division_id' => $this->jobTitleRepositoryInterface->find($employee->job_title_id)->division_id,
-            'district_id' => $employee->village_id / 1000,
-            'regencie_id' => $employee->village_id / 1000000,
-            'province_id' => $employee->village_id / 100000000,
+            'nip_pgwi' => $this->generateNip($employee["tgl_mulai_kerja"], $employee["jk"]),
+            'divisi_id' => $this->jobTitleRepositoryInterface->find($employee["jabatan_id"])->divisions_id,
+            'district_id' => (int) ($employee["village_id"] / 1000),
+            'regencie_id' => (int) ($employee["village_id"] / 1000000),
+            'province_id' => (int) ($employee["village_id"] / 100000000),
         ]);
-
-        return $this->employeeRepositoryInterface->create($employee->toArray());
+        return $this->employeeRepositoryInterface->create($employee->all());
     }
 
     public function update($id, $request)
     {
         $old = $this->find($id);
         $employee = collect($request)->diffAssoc($old);
-        if (isset($employee->nama))
+        if (isset($employee["nama"]))
             $employee->put(
-                'slug', Str::slug($employee->nama)
-                    . (($count = count($this->findSlug($employee->nama))) > 1 ? '-' . $count + 1 : ''),
+                'slug', Str::slug($employee["nama"])
+                    . (($count = count($this->findSlug($employee["nama"]))) > 1 ? '-' . $count + 1 : ''),
             );
                
-        if (isset($employee->jk))
-            $employee->put('jk', $this->generateNip($request['tgl_mulai_kerja'], $request['jk']));
+        if (isset($employee["jk"]))
+            $employee->put('jk', $this->generateNip($request['tgl_mulai_kerja'], $employee['jk']));
 
         if (isset($employee->job_title_id))
-            $employee->put('job_title', $this->jobTitleRepositoryInterface->find($employee->job_title_id)->division_id);
+            $employee->put('divisi_id', $this->jobTitleRepositoryInterface->find($employee["jabatan_id"])->divisions_id);
         
-        if (isset($employee->village_id))
+        if (isset($employee["village_id"]))
             $employee->merge([
-                'district_id' => $employee->village_id / 1000,
-                'regencie_id' => $employee->village_id / 1000000,
-                'province_id' => $employee->village_id / 100000000,
+                'district_id' => (int) ($employee["village_id"] / 1000),
+                'regencie_id' => (int) ($employee["village_id"] / 1000000),
+                'province_id' => (int) ($employee["village_id"] / 100000000),
             ]);
 
-        return $this->employeeRepositoryInterface->update($old, $employee->toArray());
+        return $this->employeeRepositoryInterface->update($old, $employee->all());
     }
 
     public function delete($data)

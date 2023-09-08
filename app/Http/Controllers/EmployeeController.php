@@ -31,6 +31,7 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
+        
         try {
             $this->employeeService->store($request->validated());
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Employee;
 
-use App\Models\Branch;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEmployeeRequest extends FormRequest
@@ -23,11 +22,11 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'branch_company_id' => 'required|int|exists:developer_dasarata_company.branch_company,id',
+            'branch_company_id' => 'required|int',
             // 'divisi_id' => 'required|int|exists:divisions,id',
             'jabatan_id' => 'required|int|exists:job_titles,id',
-            'status_level_id' => 'required|integer|exists:status_level,id',
-            'no_tlpn' => 'required|string|min:10|max:15|unique:employees,no_telp',
+            'status_level_id' => 'required|integer|exists:status_levels,id',
+            'no_tlpn' => 'required|string|min:10|max:15|unique:employees,no_tlpn',
             'email' => 'required|email',
             'nik' => 'required|digits:16|unique:employees,nik',
             'nama' => 'required|string',
@@ -41,7 +40,7 @@ class StoreEmployeeRequest extends FormRequest
             // 'regencie_id' => 'required|numeric|exists:regencies,id',
             // 'district_id' => 'required|numeric|exists:districts,id',
             'village_id' => 'required|numeric|exists:villages,id',
-            'status_perkawinan' => 'required|string',
+            'status_perkawinan' => 'required|string|in:Belum Kawin,Kawin',
             'pendidikan_terakhir' => 'required|string',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',

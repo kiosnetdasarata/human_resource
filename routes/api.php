@@ -27,7 +27,7 @@ use App\Http\Controllers\ZoneController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-Route::middleware('jwt:api')->group(function() {
+// Route::middleware('jwt:api')->group(function() {
     Route::get('/province', [ZoneController::class, 'getProvinces']);
     Route::get('/{province}/regency', [ZoneController::class, 'getRegencies']);
     Route::get('/{regency}/district', [ZoneController::class, 'getDistricts']);
@@ -43,7 +43,7 @@ Route::middleware('jwt:api')->group(function() {
     Route::apiResource('technician', TechnicianController::class);
 
     Route::post('logout', LogoutController::class);
-});
+// });
 Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);
     Route::post('register', RegisterController::class);
