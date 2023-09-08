@@ -31,19 +31,19 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
-        $employee = $this->employeeService->store($request->validated());
+        try {
+            $this->employeeService->store($request->validated());
 
-        if ($employee instanceof MessageBag) {
+            return response()->json([
+                'status' => 'success',
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $employee,
-                'data' => $request->all(),
-            ],422);
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'success',
-        ], 200);
     }
 
     /**
@@ -59,16 +59,10 @@ class EmployeeController extends Controller
                 'data' => $employee,
             ], 200);
 
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 404);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -79,30 +73,17 @@ class EmployeeController extends Controller
     public function update(UpdateEmployeeRequest $request, $id)
     {
         try {
-            $newEmployee = $this->employeeService->update($id,$request->validated());
-            
-            if ($newEmployee instanceof MessageBag) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $newEmployee,
-                    'data' => $request,
-                ], 422);
-            }
+            $this->employeeService->update($id,$request->validated());
             
             return response()->json([
                 'status' => 'success'
             ], 200);
 
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 404);
         } catch (\Exception $e) {
-
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'input' => $request->validated()
             ], 500);
         }
     }
@@ -113,23 +94,16 @@ class EmployeeController extends Controller
     public function destroy(string $id)
     {
         try {
-            $employee = $this->employeeService->find($id);
-            $this->employeeService->delete($employee);
+            $this->employeeService->delete($this->employeeService->find($id));
             
             return response()->json([
                 'status' => 'success',
             ], 200);
 
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 404);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
+                'message' => $e->getMessage()
             ], 500);
         }
     }

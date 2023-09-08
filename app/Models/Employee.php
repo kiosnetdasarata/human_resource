@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Ramsey\Uuid\Uuid;
 use App\Models\Branch;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,9 +15,6 @@ class Employee extends Model
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $guard = [
-        
-    ];
 
     protected $fillable = [
         'uuid',

@@ -34,13 +34,13 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(DivisionRepositoryInterface::class, DivisionRepository::class);
-        // $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);
+        $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);
         $this->app->bind(JobTitleRepositoryInterface::class, JobTitleRepository::class);
-        // $this->app->bind(SalesRepositoryInterface::class, SalesRepository::class);
-        // $this->app->bind(StatusLevelRepositoryInterface::class, StatusLevelRepository::class);
-        // $this->app->bind(TechnicianRepositoryInterface::class, TechnicianRepository::class);
-        // $this->app->bind(ZoneRepositoryInterface::class, ZoneRepository::class);
-        // $this->app->bind(BranchCompanyRepositoryInterface::class, BranchCompanyRepository::class);
+        $this->app->bind(SalesRepositoryInterface::class, SalesRepository::class);
+        $this->app->bind(StatusLevelRepositoryInterface::class, StatusLevelRepository::class);
+        $this->app->bind(TechnicianRepositoryInterface::class, TechnicianRepository::class);
+        $this->app->bind(ZoneRepositoryInterface::class, ZoneRepository::class);
+        $this->app->bind(BranchCompanyRepositoryInterface::class, BranchCompanyRepository::class);
     }
 
     /**

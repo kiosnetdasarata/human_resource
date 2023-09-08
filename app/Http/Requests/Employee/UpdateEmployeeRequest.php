@@ -22,19 +22,20 @@ class UpdateEmployeeRequest extends FormRequest
      */
     public function rules(): array
     {
+        $employee = $this->route('employee');
         $rules = [
             'branch_company_id' => 'int',
             'divisi_id' => 'int',
             'jabatan_id' => 'int',
             'status_level_id' => 'integer',
-            'no_tlpn' => 'string|min:10|max:15',
+            'no_tlpn' => 'string|min:10|max:15|unique:employees,no_telp,' . $employee,
             'email' => 'email',
-            'nik' => 'digits:16',
+            'nik' => 'digits:16|unique:employees,nik,'. $employee,
             'nama' => 'string',
             'nickname' => 'string',
             'agama' => 'in:Islam,Kristen,Katolik,Budha,Hindu',
             'jk' => 'in:Laki-Laki,Perempuan',
-            'tgl_lahir' => 'date_format:d/m/Y',
+            'tgl_lahir' => 'date_format:Y-m-d',
             'tempat_lahir' => 'string',
             'almt_detail' => 'string',
             'province_id' => 'numeric',

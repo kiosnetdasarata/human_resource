@@ -4,14 +4,14 @@ namespace App\Services;
 
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
-use App\Http\Requests\Employee\EmployeeRequest;
 use App\Interfaces\EmployeeRepositoryInterface;
-use Illuminate\Support\Carbon;
-
+use App\Interfaces\JobTitleRepositoryInterface;
 
 class EmployeeService
 {
-    public function __construct(private EmployeeRepositoryInterface $employeeRepositoryInterface)
+    public function __construct(
+        private EmployeeRepositoryInterface $employeeRepositoryInterface,
+        private JobTitleRepositoryInterface $jobTitleRepositoryInterface)
     {
     }
 
@@ -27,38 +27,50 @@ class EmployeeService
 
     public function findSlug($name)
     {
-        $slug = Str::slug($name,'_');
-        return $this->employeeRepositoryInterface->findSlug($slug);
+        return $this->employeeRepositoryInterface->findBySlug(Str::slug($name,'_'));
     }
 
     public function store($request)
     {
-        $request['slug'] = Str::slug($request['nama'], '_')
-        . (($count = count($this->findSlug($request['nama']))) > 0 ?
-            '_' . $count+1 : '') ;
-        $request['uuid'] = Uuid::uuid4()->getHex();
-        $request['tgl_lahir'] = date_create_from_format('d/m/Y', $request['tgl_lahir'])->format('Y-m-d');
-        $request['tgl_mulai_kerja'] = date_create_from_format('d/m/Y', $request['tgl_mulai_kerja'])->format('Y-m-d');
-        $request['nip_pgwi'] = $this->generateNip($request['tgl_mulai_kerja'], $request['jk']);
+        $employee = collect($request);
+        $employee->merge([
+            'slug' => Str::slug($employee->nama, '_')
+                        . (($count = count($this->findSlug($employee->nama))) > 0 ? '_' . $count+1 : ''),
+            'uuid' => Uuid::uuid4()->getHex(),
+            'nip_pgwi' => $this->generateNip($employee->tgl_mulai_kerja, $employee->jk),
+            'division_id' => $this->jobTitleRepositoryInterface->find($employee->job_title_id)->division_id,
+            'district_id' => $employee->village_id / 1000,
+            'regencie_id' => $employee->village_id / 1000000,
+            'province_id' => $employee->village_id / 100000000,
+        ]);
 
-        return $this->employeeRepositoryInterface->create($request);
-
+        return $this->employeeRepositoryInterface->create($employee->toArray());
     }
 
     public function update($id, $request)
     {
-        if (array_key_exists('nama', $request))
-            $request['slug'] = Str::slug($request['nama'])
-                . (($count = count($this->findSlug($request['nama']))) > 1 ?
-                    '-' . $count + 1 : '') ;
+        $old = $this->find($id);
+        $employee = collect($request)->diffAssoc($old);
+        if (isset($employee->nama))
+            $employee->put(
+                'slug', Str::slug($employee->nama)
+                    . (($count = count($this->findSlug($employee->nama))) > 1 ? '-' . $count + 1 : ''),
+            );
+               
+        if (isset($employee->jk))
+            $employee->put('jk', $this->generateNip($request['tgl_mulai_kerja'], $request['jk']));
 
-        if (array_key_exists('tgl_lahir', $request))
-            $request['tgl_lahir'] = date_create_from_format('d/m/Y', $request['tgl_lahir'])->format('Y-m-d');
+        if (isset($employee->job_title_id))
+            $employee->put('job_title', $this->jobTitleRepositoryInterface->find($employee->job_title_id)->division_id);
+        
+        if (isset($employee->village_id))
+            $employee->merge([
+                'district_id' => $employee->village_id / 1000,
+                'regencie_id' => $employee->village_id / 1000000,
+                'province_id' => $employee->village_id / 100000000,
+            ]);
 
-        if (array_key_exists('nip_pgwi', $request))
-            $request['nip_pgwi'] = $this->generateNip($request['tgl_mulai_kerja'], $request['jk']);
-
-        return $this->employeeRepositoryInterface->update($this->find($id), $request);
+        return $this->employeeRepositoryInterface->update($old, $employee->toArray());
     }
 
     public function delete($data)
@@ -68,12 +80,11 @@ class EmployeeService
 
     private function generateNip($tgl_kerja, $jk)
     {
-        return (int)(
+        return (int) (
             date_create_from_format('Y-m-d', $tgl_kerja)->format('ym') //ambil tahun dan bulan
             . ($jk == 'Laki-Laki' ? 1 : 2) //ambil jenis kelamin
             . count($this->getAll()) //ambil jumlah karyawan
         );
-
     }
 }
 
