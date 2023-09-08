@@ -4,13 +4,17 @@ namespace App\Repositories;
 
 use App\Models\StatusLevel;
 use App\Interfaces\StatusLevelRepositoryInterface;
+use App\Models\Commission;
+use App\Models\Level;
 
 class StatusLevelRepository implements StatusLevelRepositoryInterface
 {
-
-    public function __construct(private StatusLevel $statusLevel)
-    {
-    }
+    public function __construct(
+        private StatusLevel $statusLevel,
+        private Level $level,
+        private Commission $commission,
+    )
+    {}
 
     public function getAll()
     {
@@ -37,6 +41,15 @@ class StatusLevelRepository implements StatusLevelRepositoryInterface
         return $statusLevel->delete();
     }
     
+    public function getLevels()
+    {
+        return $this->level->get();
+    }
+
+    public function getLevelByCommission($level)
+    {
+        return $this->commission->where('level_id', $level);
+    }
 }
 
 ?>
