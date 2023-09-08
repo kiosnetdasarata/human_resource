@@ -11,7 +11,7 @@ class Branch extends Model
     use HasFactory;
     
     protected $connection = 'mysql3';
-    protected $table = 'branch_company';
+    protected $table = 'branch_companies';
 
     public function employees(): HasMany
     {
