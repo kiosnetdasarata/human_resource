@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
@@ -30,16 +31,20 @@ use App\Http\Controllers\EmployeeHistoryController;
 // });
 // Route::middleware('jwt:api')->group(function() {
     //Route Zone
-    Route::get('/province', [ZoneController::class, 'getProvinces']);
-    Route::get('/{province}/regency', [ZoneController::class, 'getRegencies']);
-    Route::get('/{regency}/district', [ZoneController::class, 'getDistricts']);
-    Route::get('/{district}/village', [ZoneController::class, 'getVillages']);
+    Route::get('/provinces', [ZoneController::class, 'getProvinces']);
+    Route::get('/{province}/regencies', [ZoneController::class, 'getRegencies']);
+    Route::get('/{regency}/districts', [ZoneController::class, 'getDistricts']);
+    Route::get('/{district}/villages', [ZoneController::class, 'getVillages']);
 
     // Route get job title by division
     Route::get('/division/{division}/job-titles', [JobTitleController::class, 'index']);
 
     // Route get branch
-    Route::get('/branch', BranchController::class);
+    Route::get('/branchs', BranchController::class);
+
+    //Route get level
+    Route::get('/level', [LevelController::class, 'getLevels']);
+    Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
     Route::apiResource('employee', EmployeeController::class);
     Route::apiResource('division', DivisionController::class);
