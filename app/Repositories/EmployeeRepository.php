@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Employee;
 use App\Interfaces\EmployeeRepositoryInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeRepository implements EmployeeRepositoryInterface
 {
@@ -15,7 +14,14 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function getAll()
     {
-        return $this->employee->get();
+        return $this->employee->get()->map(function ($e) {
+            return[
+                'nip_pgwi' => $e->nip_pgwi,
+                'nama' => $e->nama,
+                'divisi' => $e->division->nama_divisi,
+                'jabatan' => $e->jobTitle->nama_jabatan,
+            ];
+        });
     }
 
     public function find($uuid)
@@ -25,7 +31,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function findBySlug($slug)
     {
-        return $this->employee->where('slug', 'LIKE', $slug.'%')->get();
+        return $this->employee->where('slug', 'LIKE','%'. $slug.'%')->get();
     }
     
     public function create($request)
