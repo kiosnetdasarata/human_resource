@@ -5,13 +5,15 @@ namespace App\Http\Requests\EmployeeHistory;
 use App\Http\Requests\Sales\StoreSalesRequest;
 use App\Http\Requests\Technician\StoreTechnicianRequest;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreEmployeeHistoryRequest extends FormRequest
 {
-    public function __construct(
-        private StoreTechnicianRequest $storeTechnicianRequest,
-        private StoreSalesRequest $storeSalesRequest,
-    ){}
+    // public function __construct(
+    //     private StoreTechnicianRequest $storeTechnicianRequest,
+    //     private StoreSalesRequest $storeSalesRequest,
+    // ){}
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -34,18 +36,32 @@ class StoreEmployeeHistoryRequest extends FormRequest
         ]);
 
         if ($this->input('keterangan') === 'Pindah Divisi') {
-            $rules->merge([
+            $rules = $rules->merge([
                 'after_divisi_id' => 'required|integer|exists:divisions,id',
                 'after_job_title_id' => 'required|integer|exists:job_titles,id'
             ]);
 
             if ($this->input('after_divisi_id') == 4) {
-                $rules->merge($this->storeSalesRequest->rules());
+                $rules = $rules->merge(
+                    collect((new StoreSalesRequest())->rules())->except('karyawan_nip'),
+                );
             } else if ($this->input('after_divisi_id') == 5) {
-                $rules->merge($this->storeTechnicianRequest->rules());
+                $rules = $rules->merge(
+                    collect((new StoreTechnicianRequest())->rules())->except('employees_nip'),
+                );
             }
         }
+        return $rules->all();
+    }
 
-        return $rules->toArray();
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()->all(),
+                'input' => $this->input()
+            ], 422)
+        );
     }
 }

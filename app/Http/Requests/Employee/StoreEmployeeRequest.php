@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Employee;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreEmployeeRequest extends FormRequest
 {
@@ -22,12 +25,11 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'branch_company_id' => 'required|int',
-            // 'divisi_id' => 'required|int|exists:divisions,id',
+            'branch_company_id' => 'required|int|exists:mysql3.branch_companies,id',
             'jabatan_id' => 'required|int|exists:job_titles,id',
             'status_level_id' => 'required|integer|exists:status_levels,id',
             'no_tlpn' => 'required|string|min:10|max:15|unique:employees,no_tlpn',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:employees,email',
             'nik' => 'required|digits:16|unique:employees,nik',
             'nama' => 'required|string',
             'nickname' => 'required|string',
@@ -36,15 +38,27 @@ class StoreEmployeeRequest extends FormRequest
             'tgl_lahir' => 'required|date_format:Y-m-d',
             'tempat_lahir' => 'required|string',
             'almt_detail' => 'required|string',
-            // 'province_id' => 'required|numeric|exists:provinces,id',
-            // 'regencie_id' => 'required|numeric|exists:regencies,id',
-            // 'district_id' => 'required|numeric|exists:districts,id',
             'village_id' => 'required|numeric|exists:villages,id',
             'status_perkawinan' => 'required|string|in:Belum Kawin,Kawin',
             'pendidikan_terakhir' => 'required|string',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
-            'tgl_mulai_kerja' =>'required|date_format:Y-m-d'
+            'tgl_mulai_kerja' =>'required|date_format:Y-m-d',
+            'komisi_id' => 'integer|exists:commissions,id',
+            'team_id' => 'integer|exists:mysql4.technician_teams,id',
+            'katim_id' => 'integer|in:0,1',
+            'is_leader' => 'required|in:0,1',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()->all(),
+                'input' => $this->input()
+            ], 422)
+        );
     }
 }
