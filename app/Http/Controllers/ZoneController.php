@@ -17,7 +17,7 @@ class ZoneController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'provinces' => $this->zoneRepositoryInterface->getProvinces(),
+            'data' => $this->zoneRepositoryInterface->getProvinces(),
         ]);
     }
 
@@ -25,7 +25,7 @@ class ZoneController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'regencies' => $this->zoneRepositoryInterface->getRegencies($province),
+            'data' => $this->zoneRepositoryInterface->getRegencies($province),
         ]);
     }
 
@@ -33,7 +33,7 @@ class ZoneController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'districts' => $this->zoneRepositoryInterface->getDistricts($regency),
+            'data' => $this->zoneRepositoryInterface->getDistricts($regency),
         ]);
     }
 
@@ -41,7 +41,7 @@ class ZoneController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'villages' => $this->zoneRepositoryInterface->getVillages($district),
+            'data' => $this->zoneRepositoryInterface->getVillages($district),
         ]);
     }
 }
