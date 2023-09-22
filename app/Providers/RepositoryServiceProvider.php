@@ -3,26 +3,26 @@
 namespace App\Providers;
 
 use App\Repositories\UserRepository;
-// use App\Repositories\ZoneRepository;
-// use App\Repositories\SalesRepository;
+use App\Repositories\ZoneRepository;
+use App\Repositories\SalesRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\DivisionRepository;
 use App\Repositories\EmployeeRepository;
 use App\Repositories\JobTitleRepository;
-// use App\Repositories\TechnicianRepository;
+use App\Repositories\TechnicianRepository;
 use App\Interfaces\UserRepositoryInterface;
-// use App\Interfaces\ZoneRepositoryInterface;
-// use App\Repositories\StatusLevelRepository;
-// use App\Interfaces\SalesRepositoryInterface;
-// use App\Repositories\BranchCompanyRepository;
+use App\Interfaces\ZoneRepositoryInterface;
+use App\Repositories\StatusLevelRepository;
+use App\Interfaces\SalesRepositoryInterface;
+use App\Repositories\BranchCompanyRepository;
 use App\Interfaces\DivisionRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\JobTitleRepositoryInterface;
-// use App\Repositories\EmployeeHistoryRepository;
-// use App\Interfaces\TechnicianRepositoryInterface;
-// use App\Interfaces\StatusLevelRepositoryInterface;
-// use App\Interfaces\BranchCompanyRepositoryInterface;
-// use App\Interfaces\EmployeeHistoryRepositoryInterface;
+use App\Repositories\EmployeeHistoryRepository;
+use App\Interfaces\TechnicianRepositoryInterface;
+use App\Interfaces\StatusLevelRepositoryInterface;
+use App\Interfaces\BranchCompanyRepositoryInterface;
+use App\Interfaces\EmployeeHistoryRepositoryInterface;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
