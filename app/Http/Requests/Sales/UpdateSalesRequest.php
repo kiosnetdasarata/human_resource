@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Sales;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateSalesRequest extends FormRequest
 {
@@ -22,9 +24,18 @@ class UpdateSalesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'karyawan_nip' => 'integer|unique:sales,karyawan_nip,'.$this->route('sales').'|exists:employee,nip_pgwi',
             'komisi_id' => 'integer|exists:commissions,id',
-            'level_id' => 'integer|exists:levels,id',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()->all(),
+                'input' => $this->input()
+            ], 422)
+        );
     }
 }

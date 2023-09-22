@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Requests\JobTitle;
+namespace App\Http\Requests\Employee;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class JobTitleRequest extends FormRequest
+class ArchiveEmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->isMethod('delete');;
     }
 
     /**
@@ -22,15 +22,7 @@ class JobTitleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama_jabatan' => ['required','iunique:job_titles,nama_jabatan,'.$this->route('job-title')],
-            'divisions_id' => 'required|exists:divisions,id'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'nama_jabatan.iunique' => 'The nama jabatan has already been taken',
+            //
         ];
     }
 }

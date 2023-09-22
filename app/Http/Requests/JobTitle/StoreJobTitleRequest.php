@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\JobTitle;
 
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class RegisterRequest extends FormRequest
+class StoreJobTitleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,19 +18,26 @@ class RegisterRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'slug' => Str::slug($this->nama_jabatan, '_')
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
     {
-        dd($this->input());
         return [
-            "karyawan_nip" => ["required", "int", "unique:users"],
-            "is_leader" => ["required", "in:0,1"],
-            "password" => ["required",
-                            "regex:/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/",
-                            "confirmed"],
+            'nama_jabatan' => 'required|unique:job_titles,nama_jabatan',
+            'divisions_id' => 'required|exists:divisions,id',
+            'slug' => 'required|unique:job_title,slug'
         ];
     }
 

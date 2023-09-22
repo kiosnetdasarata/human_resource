@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Technician;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreTechnicianRequest extends FormRequest
 {
@@ -22,9 +24,20 @@ class StoreTechnicianRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'team_id' => 'integer|exists:developer_dasarata_operasional.technician_teams,id',
+            'team_id' => 'integer|exists:mysql4.technician_teams,id',
             'employees_nip' => 'required|integer|unique:technicians,karyawan_nip|exists:employees,nip_pgwi',
             'katim' => 'required|integer|in:0,1',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()->all(),
+                'input' => $this->input()
+            ], 422)
+        );
     }
 }

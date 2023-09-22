@@ -4,6 +4,8 @@ namespace App\Http\Requests\Employee;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateEmployeeRequest extends FormRequest
 {
@@ -23,11 +25,10 @@ class UpdateEmployeeRequest extends FormRequest
     public function rules(): array
     {
         $employee = $this->route('employee');
-        $rules = [
-            'branch_company_id' => 'int',
-            'divisi_id' => 'int',
-            'jabatan_id' => 'int',
-            'status_level_id' => 'integer',
+        return [
+            'branch_company_id' => 'int|exists:mysql3.branch_companies,id',
+            // 'jabatan_id' => 'int|exists:job_titles,id',
+            // 'status_level_id' => 'integer|exists:status_levels,id',
             'no_tlpn' => 'string|min:10|max:15|unique:employees,no_tlpn,' . $employee.',uuid',
             'email' => 'email',
             'nik' => 'digits:16|unique:employees,nik,'. $employee. ',uuid',
@@ -38,16 +39,22 @@ class UpdateEmployeeRequest extends FormRequest
             'tgl_lahir' => 'date_format:Y-m-d',
             'tempat_lahir' => 'string',
             'almt_detail' => 'string',
-            'province_id' => 'numeric',
-            'regencie_id' => 'numeric',
-            'district_id' => 'numeric',
-            'village_id' => 'numeric',
-            'status_perkawinan' => 'string',
+            'village_id' => 'numeric|exists:villages,id',
+            'status_perkawinan' => 'string|in:Belum Kawin,Kawin',
             'pendidikan_terakhir' => 'string',
             'nama_instansi' => 'string',
             'tahun_lulus' => 'digits:4',
         ];
+    }
 
-        return $rules;
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()->all(),
+                'input' => $this->input()
+            ], 422)
+        );
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class LoginRequest extends FormRequest
 {
@@ -25,5 +27,16 @@ class LoginRequest extends FormRequest
             'karyawan_nip' => 'required|integer',
             'password' => 'required',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()->all(),
+                'input' => $this->input()
+            ], 422)
+        );
     }
 }
