@@ -31,7 +31,7 @@ class JobTitleRepository implements JobTitleRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobTitle->find($id);
+        return $this->jobTitle->with('division')->find($id);
     }
     
     public function create($request)
