@@ -12,7 +12,7 @@ interface StatusLevelRepositoryInterface
     public function update($statusLevel, $request);
     public function delete($id);
     public function getLevels();
-    public function getLevelByCommission($level);
+    public function getCommission($level);
 }
 
 ?>

@@ -74,10 +74,11 @@ class StatusLevelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StatusLevelRequest $request, $id)
+    public function update(StatusLevelRequest $request, $slug)
     {
         try {
-            $this->statusLevelRepositoryInterface->update($id,$request->validated());
+            $statusLevel = $this->statusLevelRepositoryInterface->find($slug);
+            $this->statusLevelRepositoryInterface->update($statusLevel,$request->validated());
             
             return response()->json([
                 'status' => 'success'

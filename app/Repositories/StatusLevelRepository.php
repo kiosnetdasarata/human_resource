@@ -21,9 +21,9 @@ class StatusLevelRepository implements StatusLevelRepositoryInterface
         return $this->statusLevel->get();
     }
 
-    public function find($id)
+    public function find($slug)
     {
-        return $this->statusLevel->find($id);
+        return $this->statusLevel->where('slug', $slug)->firstOrFail();
     }
     
     public function create($request)
@@ -46,9 +46,9 @@ class StatusLevelRepository implements StatusLevelRepositoryInterface
         return $this->level->get();
     }
 
-    public function getLevelByCommission($level)
+    public function getCommission($commission)
     {
-        return $this->commission->where('level_id', $level);
+        return $this->commission->findOrFail($commission);
     }
 }
 
