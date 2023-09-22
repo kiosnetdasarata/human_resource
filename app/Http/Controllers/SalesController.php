@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Interfaces\SalesRepositoryInterface;
+use App\Services\SalesService;
 use App\Http\Requests\Sales\StoreSalesRequest;
 use App\Http\Requests\Sales\UpdateSalesRequest;
 
 class SalesController extends Controller
 {
-    public function __construct(private SalesRepositoryInterface $salesRepositoryInterface)
+    public function __construct(private SalesService $salesService)
     {
         
     }
@@ -20,7 +20,7 @@ class SalesController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->salesRepositoryInterface->getAll(),
+                'data' => $this->salesService->getAll(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -35,19 +35,19 @@ class SalesController extends Controller
      */
     public function store(StoreSalesRequest $request)
     {
-        try {
-            $this->salesRepositoryInterface->create($request->validated());
+        // try {
+        //     $this->salesService->store($request->validated());
 
-            return response()->json([
-                'status' => 'success',
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-            ], 500);
-        }
+        //     return response()->json([
+        //         'status' => 'success',
+        //     ], 200);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => $e->getMessage(),
+        //         'input' => $request->validated(),
+        //     ], 500);
+        // }
     }
 
     /**
@@ -55,10 +55,11 @@ class SalesController extends Controller
      */
     public function show($id)
     {
+        // return redirect()->route('\api\empoyee\
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->salesRepositoryInterface->find($id),
+                'data' => $this->salesService->find($id),
             ], 200);
 
         } catch (\Exception $e) {
@@ -75,7 +76,7 @@ class SalesController extends Controller
     public function update(UpdateSalesRequest $request, $id)
     {
         try {
-            $this->salesRepositoryInterface->update($id,$request->validated());
+            $this->salesService->update($id,$request->validated());
             
             return response()->json([
                 'status' => 'success'
@@ -96,7 +97,7 @@ class SalesController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->salesRepositoryInterface->delete($this->salesRepositoryInterface->find($id));
+            $this->salesService->delete($id);
             
             return response()->json([
                 'status' => 'success',
