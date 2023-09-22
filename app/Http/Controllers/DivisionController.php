@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Division\DivisionRequest;
 use App\Interfaces\DivisionRepositoryInterface;
+use App\Http\Requests\Division\StoreDivisionRequest;
+use App\Http\Requests\Division\UpdateDivisionRequest;
 
 class DivisionController extends Controller
 {
@@ -25,7 +26,7 @@ class DivisionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(DivisionRequest $request)
+    public function store(StoreDivisionRequest $request)
     {
         try {
             $this->divisionRepositoryInterface->create($request->validated());
@@ -42,29 +43,29 @@ class DivisionController extends Controller
             ], 500);
         }
     }
-
+    
     /**
      * Display the specified resource.
      */
     public function show(string $slug)
     {
-        try {
-            return response()->json([
-                'status' => 'success',
-                'message' => $this->divisionRepositoryInterface->find($slug),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
-        }
+        // try {
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'data' => $this->divisionRepositoryInterface->find($slug),
+        //     ]);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => $e->getMessage()
+        //     ]);
+        // }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(DivisionRequest $request, string $slug)
+    public function update(UpdateDivisionRequest $request, string $slug)
     {
         try {
             $this->divisionRepositoryInterface->update($this->divisionRepositoryInterface->find($slug), $request->validated());
