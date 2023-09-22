@@ -23,7 +23,6 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
-        dd($this->input());
         return [
             "karyawan_nip" => ["required", "int", "unique:users"],
             "is_leader" => ["required", "in:0,1"],
