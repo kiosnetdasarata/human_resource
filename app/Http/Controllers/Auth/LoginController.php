@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Exception;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class LoginController extends Controller
@@ -16,20 +17,19 @@ class LoginController extends Controller
     {
         try {
             if ($token = auth()->guard('api')->attempt($request->safe()->only('karyawan_nip', 'password'))) {
-                
                 return response()->json([
                     'success' => true,
                     'user'    => auth()->guard('api')->user(),    
                     'token'   => $token   
                 ], 200);
             }
+            throw new Exception('NIP atau Password Anda salah');
+            // return response()->json([
+            //     'success' => false,
+            //     'message' => 'NIP atau Password Anda salah'
+            // ], 401);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'NIP atau Password Anda salah'
-            ], 401);
-
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
