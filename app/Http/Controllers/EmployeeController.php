@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\MessageBag;
+use Illuminate\Database\QueryException;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Requests\Employee\ArchiveEmployeeRequest;
+use App\Http\Requests\Employee\HistoryEmployeeRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use PDOException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class EmployeeController extends Controller
 {
@@ -31,13 +37,16 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
-        
         try {
-            $this->employeeService->store($request->validated());
+            $password = $this->employeeService->store($request->validated());
 
             return response()->json([
                 'status' => 'success',
+                'password' => $password,
             ], 200);
+            
+        } catch(HttpResponseException $e) {      
+            return $e->getResponse();
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -68,13 +77,18 @@ class EmployeeController extends Controller
         }
     }
 
+    public function history(HistoryEmployeeRequest $request, $uuid)
+    {
+
+    }
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEmployeeRequest $request, $id)
+    public function update(UpdateEmployeeRequest $request, $uuid)
     {
         try {
-            $this->employeeService->update($id,$request->validated());
+            $this->employeeService->update($uuid,$request->validated());
             
             return response()->json([
                 'status' => 'success'
@@ -92,10 +106,10 @@ class EmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($uuid)
     {
         try {
-            $this->employeeService->delete($this->employeeService->find($id));
+            $this->employeeService->delete($this->employeeService->find($uuid));
             
             return response()->json([
                 'status' => 'success',

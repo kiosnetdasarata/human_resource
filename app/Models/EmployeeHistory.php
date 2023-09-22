@@ -10,7 +10,7 @@ class EmployeeHistory extends Model
 {
     use HasFactory;
     protected $primaryKey = 'uuid';
-    protected $incrementing = false;
+    public $incrementing = false;
     protected $fillable = [
         'uuid',
         'pgwi_nip',
