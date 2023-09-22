@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\JobTitle;
 use App\Interfaces\JobTitleRepositoryInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class JobTitleRepository implements JobTitleRepositoryInterface
 {
@@ -19,13 +18,7 @@ class JobTitleRepository implements JobTitleRepositoryInterface
         if ($division != null) {
             $query = $query->where('divisions_id', $division);
         }
-        return $query->with('division')->get()->map(function ($e) {
-            return [
-                'id' => $e->id,
-                'nama_jabatan' => $e->nama_jabatan,
-                'nama_divisi' => $e->division ? $e->division->nama_divisi : null,
-            ];
-        });
+        return $query->with('division')->get();
     }
 
     public function find($id)
