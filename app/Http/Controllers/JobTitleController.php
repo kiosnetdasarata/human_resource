@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\JobTitle\JobTitleRequest;
 use App\Interfaces\JobTitleRepositoryInterface;
+use App\Http\Requests\JobTitle\StoreJobTitleRequest;
+use App\Http\Requests\JobTitle\UpdateJobTitleRequest;
 
 class JobTitleController extends Controller
 {
@@ -32,7 +33,7 @@ class JobTitleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(JobTitleRequest $request)
+    public function store(StoreJobTitleRequest $request)
     {
         try {
             $this->jobTitleRepositoryInterface->create($request->validated());
@@ -71,7 +72,7 @@ class JobTitleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(JobTitleRequest $request, $id)
+    public function update(UpdateJobTitleRequest $request, $id)
     {
         try {
             $this->jobTitleRepositoryInterface->update($id,$request->validated());
