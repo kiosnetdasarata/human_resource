@@ -14,7 +14,13 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getAll()
     {
-        return $this->division->get();
+        return $this->division->with('jobTitles')->get()->map(function ($e) {
+            return[
+                'id' => $e->id,
+                'nama_divisi' => $e->nama_divisi,
+                'jumlah_jabatan' => count($e->jobTitles),
+            ];
+        });
     }
 
     public function find($slug)
