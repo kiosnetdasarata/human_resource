@@ -19,6 +19,8 @@ class DivisionRepository implements DivisionRepositoryInterface
                 'id' => $e->id,
                 'nama_divisi' => $e->nama_divisi,
                 'jumlah_jabatan' => count($e->jobTitles),
+                'created_at' => $e->created_at,
+                'updated_at' => $e->updated_at
             ];
         });
     }
