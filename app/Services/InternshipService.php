@@ -1,0 +1,204 @@
+<?php
+namespace App\Services;
+
+use Exception;
+use Carbon\Carbon;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use App\Interfaces\RoleRepositoryInterface;
+use App\Interfaces\Internship\InternshipRepositoryInterface;
+use App\Interfaces\Internship\TraineeshipRepositoryInterface;
+use App\Interfaces\Internship\InternshipContractRepositoryInterface;
+
+class InternshipService
+{
+    public function __construct(
+        private InternshipRepositoryInterface $internship,
+        private InternshipContractRepositoryInterface $internshipContract,
+        private TraineeshipRepositoryInterface $traineeship,
+        private RoleRepositoryInterface $role,
+        )
+    {
+    }
+
+    public function getAllTraineeship()
+    {
+        return $this->traineeship->getAll();
+    }
+
+    public function findTraineeship($name, $withtrashes = false)
+    {
+        $slug = Str::slug($name,'_');
+        if ($withtrashes) return $this->traineeship->findWithTrashes($slug);
+        return $this->traineeship->find($slug);
+    }
+    
+    public function createTraineeship($request)
+    {
+        $traineeship = collect($request)->merge([
+            'slug' => Str::slug($request['nama_lengkap'], '_') . (($count = count($this->findTraineeship($request['nama_lengkap']), true)) > 0 ? '_' . $count+1 : ''),
+            'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
+        ]);
+        
+        $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
+        
+        if (!Storage::disk('gcs')->exists($traineeship['file_cv'])){
+            throw new Exception('unable to upload file');
+        }
+
+        $this->traineeship->create($traineeship->all());
+        return;
+    }
+
+    public function updateTraineeship($slug, $request) 
+    {
+        $old = $this->findInternship($slug);
+        $traineeship = collect($request)->diffAssoc($old);
+
+        if (isset($traineeship["nama_lengkap"]))
+            $traineeship->put(
+                'slug', Str::slug($traineeship["nama_lengkap"]) 
+                    . (($count = count($this->findtraineeship($traineeship["nama_lengkap"], true))) > 1 ? '-' . $count + 1 : ''),
+            );
+
+        if ($traineeship->file('file_cv') == null) {
+            $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
+            if (!Storage::disk('gcs')->exists($traineeship['file_cv'])){
+                throw new Exception('unable to upload file');
+            }
+        }
+        $this->traineeship->update($old, $traineeship->all());
+        return;
+    }
+
+    public function deleteTraineeship($slug)
+    {
+        return $this->traineeship->delete($this->findTraineeship($slug));;
+    }
+
+    public function getAllInternship()
+    {
+        return $this->internship->getAll();;
+    }
+
+    public function findInternship($item, $category = null)
+    {
+        if ($category == 'slug') {
+            return $this->internship->findBySlug(Str::slug($item,'_'));
+        } elseif ($category == 'id') {
+            return $this->internship->findId($item);
+        }
+        return $this->internship->find($item);
+    }
+
+    public function createInternship($request)
+    {     
+        $internship = collect($request)->merge([
+                'uuid' => Uuid::uuid4()->getHex(),
+                'internship_nip' => $this->generateNip($request['tanggal_masuk']),
+                'slug' => Str::slug($request['nama_lengkap'], '_') . (($count = count($this->findInternship($request['nama_lengkap'], 'slug'))) > 0 ? '_' . $count+1 : ''),
+                'divisi' => $this->role->find($request['role_id'])->divisi_id,
+                'durasi' => 0,
+            ]);
+
+        $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
+        if (!Storage::disk('gcs')->exists($internship['file_cv'])){
+            throw new Exception('unable to upload file');
+        }
+
+        $this->internship->create($internship->all());
+        return;
+    }
+
+    public function updateInternship($uuid, $request)
+    {
+        $old = $this->findInternship($uuid);
+        $internship = collect($request)->diffAssoc($old);
+
+        if (isset($internship["nama_lengkap"]))
+            $internship->put(
+                'slug', Str::slug($internship["nama_lengkap"]) 
+                    . (($count = count($this->findInternship($internship["nama_lengkap"], 'slug'))) > 1 ? '-' . $count + 1 : ''),
+            );
+
+        if ($internship->file('file_cv') == null) {
+            $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
+            if (!Storage::disk('gcs')->exists($internship['file_cv'])){
+                throw new Exception('unable to upload file');
+            }
+        }
+        $this->internship->update($old, $internship->all());
+        return;
+    }
+
+    public function deleteInternship($uuid)
+    {
+        $internship = $this->findInternship($uuid);
+        if ($internship->internshipContract->date_expired < Carbon::now())
+            throw new \Exception('tidak bisa menghapus internship karena kontrak belum berakhir');
+
+        DB::beginTransaction();
+
+        try {
+            $internship = $this->findInternship($uuid);
+            // Storage::disk('gcs')->delete($internship['file_cv']);
+            
+            $this->internship->delete($internship);
+            $this->deleteInternshipContract($uuid);
+            DB::commit();
+            return;
+        } catch(\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function findInternshipContract($uuid)
+    {
+        return $this->internshipContract->find($uuid);
+    }
+
+    public function createInternshipContract($request)
+    {
+        DB::beginTransaction();
+        $internship = $this->findInternship($request['internship_id'], 'id');
+
+        try {
+            $contract = collect($request)->merge([
+                'divisi_internship' => $internship->divisi_id,
+                'role_internship' => $internship->role_id,
+                'date_expired' => Carbon::parse($request['date_start'])->addMonth($request['durasi_kontrak']),
+            ]);
+            $this->internshipContract->create($request);
+            $this->internship->update($internship, ['durasi' => $contract['durasi_kontrak']]);
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function deleteInternshipContract($uuid)
+    {
+        $contract = $this->findInternshipContract($uuid);
+        if ($contract->date_expired < Carbon::now()) {
+            throw new \Exception('tidak bisa menghapus karena kontrak belum berakhir');
+        }
+        
+        $this->internshipContract->delete($contract);
+        return;
+    }
+
+    private function generateNip($tglKerja)
+    {
+        return (int) (
+            date_create_from_format('Y-m-d', $tglKerja)->format('ym')
+            . count($this->getAllInternship())
+        );
+    }
+}
+
+?>

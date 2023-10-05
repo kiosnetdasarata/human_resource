@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Employee;
 
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,21 +26,26 @@ class StoreEmployeeRequest extends FormRequest
     {
         return [
             'branch_company_id' => 'required|exists:mysql3.branch_companies,id',
-            'jabatan_id' => 'required|exists:job_titles,id',
-            'status_level_id' => 'required|exists:status_levels,id',
-            'no_tlpn' => 'required|string|min:10|max:15|unique:employees,no_tlpn',
-            'email' => 'required|email|unique:employees,email',
-            'nik' => 'required|digits:16|unique:employees,nik',
+            'role_id' => 'required|exists:roles,id',
+            'level_id' => 'required|exists:levels,id',
             'nama' => 'required|string',
-            'nickname' => 'required|string',
+            'alamat' => 'required|string',
+            'dusun_id' => 'required|exists:villages,id',
+            'tempat_lahir' => 'required|string',
+            'tgl_lahir' => 'required|date_format:Y-m-d',    
+            'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
+            'no_tlpn' => 'required|string|min:10|max:20|unique:employees,no_tlpn',
+            'email' => 'required|email|unique:employees,email',
             'agama' => 'required|in:Islam,Kristen,Katolik,Budha,Hindu',
-            'jk' => 'required|in:Laki-Laki,Perempuan',
+            'status_perkawinan' => 'required|in:Belum Kawin,Kawin',
+            'foto_profile' => 'required', File::image(),
+
+            'pendidikan_terakhir' => 'required|string',
+            'nik' => 'required|digits:16|unique:employees,nik',
+            'nickname' => 'required|string',
             'tgl_lahir' => 'required|date_format:Y-m-d',
             'tempat_lahir' => 'required|string',
             'almt_detail' => 'required|string',
-            'village_id' => 'required|exists:villages,id',
-            'status_perkawinan' => 'required|in:Belum Kawin,Kawin',
-            'pendidikan_terakhir' => 'required|string',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
             'tgl_mulai_kerja' =>'required|date_format:Y-m-d',

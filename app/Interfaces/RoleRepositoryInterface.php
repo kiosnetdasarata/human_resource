@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 use Illuminate\Http\Request;
 
-interface JobTitleRepositoryInterface
+interface RoleRepositoryInterface
 {
     public function getAll();
     public function find($uuid);
