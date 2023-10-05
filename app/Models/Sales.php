@@ -10,32 +10,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Sales extends Model
 {
     use HasFactory;
+    
     protected $primaryKey = 'uuid';
     public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
-        'uuid',
-        'karyawan_nip',
-        'komisi_id',
+        'nip_id',
         'level_id',
     ];
 
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'karyawan_nip');
+        return $this->belongsTo(Employee::class, 'nip_id', 'nip');
     }
 
-    public function commission(): BelongsTo
+    public function levelSales(): BelongsTo
     {
-        return $this->belongsTo(Commission::class, 'komisi_id');
-    }
-
-    public function level(): BelongsTo
-    {
-        return $this->belongsTo(Level::class);
-    }
-
-    public function jobTitle(): BelongsTo
-    {
-        return $this->belongsTo(JobTitle::class, 'jabatan_id');
+        return $this->belongsTo(LevelSales::class);
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Technician extends Model
+class EmployeeConfidentalInformation extends Model
 {
     use HasFactory;
 
@@ -15,24 +15,18 @@ class Technician extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
-        'team_id',
         'nip_id',
-        'katim',
+        'nik',
+        'nomor_bpjs',
+        'nama_bank',
+        'nomor_rekening',
+        'no_tlpn_darurat',
+        'nama_kontak_darurat',
+        'status_kontak_darurat',      
+        'foto_ktp',
+        'foto_kk',
+        'foto_cv',
     ];
-
-    // static function boot() 
-    // {
-    //     parent::boot();
-
-    //     static::creating(function ($sales) {
-    //         $sales->uuid = Uuid::uuid4()->getHex();
-    //     });
-    // }
-
-    public function technicianTeam(): BelongsTo
-    {
-        return $this->belongsTo(TechnicianTeam::class, 'team_id');
-    }
 
     public function employee(): BelongsTo
     {

@@ -16,5 +16,5 @@ class TechnicianTeam extends Model
     public function technicians(): HasMany
     {
         return $this->hasMany(Technician::class, 'team_id');
-    }
+    }//x
 }

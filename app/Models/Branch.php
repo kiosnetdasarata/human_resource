@@ -17,9 +17,4 @@ class Branch extends Model
     {
         return $this->hasMany(Employee::class, 'branch_company_id');
     }
-
-    public function levels(): HasMany
-    {
-        return $this->hasMany(Level::class, 'branch_company_id');
-    }
 }
