@@ -56,6 +56,20 @@ return [
             'throw' => false,
         ],
 
+        'gcs' => [
+            'driver' => 'gcs',
+            'key_file_path' => env('GOOGLE_CLOUD_KEY_FILE', base_path('dasarata-web-392807-6e5444ab9990.json')),
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'dasarata-web-392807'),
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'developer_dasarata'),
+            'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', ''),
+            'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null),
+            'apiEndpoint' => env('GOOGLE_CLOUD_STORAGE_API_ENDPOINT', null),
+            'visibility' => 'private',
+            'visibility_handler' => null,
+            'metadata' => ['cacheControl'=> 'public,max-age=86400'],
+            'throw' => true,
+        ],
+
     ],
 
     /*
@@ -72,5 +86,4 @@ return [
     'links' => [
         public_path('storage') => storage_path('app/public'),
     ],
-
 ];

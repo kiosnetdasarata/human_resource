@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "dasarata-web-392807",
+  "private_key_id": "6e5444ab9990622fabf2f84dc7dea993db6a58c3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC/IyURMSbHdPaD\nezznuUrWzef8Vm/II4vYLO/xV46ibwALhfvboYjZvcel9MdIfrXtpW8EHDFeYMLS\ncvNDhkVLmdTp5R2e8o6geyBkVq2BhE0wR4/MpctdZ+3Ik1/3D3Jv37Asm1tbjfTw\npgu/94u9/BeyUUDtv25OITq4c7jxYkzHxmb/QHIzsslaitUebPEBBa0zm4O75pEo\nmxZE1veqSMvHD5ivvpIbKGZbMcNZB8FF3xz/Am1DEXPVegueUUdocl7myh73IHgQ\nWXonRAcAwYmXDBp4xU0+fl5xws2CiZj3uQW/nY/ZAekp7Bh+zTR8e30Cvb6JOyXu\n0G9itAejAgMBAAECggEARQBAAmvXDwxXbfHQc+r9bHxa8kqWAg9rDbhzSpIMSPF/\nd6l/2bL//3M2nt+2DaLItKkTYc13uRV/X4/l6AuR+o/nQCTZQ6dW+/JXKEHuUyJa\n50H+VKfJuceqHM2vSDaIXoDHTeMr4OpncXTQKxYHmadnOpWAthN0k7oFQ89rBaCS\nRafVmr8AoAUg/VAySc8OnnTwWPx5nnaRZG+5zgJwK9yY/WcPb9l28t6KCSV4bfeJ\n1H8uzMLd8zWmDSYNzeK34c5v378IJTXwnxhDCaTb7L6bes8V1hnXX3ZW7cLh4lR0\nxh9xnJnY1MivQ0H2fawqPmyGzajf0LRqTWNc+GuiqQKBgQDjuJQ8LpYqjrNFz1AJ\nfOBvPitnTQpaHnSowQi4yJ6NRNAv8BYCbPcacRZnLfS3bxXSdBSFdk6w7A3Ykxpd\nSA7WxkUd8ZYdCkO8IU+4BLQKSIh+7vodni6glAzg9HgOBp+VrwaFnUQ4s6APdnYS\ndZ5az3shK+IrV5NdeaXESma7NQKBgQDW34qvqWm4pxFFIIGIYdWl8GPCXlyXKVcI\nEKZvNkDEWp7qIt5loop0Drot7J0PgybK8xBhXh3X/vvNWWB16MBZRwLqvSTGCBtr\nJfEvCx2hh47E76bm6Ha9AxvdNKVUVowtWPJ5QH1bW/GnMSX/ola5cjz+bLlNNk5B\nQkKhtIU6dwKBgQCFXZ6DOI190yEvK2EmjVosDG8DCt2bNecAxjzDa8tf1QNQb/2T\n4hk+BSknuIRvwcE4Bf/WwhkICNd7FXwFUaRPKMNl7A0MaOyOi7vSe/6tXxmBrZgS\nLIgGR27beJGvNTXVRjI9ooNH6fs90xUHbpcVfBoSrU7CL4IA5rOsqB5OWQKBgBUn\nZMvubc4UBIs9rAL1PsdbZzbXe14WX88XdIs2WCH8mfCLBkITQnYyjPnAdaX1T3hj\nfZVYYq/FFp0c03ZIN8eSSiM6A8jLO4fM8HWlLoGcit2wiknpUOdCyxd3+17WNm6w\ndw6g3raD0sKXABqurMMNEBwsMAH9+q5KC61HzGX5AoGAJJj8PUIVlzBpnt7oDvp9\nwcTfqmK6U0/WUXK7mTucftGapnOr4zQHuzLomkO7jKh9ca4wvEGbUg4hhU0xpXPj\npKHAQBQ9IyzoxrTpY+QBl16PK53mnsxM+X/3burAv7zINaUf/vD9IOi5h0532uQo\ntASPmjO/h4/tsS3bWASHgU4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "human-resource-dev@dasarata-web-392807.iam.gserviceaccount.com",
+  "client_id": "109798177299423584094",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/human-resource-dev%40dasarata-web-392807.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
