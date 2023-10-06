@@ -55,13 +55,6 @@ class PartnershipService
             'file_moa' => $request->file['file_moa']->storeAs('partnership/'.$mitraId, $mitraId.'_moa_'.Carbon::now().'.pdf', 'gcs'),
         ]);
         
-        $disk = Storage::disk('gcs');
-        if ($mou = !$disk->exists($filePartnership['file_mou']) || $moa = !$disk->exists($filePartnership['file_moa'])){
-            throw new Exception('unable to upload file');
-            $mou ? '' : $disk->delete($filePartnership['file_mou']);
-            $moa ? '' : $disk->delete($filePartnership['file_moa']);
-        }
-        
         $this->partnership->create($filePartnership->all());
         return;
 

@@ -43,10 +43,6 @@ class InternshipService
         ]);
         
         $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
-        
-        if (!Storage::disk('gcs')->exists($traineeship['file_cv'])){
-            throw new Exception('unable to upload file');
-        }
 
         $this->traineeship->create($traineeship->all());
         return;
@@ -80,7 +76,7 @@ class InternshipService
 
     public function getAllInternship()
     {
-        return $this->internship->getAll();;
+        return $this->internship->getAll();
     }
 
     public function findInternship($item, $category = null)
@@ -104,9 +100,6 @@ class InternshipService
             ]);
 
         $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
-        if (!Storage::disk('gcs')->exists($internship['file_cv'])){
-            throw new Exception('unable to upload file');
-        }
 
         $this->internship->create($internship->all());
         return;
@@ -136,14 +129,14 @@ class InternshipService
     public function deleteInternship($uuid)
     {
         $internship = $this->findInternship($uuid);
-        if ($internship->internshipContract->date_expired < Carbon::now())
+        $contract = $internship->internshipContract();
+        if ($contract != null && $contract > Carbon::now())
             throw new \Exception('tidak bisa menghapus internship karena kontrak belum berakhir');
 
         DB::beginTransaction();
 
         try {
             $internship = $this->findInternship($uuid);
-            // Storage::disk('gcs')->delete($internship['file_cv']);
             
             $this->internship->delete($internship);
             $this->deleteInternshipContract($uuid);

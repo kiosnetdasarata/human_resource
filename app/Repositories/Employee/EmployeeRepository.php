@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Employee;
-use App\Interfaces\EmployeeRepositoryInterface;
+use App\Interfaces\Employee\EmployeeRepositoryInterface;
 
 class EmployeeRepository implements EmployeeRepositoryInterface
 {
@@ -15,7 +15,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getAll()
     {
         return $this->employee->get()->map(function ($e) {
-            return[
+            return [
                 'nip_pgwi' => $e->nip_pgwi,
                 'nama' => $e->nama,
                 'divisi' => $e->division->nama_divisi,
@@ -24,14 +24,24 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         });
     }
 
-    public function find($uuid)
+    public function find($uuid, $table)
     {
-        return $this->employee->where('uuid', $uuid)->firstOrFail();
+        return $this->employee->where($table, $uuid)->firstOrFail();
     }
 
     public function findBySlug($slug)
     {
         return $this->employee->where('slug', 'LIKE','%'. $slug.'%')->get();
+    }
+
+    public function findWithTrashes()
+    {
+        return $this->employee->withTrashed()->get();
+    }
+
+    public function findBySlugWithTrashes($slug)
+    {
+        return $this->employee->withTrashed()->where('slug', 'LIKE','%'. $slug.'%')->get();
     }
     
     public function create($request)
@@ -48,7 +58,6 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     {
         return $employee->delete();
     }
-    
 }
 
 ?>

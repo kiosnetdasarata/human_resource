@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Employee;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\LevelController;
@@ -14,7 +15,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\StatusLevelController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmployeeHistoryController;
-use App\Models\Employee;
+use App\Http\Controllers\Internship\TraineeshipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +33,7 @@ use App\Models\Employee;
 // });
 // Route::middleware([
     // 'jwt:api',
-    // 'is_active,
+    // 'is_human_resource,
     // ])->group(function() {
     //Route Zone
     Route::controller(ZoneController::class)->group(function() {
@@ -52,13 +53,17 @@ use App\Models\Employee;
     Route::get('/level', [LevelController::class, 'getLevels']);
     Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
-    Route::apiResource('employee', EmployeeController::class);
+    Route::apiResource('employee', EmployeeController::class)->only(['index, show, delete']);
     Route::apiResource('division', DivisionController::class)->except(['show']);
     Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
     Route::apiResource('job-title', JobTitleController::class)->except(['show']);
     Route::apiResource('sales', SalesController::class)->except(['create']);
     Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
     Route::apiResource('technician', TechnicianController::class)->except(['create']);
+    Route::apiResource('traineeship', TraineeshipController::class);
+
+    Route::post('/employees/create', [EmployeesController::class, 'storeFormOne']);
+    Route::post('/employees/full-create/{uuid}', [EmployeesController::class, 'storeFormTwo']);
 
     // Route::get('/employee-archive/{nip}', [EmployeeController::class, 'show'])->withTrashed();
 

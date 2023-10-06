@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\EmployeeHistory;
-use App\Interfaces\EmployeeHistoryRepositoryInterface;
+use App\Interfaces\Employee\EmployeeHistoryRepositoryInterface;
 
 class EmployeeHistoryRepository implements EmployeeHistoryRepositoryInterface
 {
@@ -17,9 +17,9 @@ class EmployeeHistoryRepository implements EmployeeHistoryRepositoryInterface
         return $this->employeeHistory->get();
     }
 
-    public function find($uuid)
+    public function find($id)
     {
-        return $this->employeeHistory->find($uuid);
+        return $this->employeeHistory->find($id);
     }
     
     public function create($request)
@@ -36,7 +36,6 @@ class EmployeeHistoryRepository implements EmployeeHistoryRepositoryInterface
     {
         return $employeeHistory->delete();
     }
-    
 }
 
 ?>

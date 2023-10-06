@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeContract extends Model
@@ -34,5 +35,10 @@ class EmployeeContract extends Model
     public function supervisor(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'nip_id', 'nip');
+    }
+
+    public function employeeCI(): HasOne
+    {
+        return $this->employee()->employeeConfidentalInformation();
     }
 }

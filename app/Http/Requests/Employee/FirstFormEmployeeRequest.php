@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreEmployeeRequest extends FormRequest
+class FirstFormEmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,19 +38,22 @@ class StoreEmployeeRequest extends FormRequest
             'email' => 'required|email|unique:employees,email',
             'agama' => 'required|in:Islam,Kristen,Katolik,Budha,Hindu',
             'status_perkawinan' => 'required|in:Belum Kawin,Kawin',
-            'foto_profile' => 'required', File::image(),
+            'foto_profil' => 'required|file_type:jpg,jpeg,png|file_size:5000',
+
+            'nik' => 'required|digits:16|unique:employees,nik',
+            'no_telp_darurat' => 'required|string|min:10|max:20|',
+            'nama_kontak_darurat' => 'required|string',
+            'status_kontak_darurat' => 'required|string',
+            'foto_ktp' => 'required|file_type:jpg,jpeg,png|file_size:5000',
+            'foto_kk' => 'required|file_type:jpg,jpeg,png|file_size:5000',
+            'file_cv' => 'required|file_type:pdf|file_size:5000',
 
             'pendidikan_terakhir' => 'required|string',
-            'nik' => 'required|digits:16|unique:employees,nik',
-            'nickname' => 'required|string',
-            'tgl_lahir' => 'required|date_format:Y-m-d',
-            'tempat_lahir' => 'required|string',
-            'almt_detail' => 'required|string',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
-            'tgl_mulai_kerja' =>'required|date_format:Y-m-d',
-            'komisi_id' => 'exists:commissions,id',
-            'team_id' => 'exists:mysql4.technician_teams,id',
+
+            'level_sales_id' => 'exists:level_sales,id',
+            'team_id' => 'exists:mysql4.technician_teams,id',           
             'katim_id' => 'in:0,1',
             'is_leader' => 'in:0,1',
         ];

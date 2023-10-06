@@ -2,8 +2,6 @@
 
 namespace App\Interfaces;
 
-use Illuminate\Http\Request;
-
 interface StatusLevelRepositoryInterface
 {
     public function getAll();

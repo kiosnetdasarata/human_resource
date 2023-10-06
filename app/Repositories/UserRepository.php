@@ -22,24 +22,24 @@ class UserRepository implements UserRepositoryInterface
     {
         
     }
+
+    public function findByNIP($nip)
+    {
+        return $this->user->where('nip_id', $nip)->firstOrFail();
+    }
     
     public function create($request)
     {
-        return $this->user->create([
-            'karyawan_nip' => $request['karyawan_nip'],
-            'is_leader' => $request['is_leader'],
-            'password' => Hash::make($request['password']),
-        ]);
+        return $this->user->create($request);
     }
     
-    public function update($employee, $request)
+    public function setIsactive($user, $status)
     {
-        
+        return $user->update(['is_active' => $status == 0 ? 0:1]);
     }
     
-    public function delete($employee)
-    {
-        
+    public function update($user, $request) {
+        return $user->update(['slug' => $request]);
     }
     
 }
