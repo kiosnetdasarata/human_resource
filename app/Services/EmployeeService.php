@@ -15,6 +15,7 @@ use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeService
 {
@@ -37,9 +38,10 @@ class EmployeeService
 
         try {
             $employeePersonal = $this->storeEmployeePersonal($request);
-            $request2 = collect($request)->merge(['nip_id' => $employeePersonal['nip']]);
-            $this->storeEmployeeConfidental($request2->all());
-            $this->employeeEducation->create($request2->all());
+            $employeePersonal->put('nip_id', $employeePersonal['nip']);
+            $this->storeEmployeeConfidental($employeePersonal->all());
+            $this->employeeEducation->create($employeePersonal->all());
+            // dd('aaa');
             DB::commit();
             return true;
         } catch (\Exception $e) {
@@ -88,9 +90,11 @@ class EmployeeService
                     . ($request['jenis_kelamin'] == 'Laki-Laki' ? 1 : 2) //ambil jenis kelamin
                     . count($this->getAllEmployeePersonal(true)), //ambil jumlah karyawan
             'level_id' => $this->role->find($request['role_id'])->level_id,
+            'fotp_profil' => 'test dulu',
+            'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
         ]);
 
-        $data->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
+        // $data->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
 
         $this->employee->create($data->all());
         
@@ -107,17 +111,16 @@ class EmployeeService
                 'team_id' => $data['team_id'],
                 'id' => Uuid::uuid4()->getHex(),
                 'slug' => $data['slug'],
-                'nip_id' => $data['nip_pgwi'],
+                'nip_id' => $data['nip'],
                 'is_katim' => isset($data['katim']) ? $data['katim'] : 0,
             ]);
         }
     
         $this->user->create([
-            'nip_id' => $data['nip_pgwi'],
+            'nip_id' => $data['nip'],
             'slug' => $data['slug'],
             'id' => Uuid::uuid4()->getHex(),
             'is_active' => 0,
-            'is_leader' => isset($data['is_leader']) ? $data['is_leader'] : 0,
             'password' => 'Password1',
         ]);
 
@@ -189,16 +192,22 @@ class EmployeeService
         DB::beginTransaction();
         try {
             $data = collect($request)->merge([
-                'foto_ktp' => $request['foto_ktp']->storeAs('employee/foto_ktp', $request['nip_id'].'_ktp.pdf', 'gcs'),
-                'foto_kk' => $request['foto_kk']->storeAs('employee/foto_kk', $request['nip_id'].'_kk.pdf', 'gcs'),
-                'file_cv' => $request['file_cv']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'),
+                'foto_ktp' => "anggep aja masuk",
+                'foto_kk' => "anggep aja masuk",
+                'file_cv' => "anggep aja masuk",
                 'nip_id' => $request['nip'],
             ]);
+            // $data = collect($request)->merge([
+            //     'foto_ktp' => $request['foto_ktp']->storeAs('employee/foto_ktp', $request['nip_id'].'_ktp.pdf', 'gcs'),
+            //     'foto_kk' => $request['foto_kk']->storeAs('employee/foto_kk', $request['nip_id'].'_kk.pdf', 'gcs'),
+            //     'file_cv' => $request['file_cv']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'),
+            //     'nip_id' => $request['nip'],
+            // ]);
             $this->employeeCI->create($data->all());
 
-            if ($this->employee->find($data['nip_id'], 'nip')->employeeContract() != null) {
-                $this->user->setIsactive($this->user->findByNIP($data['nip_id']), true);
-            }
+            // if (!$this->employee->find($data['nip_id'], 'nip')->employeeContract() instanceOf ModelNotFoundException) {
+            //     $this->user->setIsactive($this->user->findByNIP($data['nip_id']), true);
+            // }
             DB::commit();
             return;
         } catch (\Exception $e) {

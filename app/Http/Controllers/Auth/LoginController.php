@@ -16,7 +16,7 @@ class LoginController extends Controller
     public function __invoke(LoginRequest $request)
     {
         try {
-            if ($token = auth()->guard('api')->attempt($request->safe()->only('karyawan_nip', 'password'))) {
+            if ($token = auth()->guard('api')->attempt($request->safe()->only('nip_id', 'password'))) {
                 return response()->json([
                     'success' => true,
                     'user'    => auth()->guard('api')->user(),    

@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 class EmployeeConfidentalInformation extends Model
 {
     use HasFactory;
-
+    
+    protected $table = 'employee_confidential_informations';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
@@ -26,7 +27,7 @@ class EmployeeConfidentalInformation extends Model
         'status_kontak_darurat',      
         'foto_ktp',
         'foto_kk',
-        'foto_cv',
+        'file_cv',
     ];
 
     public function employee(): BelongsTo
