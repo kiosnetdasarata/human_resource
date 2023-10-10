@@ -11,7 +11,7 @@ class UpdateParnershipRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->method('patch');
     }
 
     /**
@@ -22,7 +22,11 @@ class UpdateParnershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nama_mitra' => 'string',
+            'alamat' => 'string',
+            'perwakilan_mitra' => 'string',
+            'no_telp' => 'unique:partnerships,no_telp|min:10|max:15',
+            'katergori_mitra' => 'string',
         ];
     }
 }

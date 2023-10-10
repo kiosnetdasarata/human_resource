@@ -11,6 +11,7 @@ use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
+use App\Interfaces\Internship\PartnershipRepositoryInterface;
 
 class InternshipService
 {
@@ -19,6 +20,7 @@ class InternshipService
         private InternshipContractRepositoryInterface $internshipContract,
         private TraineeshipRepositoryInterface $traineeship,
         private RoleRepositoryInterface $role,
+        private PartnershipRepositoryInterface $partnership,
         )
     {
     }
@@ -40,12 +42,13 @@ class InternshipService
         $traineeship = collect($request)->merge([
             'slug' => Str::slug($request['nama_lengkap'], '_') . (($count = count($this->findTraineeship($request['nama_lengkap']), true)) > 0 ? '_' . $count+1 : ''),
             'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
+            'file_cv' => 'dgjghdsdsfdsfgds',
         ]);
         
-        $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
+        // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
 
         $this->traineeship->create($traineeship->all());
-        return;
+        return true;
     }
 
     public function updateTraineeship($slug, $request) 
@@ -60,13 +63,10 @@ class InternshipService
             );
 
         if ($traineeship->file('file_cv') == null) {
-            $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
-            if (!Storage::disk('gcs')->exists($traineeship['file_cv'])){
-                throw new Exception('unable to upload file');
-            }
+            // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
         }
         $this->traineeship->update($old, $traineeship->all());
-        return;
+        return true;
     }
 
     public function deleteTraineeship($slug)
@@ -83,8 +83,6 @@ class InternshipService
     {
         if ($category == 'slug') {
             return $this->internship->findBySlug(Str::slug($item,'_'));
-        } elseif ($category == 'id') {
-            return $this->internship->findId($item);
         }
         return $this->internship->find($item);
     }
@@ -97,12 +95,15 @@ class InternshipService
                 'slug' => Str::slug($request['nama_lengkap'], '_') . (($count = count($this->findInternship($request['nama_lengkap'], 'slug'))) > 0 ? '_' . $count+1 : ''),
                 'divisi' => $this->role->find($request['role_id'])->divisi_id,
                 'durasi' => 0,
+                'file_cv' => 'ffgui',
             ]);
-
-        $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
+        if(isset($internship['mitra_id']) && $this->partnership->find($internship['mitra_id'])->filePartnership() == null) {
+            throw new \Exception('file mitra tidak ditemukan.');
+        }
+        // $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
 
         $this->internship->create($internship->all());
-        return;
+        return true;
     }
 
     public function updateInternship($uuid, $request)
@@ -116,14 +117,11 @@ class InternshipService
                     . (($count = count($this->findInternship($internship["nama_lengkap"], 'slug'))) > 1 ? '-' . $count + 1 : ''),
             );
 
-        if ($internship->file('file_cv') == null) {
-            $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
-            if (!Storage::disk('gcs')->exists($internship['file_cv'])){
-                throw new Exception('unable to upload file');
-            }
+        if (isset($internship['file_cv'])) {
+            $internship->put('file_cv', $request['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
         }
         $this->internship->update($old, $internship->all());
-        return;
+        return true;
     }
 
     public function deleteInternship($uuid)
@@ -141,7 +139,7 @@ class InternshipService
             $this->internship->delete($internship);
             $this->deleteInternshipContract($uuid);
             DB::commit();
-            return;
+            return true;
         } catch(\Exception $e) {
             DB::rollback();
             throw $e;
@@ -167,7 +165,7 @@ class InternshipService
             $this->internshipContract->create($request);
             $this->internship->update($internship, ['durasi' => $contract['durasi_kontrak']]);
             DB::commit();
-            return;
+            return true;
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
@@ -182,7 +180,7 @@ class InternshipService
         }
         
         $this->internshipContract->delete($contract);
-        return;
+        return true;
     }
 
     private function generateNip($tglKerja)

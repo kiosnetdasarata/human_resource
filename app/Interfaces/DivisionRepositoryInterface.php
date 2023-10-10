@@ -2,7 +2,6 @@
 
 namespace App\Interfaces;
 
-use Illuminate\Http\Request;
 
 interface DivisionRepositoryInterface
 {

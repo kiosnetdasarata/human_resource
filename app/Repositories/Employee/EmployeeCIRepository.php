@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Repositories;
+namespace App\Repositories\Employee;
 
 use App\Models\EmployeeConfidentalInformation;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;

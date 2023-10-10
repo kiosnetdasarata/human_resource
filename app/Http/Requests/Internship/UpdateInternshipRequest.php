@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Internship;
 
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -34,8 +35,8 @@ class UpdateInternshipRequest extends FormRequest
             'role_id' => 'in:role,id',
             'supervisor' => 'in:employee,id',
             'tgl_masuk' => 'date_format:Y-m-d',
-            'file_cv' => 'file_type:pdf|file_size:5000',
             'mitra_id' => 'in:parnertships,id',
+            'file_cv' => File::types(['pdf'])->max(5 * 1024),
         ];
     }
 

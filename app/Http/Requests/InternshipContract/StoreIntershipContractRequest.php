@@ -22,7 +22,11 @@ class StoreIntershipContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'internship_nip_id' => 'required|exists:internship,internship_nip',
+            'nomor_kontrak' => 'required|integer',
+            'durasi_kontrak' => 'required|in:3,6',
+            'date_start' => 'required|date_format:Y-m-d',
+            'date_expired' => 'required|date_format:Y-m-d',
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Repositories;
+namespace App\Repositories\Employee;
 
 use App\Models\EmployeeEducation;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;

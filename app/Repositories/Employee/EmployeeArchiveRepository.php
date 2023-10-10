@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Repositories;
+namespace App\Repositories\Employee;
 
 use App\Models\EmployeeArchive;
 use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;

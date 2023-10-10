@@ -14,12 +14,12 @@ class Employee extends Model
 {
     use HasFactory;
 
-    protected $table = 'employee_personal_information';
-    protected $primaryKey = 'uuid';
+    protected $table = 'employee_personal_informations';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'branch_company_id',
         'nip',
         'role_id',

@@ -13,10 +13,10 @@ class Internship extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
+        'id',
         'traineeship_id',
         'internship_nip',
         'nama_lengkap',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Traineeship;
 
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -33,7 +34,7 @@ class UpdateTraineeshipRequest extends FormRequest
             'alamat' => 'string',
             'tanggal_lamaran' => 'date_format:Y-m-d',
             'status_traineeship' => 'string',
-            'file_cv' => 'file_type:pdf|file_size:5000',
+            'file_cv' => File::types(['pdf'])->max(5 * 1024),
         ];
     }
 

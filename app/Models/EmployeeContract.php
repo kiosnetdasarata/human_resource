@@ -12,11 +12,11 @@ class EmployeeContract extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'nip_id',
         'nomor_kontrak',
         'jenis_kontrak',

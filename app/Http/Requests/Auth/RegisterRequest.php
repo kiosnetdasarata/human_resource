@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "karyawan_nip" => ["required", "int", "unique:users"],
+            "nip_id" => ["required", "int", "unique:users"],
             "is_leader" => ["required", "in:0,1"],
             "password" => ["required",
                             "regex:/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/",

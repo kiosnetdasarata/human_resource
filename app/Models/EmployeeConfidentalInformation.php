@@ -12,10 +12,10 @@ class EmployeeConfidentalInformation extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
+        'id',
         'nip_id',
         'nik',
         'nomor_bpjs',

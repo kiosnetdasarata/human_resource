@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Repositories;
+namespace App\Repositories\Employee;
 
 use App\Models\EmployeeHistory;
 use App\Interfaces\Employee\EmployeeHistoryRepositoryInterface;

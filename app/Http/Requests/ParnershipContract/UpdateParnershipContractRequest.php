@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ParnershipContract;
 
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateParnershipContractRequest extends FormRequest
@@ -11,7 +12,7 @@ class UpdateParnershipContractRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->method('patch');
     }
 
     /**
@@ -22,7 +23,12 @@ class UpdateParnershipContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'mitra_id' => 'exists:partnership,id',
+            'file_mou' => File::types(['pdf'])->max(5 * 1024),
+            'file_moa' => File::types(['pdf'])->max(5 * 1024),
+            'date_start' => 'date_format:Y-m-d',
+            'date_expired' => 'date_format:Y-m-d',
+            'durasi' => 'integer'
         ];
     }
 }

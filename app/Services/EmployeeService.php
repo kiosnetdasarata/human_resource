@@ -53,7 +53,7 @@ class EmployeeService
         DB::beginTransaction();
 
         try {
-            $employee = $this->findEmployeePersonal($uuid, 'uuid');
+            $employee = $this->findEmployeePersonal($uuid, 'id');
             $this->updateEmployeeConfidental($employee->employeeCI->uuid, $request);
             $this->storeEmployeeContract(collect($request)->merge(['nip_id' => $employee->nip])->all());
             DB::commit();
@@ -83,7 +83,7 @@ class EmployeeService
     {
         $data = collect($request)->merge([
             'slug' => Str::slug($request["nama"], '_') . (($count = count($this->findSlugEmployeePersonal($request["nama"]),true)) > 0 ? '_' . $count+1 : ''),
-            'uuid' => Uuid::uuid4()->getHex(),
+            'id' => Uuid::uuid4()->getHex(),
             'nip' => Carbon::now()->format('ym') //ambil tahun dan bulan
                     . ($request['jenis_kelamin'] == 'Laki-Laki' ? 1 : 2) //ambil jenis kelamin
                     . count($this->getAllEmployeePersonal(true)), //ambil jumlah karyawan
@@ -98,12 +98,14 @@ class EmployeeService
             $this->sales->create([
                 'nip_id' => $data['nip'],
                 'slug' => $data['slug'],
+                'id' => Uuid::uuid4()->getHex(),
                 'level_id' => isset($data['level_sales_id']) ? $data['level_sales_id'] : 0,
             ]);
 
         } else if ($data['divisi_id'] == 5) {
             $this->technician->create([
                 'team_id' => $data['team_id'],
+                'id' => Uuid::uuid4()->getHex(),
                 'slug' => $data['slug'],
                 'nip_id' => $data['nip_pgwi'],
                 'is_katim' => isset($data['katim']) ? $data['katim'] : 0,
@@ -113,10 +115,10 @@ class EmployeeService
         $this->user->create([
             'nip_id' => $data['nip_pgwi'],
             'slug' => $data['slug'],
+            'id' => Uuid::uuid4()->getHex(),
             'is_active' => 0,
             'is_leader' => isset($data['is_leader']) ? $data['is_leader'] : 0,
             'password' => 'Password1',
-            'password_confirmation' => 'Password1',
         ]);
 
         return $data;
@@ -126,7 +128,7 @@ class EmployeeService
     {
         DB::beginTransaction();
         try {
-            $old = $this->findEmployeePersonal($uuid, 'uuid');
+            $old = $this->findEmployeePersonal($uuid, 'id');
             $employee = collect($request)->diffAssoc($old);
             if (isset($employee["nama"]))
                 $employee->put(
@@ -156,7 +158,7 @@ class EmployeeService
         DB::beginTransaction();
 
         try {
-            $data = $this->findEmployeePersonal($uuid,'uuid');
+            $data = $this->findEmployeePersonal($uuid,'id');
             $contract = $data->employeeContract();
             if ($contract != null && $contract->end_contract > Carbon::now()) {
                 throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
@@ -277,7 +279,7 @@ class EmployeeService
 
     public function updateEmployeeContract($id, $request)
     {
-        $old = $this->findEmployeeContract($id, 'uuid');
+        $old = $this->findEmployeeContract($id, 'id');
         $data = collect($request)->diffAssoc($old);
         if (isset($data['file_terms'])) {
             $data->put('file_terms', $request['file_terms']->storeAs('employee/file_terms', $request['nip'].'_terms.pdf', 'gcs'));
@@ -290,7 +292,7 @@ class EmployeeService
     {
         DB::beginTransaction();
         try {
-            $contract = $this->findEmployeeContract($uuid, 'uuid');
+            $contract = $this->findEmployeeContract($uuid, 'id');
             if ($contract['end_contract'] > Carbon::now()) {
                 throw new \Exception('tidak bisa menghapus kontrak karena kontrak belum berakhir');
             }

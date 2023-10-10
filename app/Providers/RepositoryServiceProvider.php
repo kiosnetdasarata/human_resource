@@ -8,7 +8,6 @@ use App\Repositories\ZoneRepository;
 use App\Repositories\SalesRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\DivisionRepository;
-use App\Repositories\EmployeeRepository;
 use App\Repositories\JobTitleRepository;
 use App\Repositories\TechnicianRepository;
 use App\Interfaces\RoleRepositoryInterface;
@@ -18,19 +17,32 @@ use App\Repositories\StatusLevelRepository;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Repositories\BranchCompanyRepository;
 use App\Interfaces\DivisionRepositoryInterface;
-use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\JobTitleRepositoryInterface;
-use App\Repositories\EmployeeHistoryRepository;
 use App\Interfaces\TechnicianRepositoryInterface;
+use App\Repositories\Employee\EmployeeRepository;
 use App\Interfaces\StatusLevelRepositoryInterface;
+use App\Repositories\Employee\EmployeeCIRepository;
 use App\Interfaces\BranchCompanyRepositoryInterface;
 use App\Repositories\Internship\InternshipRepository;
-use App\Interfaces\EmployeeHistoryRepositoryInterface;
 use App\Repositories\Internship\TraineeshipRepository;
+use App\Interfaces\Employee\EmployeeRepositoryInterface;
+use App\Repositories\Employee\EmployeeArchiveRepository;
+use App\Repositories\Employee\EmployeeHistoryRepository;
+use App\Repositories\Employee\EmployeeContractRepository;
+use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
+use App\Repositories\Employee\EmployeeEducationRepository;
+use App\Repositories\Employee\EmployeeTrainingsRepository;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use App\Repositories\Internship\InternshipContractRepository;
+use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
+use App\Interfaces\Employee\EmployeeHistoryRepositoryInterface;
+use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
+use App\Repositories\Employee\EmployeeContractHistoryRepository;
+use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
+use App\Interfaces\Employee\EmployeeTrainingsRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
+use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -40,6 +52,13 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
+        $this->app->bind(EmployeeCIRepositoryInterface::class, EmployeeCIRepository::class);
+        $this->app->bind(EmployeeArchiveRepositoryInterface::class, EmployeeArchiveRepository::class);
+        $this->app->bind(EmployeeContractRepositoryInterface::class, EmployeeContractRepository::class);
+        $this->app->bind(EmployeeContractHistoryRepositoryInterface::class, EmployeeContractHistoryRepository::class);
+        $this->app->bind(EmployeeEducationRepositoryInterface::class, EmployeeEducationRepository::class);
+        $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);
+        $this->app->bind(EmployeeTrainingsRepositoryInterface::class, EmployeeTrainingsRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(DivisionRepositoryInterface::class, DivisionRepository::class);
         $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);

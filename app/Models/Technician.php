@@ -11,10 +11,10 @@ class Technician extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
+        'id',
         'team_id',
         'nip_id',
         'katim',

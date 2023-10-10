@@ -26,12 +26,6 @@ class InternshipRepository implements InternshipRepositoryInterface
         return $this->internship->findOrFail($uuid);
     }
 
-    
-    public function findId($id)
-    {
-        return $this->internship->where('id', $id)->firstOrFail();
-    }
-
     public function create($request)
     {
         return $this->internship->create($request);

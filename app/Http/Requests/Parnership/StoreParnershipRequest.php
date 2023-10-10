@@ -11,7 +11,7 @@ class StoreParnershipRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreParnershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nama_mitra' => 'required|string',
+            'alamat' => 'required|string',
+            'perwakilan_mitra' => 'required|string',
+            'no_telp' => 'required|unique:partnerships,no_telp|min:10|max:15',
+            'katergori_mitra' => 'required|string',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Internship;
 
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -33,7 +34,7 @@ class StoreInternshipRequest extends FormRequest
             'role_id' => 'required|in:role,id',
             'supervisor' => 'required|in:employee,id',
             'tgl_masuk' => 'required|date_format:Y-m-d',
-            'file_cv' => 'required|file_type:pdf|file_size:5000',
+            'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
             'mitra_id' => 'in:parnertships,id',
         ];
     }
