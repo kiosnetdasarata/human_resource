@@ -24,10 +24,6 @@ class LoginController extends Controller
                 ], 200);
             }
             throw new Exception('NIP atau Password Anda salah');
-            // return response()->json([
-            //     'success' => false,
-            //     'message' => 'NIP atau Password Anda salah'
-            // ], 401);
 
         } catch (\Exception $e) {
             return response()->json([

@@ -28,6 +28,9 @@ use App\Http\Controllers\Internship\TraineeshipController;
 |
 */
 
+Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
+Route::apiResource('employee', EmployeeController::class);
+// ->only(['index, show, delete']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
@@ -53,7 +56,6 @@ use App\Http\Controllers\Internship\TraineeshipController;
     Route::get('/level', [LevelController::class, 'getLevels']);
     Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
-    Route::apiResource('employee', EmployeeController::class)->only(['index, show, delete']);
     Route::apiResource('division', DivisionController::class)->except(['show']);
     Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
     Route::apiResource('job-title', JobTitleController::class)->except(['show']);

@@ -90,7 +90,7 @@ class EmployeeService
                     . ($request['jenis_kelamin'] == 'Laki-Laki' ? 1 : 2) //ambil jenis kelamin
                     . count($this->getAllEmployeePersonal(true)), //ambil jumlah karyawan
             'level_id' => $this->role->find($request['role_id'])->level_id,
-            'fotp_profil' => 'test dulu',
+            'foto_profil' => 'test dulu',
             'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
         ]);
 
