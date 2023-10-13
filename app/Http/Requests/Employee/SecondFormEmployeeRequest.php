@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employee;
 
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -24,7 +25,7 @@ class SecondFormEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nomor_bpjs' => 'required|numeric|max:16',
+            'nomor_bpjs' => 'required|digits_between:0,16|unique:employee_confidential_informations,nomor_bpjs',
             'nama_bank' => 'required|string',
             'nomor_bank' => 'required|numeric',
             
@@ -33,8 +34,8 @@ class SecondFormEmployeeRequest extends FormRequest
             'start_kontrak' => 'required|date_format:Y-m-d',
             'end_kontrak' => 'required|date_format:Y-m-d',
             'work_start' => 'required|date_format:Y-m-d',
-            'supervisor' => 'required|exists:employee_personal_informations',
-            'file_terms' => 'required|file_type:pdf|file_size:5000',
+            'supervisor' => 'exists:employee_personal_informations,nip',
+            'file_terms' => ['required', File::types(['pdf'])->max(5 * 1024),],
         ];
     }
 
