@@ -10,19 +10,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Regency extends Model
 {
     use HasFactory;
-
+    public $timestamp = false;
+    
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class);
+    }
+    
     public function districts(): HasMany
     {
         return $this->HasMany(District::class);
     }
 
-    public function employees(): HasMany
-    {
-        return $this->hasMany(Employee::class, 'regencie_id');
-    }
-
-    public function province(): BelongsTo
-    {
-        return $this->belongsTo(Province::class);
-    }
 }

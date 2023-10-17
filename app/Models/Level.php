@@ -2,26 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Level extends Model
 {
     use HasFactory;
 
-    public function commissions(): HasMany
+    public function roles(): HasMany
     {
-        return $this->hasMany(Commissions::class);
-    }
-    
-    public function sales(): HasMany
-    {
-        return $this->hasMany(Sales::class);
-    }
-
-    public function branch() : HasMany
-    {
-        return $this->hasMany(Branch::class, 'branch_company_id');
-    }
+        return $this->hasMany(Role::class);
+    }//x
 }

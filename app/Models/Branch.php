@@ -11,15 +11,10 @@ class Branch extends Model
     use HasFactory;
     
     protected $connection = 'mysql3';
-    protected $table = 'branch_company';
+    protected $table = 'branch_companies';
 
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class, 'branch_company_id');
-    }
-
-    public function levels(): HasMany
-    {
-        return $this->hasMany(Level::class, 'branch_company_id');
     }
 }

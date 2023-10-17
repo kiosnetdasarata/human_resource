@@ -16,21 +16,17 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
-        'uuid',
-        'karyawan_nip',
+        'id',
+        'nip_id',
         'is_leader',
         'password',
+        'is_active',
+        'slug'
     ];
-    
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function($user) {
-            $user->uuid = Uuid::uuid4()->getHex();
-        });
-    }
 
     /**
      * The attributes that are mass assignable.
@@ -57,6 +53,7 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     /**
@@ -81,15 +78,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function employee(): BelongsTo 
     {
-        return $this->belongsTo(Employee::class, 'karyawan_nip');
-    }
-
-    public function division(): BelongsTo 
-    {
-        return $this->belongsTo(Division::class);
-    }
-
-    public function jobTitle(): BelongsTo {
-        return $this->belongsTo(JobTitle::class);
+        return $this->belongsTo(Employee::class, 'nip_id', 'nip');
     }
 }

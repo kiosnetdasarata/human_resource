@@ -4,76 +4,315 @@ namespace App\Services;
 
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
-use App\Http\Requests\Employee\EmployeeRequest;
-use App\Interfaces\EmployeeRepositoryInterface;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Support\Facades\DB;
+use App\Interfaces\RoleRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\SalesRepositoryInterface;
+use App\Interfaces\TechnicianRepositoryInterface;
+use App\Interfaces\Employee\EmployeeRepositoryInterface;
+use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
+use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
+use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
+use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeService
 {
-    public function __construct(private EmployeeRepositoryInterface $employeeRepositoryInterface)
+    public function __construct(
+        private EmployeeRepositoryInterface $employee,
+        private EmployeeCIRepositoryInterface $employeeCI,   
+        private RoleRepositoryInterface $role,
+        private SalesRepositoryInterface $sales,
+        private TechnicianRepositoryInterface $technician,
+        private UserRepositoryInterface $user,
+        private EmployeeArchiveRepositoryInterface $employeeArchive,
+        private EmployeeContractRepositoryInterface $employeeContract,
+        private EmployeeEducationRepositoryInterface $employeeEducation,
+    )
+    {}
+
+    public function firstForm($request)
     {
+        DB::beginTransaction();
+
+        try {
+            $employeePersonal = $this->storeEmployeePersonal($request);
+            $employeePersonal->put('nip_id', $employeePersonal['nip']);
+            $this->storeEmployeeConfidental($employeePersonal->all());
+            $this->employeeEducation->create($employeePersonal->all());
+            // dd('aaa');
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    public function getAll()
+    public function secondForm($uuid, $request)
     {
-        return $this->employeeRepositoryInterface->getAll();
+        DB::beginTransaction();
+
+        try {
+            $employee = $this->findEmployeePersonal($uuid, 'id');
+            $this->updateEmployeeConfidental($employee->employeeCI->uuid, $request);
+            $this->storeEmployeeContract(collect($request)->merge(['nip_id' => $employee->nip])->all());
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    public function find($uuid)
+    public function getAllEmployeePersonal($withtrashes = false)
     {
-        return $this->employeeRepositoryInterface->find($uuid);
+        return $withtrashes ? $this->employee->findWithTrashes() : $this->employee->getAll();
     }
 
-    public function findSlug($name)
+    public function findEmployeePersonal($uuid, $table)
     {
-        $slug = Str::slug($name,'_');
-        return $this->employeeRepositoryInterface->findSlug($slug);
+       return $this->employee->find($uuid, $table);
     }
 
-    public function store($request)
+    public function findSlugEmployeePersonal($name, $withtrashes = false)
     {
-        $request['slug'] = Str::slug($request['nama'], '_')
-        . (($count = count($this->findSlug($request['nama']))) > 0 ?
-            '_' . $count+1 : '') ;
-        $request['uuid'] = Uuid::uuid4()->getHex();
-        $request['tgl_lahir'] = date_create_from_format('d/m/Y', $request['tgl_lahir'])->format('Y-m-d');
-        $request['tgl_mulai_kerja'] = date_create_from_format('d/m/Y', $request['tgl_mulai_kerja'])->format('Y-m-d');
-        $request['nip_pgwi'] = $this->generateNip($request['tgl_mulai_kerja'], $request['jk']);
-
-        return $this->employeeRepositoryInterface->create($request);
-
+        return $withtrashes ? $this->employee->findBySlugWithTrashes($name) : $this->employee->findBySlug(Str::slug($name,'_'));
     }
 
-    public function update($id, $request)
+    private function storeEmployeePersonal($request)
     {
-        if (array_key_exists('nama', $request))
-            $request['slug'] = Str::slug($request['nama'])
-                . (($count = count($this->findSlug($request['nama']))) > 1 ?
-                    '-' . $count + 1 : '') ;
+        $data = collect($request)->merge([
+            'slug' => Str::slug($request["nama"], '_') . (($count = count($this->findSlugEmployeePersonal($request["nama"]),true)) > 0 ? '_' . $count+1 : ''),
+            'id' => Uuid::uuid4()->getHex(),
+            'nip' => Carbon::now()->format('ym') //ambil tahun dan bulan
+                    . ($request['jenis_kelamin'] == 'Laki-Laki' ? 1 : 2) //ambil jenis kelamin
+                    . count($this->getAllEmployeePersonal(true)), //ambil jumlah karyawan
+            'level_id' => $this->role->find($request['role_id'])->level_id,
+            'foto_profil' => 'test dulu',
+            'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
+        ]);
 
-        if (array_key_exists('tgl_lahir', $request))
-            $request['tgl_lahir'] = date_create_from_format('d/m/Y', $request['tgl_lahir'])->format('Y-m-d');
+        // $data->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
 
-        if (array_key_exists('nip_pgwi', $request))
-            $request['nip_pgwi'] = $this->generateNip($request['tgl_mulai_kerja'], $request['jk']);
+        $this->employee->create($data->all());
+        
+        if ($data['divisi_id'] === 4) {
+            $this->sales->create([
+                'nip_id' => $data['nip'],
+                'slug' => $data['slug'],
+                'id' => Uuid::uuid4()->getHex(),
+                'level_id' => isset($data['level_sales_id']) ? $data['level_sales_id'] : 0,
+            ]);
 
-        return $this->employeeRepositoryInterface->update($this->find($id), $request);
+        } else if ($data['divisi_id'] == 5) {
+            $this->technician->create([
+                'team_id' => $data['team_id'],
+                'id' => Uuid::uuid4()->getHex(),
+                'slug' => $data['slug'],
+                'nip_id' => $data['nip'],
+                'is_katim' => isset($data['katim']) ? $data['katim'] : 0,
+            ]);
+        }
+    
+        $this->user->create([
+            'nip_id' => $data['nip'],
+            'slug' => $data['slug'],
+            'id' => Uuid::uuid4()->getHex(),
+            'is_active' => 0,
+            'password' => 'Password1',
+        ]);
+
+        return $data;
     }
 
-    public function delete($data)
+    public function updateEmployeePersonal($uuid, $request)
     {
-        return $this->employeeRepositoryInterface->delete($data);
+        DB::beginTransaction();
+        try {
+            $old = $this->findEmployeePersonal($uuid, 'id');
+            $employee = collect($request)->diffAssoc($old);
+            if (isset($employee["nama"]))
+                $employee->put(
+                    'slug', Str::slug($employee["nama"]) . (($count = count($this->findSlugEmployeePersonal($employee["nama"]), true)) > 1 ? '-' . $count + 1 : ''),
+                );
+            if (isset($employee['foto_profil']))
+                $employee->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
+
+            $this->employee->update($old, $employee->all());
+            $this->user->update($this->user->findByNIP($employee['nip']), $employee['slug']);
+
+            if ($old->sales() != null)
+                $this->sales->update($old['nip'], ['slug' => $employee['slug']]);
+            if ($old->technician() != null)
+                $this->technician->update($old['nip'], ['slug' => $employee['slug']]);
+
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
-    private function generateNip($tgl_kerja, $jk)
+    public function deleteEmployeePersonal($uuid)
     {
-        return (int)(
-            date_create_from_format('Y-m-d', $tgl_kerja)->format('ym') //ambil tahun dan bulan
-            . ($jk == 'Laki-Laki' ? 1 : 2) //ambil jenis kelamin
-            . count($this->getAll()) //ambil jumlah karyawan
-        );
+        DB::beginTransaction();
 
+        try {
+            $data = $this->findEmployeePersonal($uuid,'id');
+            $contract = $data->employeeContract();
+            if ($contract != null && $contract->end_contract > Carbon::now()) {
+                throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
+            }
+            $this->employee->delete($data);
+            $this->employeeArchive->create($data);
+
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+        return $this->employee->delete($data);
+    }
+
+    public function getAllEmployeeConfidental()
+    {        
+    }
+
+    public function findEmployeeConfidental($uuid)
+    {
+       return $this->employeeCI->find($uuid);
+    }
+
+    private function storeEmployeeConfidental($request)
+    {
+        DB::beginTransaction();
+        try {
+            $data = collect($request)->merge([
+                'foto_ktp' => "anggep aja masuk",
+                'foto_kk' => "anggep aja masuk",
+                'file_cv' => "anggep aja masuk",
+                'nip_id' => $request['nip'],
+            ]);
+            // $data = collect($request)->merge([
+            //     'foto_ktp' => $request['foto_ktp']->storeAs('employee/foto_ktp', $request['nip_id'].'_ktp.pdf', 'gcs'),
+            //     'foto_kk' => $request['foto_kk']->storeAs('employee/foto_kk', $request['nip_id'].'_kk.pdf', 'gcs'),
+            //     'file_cv' => $request['file_cv']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'),
+            //     'nip_id' => $request['nip'],
+            // ]);
+            $this->employeeCI->create($data->all());
+
+            // if (!$this->employee->find($data['nip_id'], 'nip')->employeeContract() instanceOf ModelNotFoundException) {
+            //     $this->user->setIsactive($this->user->findByNIP($data['nip_id']), true);
+            // }
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function updateEmployeeConfidental($id, $request)
+    {
+        DB::beginTransaction();
+        try {
+            $old = $this->findEmployeeConfidental($id);
+            $data = collect($request)->diffAssoc($old);
+            if (isset($data['foto_ktp'])) {
+                $data->put('foto_ktp', $request['foto_ktp']->storeAs('employee/foto_ktp', $data['nip'].'_ktp.pdf', 'gcs'));
+            }
+            if (isset($data['foto_kk'])) {
+                $data->put('foto_kk', $request['foto_kk']->storeAs('employee/foto_kk', $data['nip'].'_kk.pdf', 'gcs'));
+            }
+            if (isset($data['file_cv'])) {
+                $data->put('file_cv', $request['file_cv']->storeAs('employee/file_cv', $data['nip'].'_cv.pdf', 'gcs'));
+            }
+            $this->employeeCI->update($old, $data);
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function deleteEmployeeConfidental($uuid)
+    {
+        DB::beginTransaction();
+
+        try {
+            $information = $this->findEmployeeConfidental($uuid);
+            $contract = $information->employeeContract();
+            if ($contract != null && $contract->end_contract > Carbon::now()) {
+                throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
+            }
+            $this->employeeCI->delete($information);
+            $this->user->setIsactive($this->user->findByNIP($information['nip_id']), true);
+
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function getAllEmployeeContract()
+    {        
+    }
+
+    public function findEmployeeContract($uuid, $table)
+    {
+       return $this->employeeContract->find($uuid, $table);
+    }
+
+    private function storeEmployeeContract($request)
+    {
+        DB::beginTransaction();
+        try {
+            $data = collect($request)->merge([
+                'file_terms' => $request['file_terms']->storeAs('employee/file_terms', $request['nip_id'].'_terms.pdf', 'gcs'),
+            ]);
+            $this->employeeContract->create($data->all());
+
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    public function updateEmployeeContract($id, $request)
+    {
+        $old = $this->findEmployeeContract($id, 'id');
+        $data = collect($request)->diffAssoc($old);
+        if (isset($data['file_terms'])) {
+            $data->put('file_terms', $request['file_terms']->storeAs('employee/file_terms', $request['nip'].'_terms.pdf', 'gcs'));
+        }
+        $this->employeeContract->update($old, $data);
+        return;
+    }
+
+    public function deleteEmployeeContract($uuid)
+    {
+        DB::beginTransaction();
+        try {
+            $contract = $this->findEmployeeContract($uuid, 'id');
+            if ($contract['end_contract'] > Carbon::now()) {
+                throw new \Exception('tidak bisa menghapus kontrak karena kontrak belum berakhir');
+            }
+            $this->employeeContract->delete($contract);
+            $this->user->findByNIP($contract['nip_id'])->setIsactive(false);
+            DB::commit();
+            return;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 }
 

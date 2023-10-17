@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\MessageBag;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Requests\Employee\FirstFormEmployeeRequest;
+use App\Http\Requests\Employee\SecondFormEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -22,28 +22,48 @@ class EmployeeController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data' => $this->employeeService->getAll(),
-        ],200);
+            'data' => $this->employeeService->getAllEmployeePersonal(),
+            'status_code' => 200,
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEmployeeRequest $request)
+    public function storeFormOne(FirstFormEmployeeRequest $request)
     {
-        $employee = $this->employeeService->store($request->validated());
-
-        if ($employee instanceof MessageBag) {
+        try {
+            $this->employeeService->firstForm($request->validated());
+            return response()->json([
+                'status' => 'success',
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $employee,
-                'data' => $request->all(),
-            ],422);
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => 500,
+            ]);
         }
+    }
 
-        return response()->json([
-            'status' => 'success',
-        ], 200);
+    public function storeFormTwo($uuid, SecondFormEmployeeRequest $request)
+    {
+        try {
+            $this->employeeService->secondForm($uuid, $request->validated());
+            return response()->json([
+                'status' => 'success',
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => 500,
+            ]);
+        }
     }
 
     /**
@@ -52,85 +72,59 @@ class EmployeeController extends Controller
     public function show($id)
     {
         try {
-            $employee = $this->employeeService->find($id);
-
+            $employee = $this->employeeService->findEmployeePersonal($id, 'uuid');
             return response()->json([
                 'status' => 'success',
                 'data' => $employee,
-            ], 200);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 404);
-
+                'status_code' => 200,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEmployeeRequest $request, $id)
-    {
-        try {
-            $newEmployee = $this->employeeService->update($id,$request->validated());
-            
-            if ($newEmployee instanceof MessageBag) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $newEmployee,
-                    'data' => $request,
-                ], 422);
-            }
-            
-            return response()->json([
-                'status' => 'success'
-            ], 200);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 404);
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
+    // public function update(UpdateEmployeeRequest $request, $uuid)
+    // {
+    //     try {
+    //         $this->employeeService->updateEmployeePersonal($uuid, $request->validated());
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'status_code' => 200,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $e->getMessage(),
+    //             'input' => $request->validated(),
+    //             'status_code' => 500,
+    //         ]);
+    //     }
+    // }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($uuid)
     {
         try {
-            $employee = $this->employeeService->find($id);
-            $this->employeeService->delete($employee);
-            
+            $this->employeeService->deleteEmployeePersonal($uuid);
             return response()->json([
                 'status' => 'success',
-            ], 200);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 404);
-
+                'status_code' => 200,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error'
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
         }
     }
 }

@@ -11,11 +11,6 @@ class Province extends Model
     use HasFactory;
     public $timestamp = false;
 
-    public function employees(): HasMany
-    {
-        return $this->hasMany(Employee::class);
-    }
-
     public function regencies(): HasMany
     {
         return $this->hasMany(Regency::class);

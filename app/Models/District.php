@@ -10,16 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class District extends Model
 {
     use HasFactory;
-
     public $timestamp = false;
-
-    public function employees(): HasMany
-    {
-        return $this->hasMany(Employee::class);
-    }
 
     public function regency(): BelongsTo
     {
         return $this->belongsTo(Regency::class);
+    }
+
+    public function village(): HasMany
+    {
+        return $this->hasMany(Village::class);
     }
 }

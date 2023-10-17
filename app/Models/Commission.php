@@ -6,18 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Commission extends Model
 {
     use HasFactory;
 
-    public function level(): BelongsTo
+    public function levelSales(): BelongsTo
     {
-        return $this->belongsTo(Level::class);
+        return $this->belongsTo(LevelSales::class, 'level_id');
     }
 
     public function sales(): HasMany
     {
-        return $this->hasMany(Sales::class, 'komisi_id');
+        return $this->hasMany(LevelSales::class, 'sales');
     }
 }
