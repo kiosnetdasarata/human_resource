@@ -16,14 +16,14 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
         return $this->traineeship->get();
     }
 
-    public function find($slug)
+    public function find($id)
     {
-        return $this->traineeship->where('slug', $slug)->get();
+        return $this->traineeship->findOrFail($id);
     }
 
-    public function findWithTrashes($slug)
+    public function findWithTrashes($id)
     {
-        return $this->traineeship->withTrashed()->where('slug', $slug)->get();
+        return $this->traineeship->withTrashed()->findOrFail($id);
     }
 
     public function create($request)

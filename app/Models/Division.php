@@ -2,42 +2,20 @@
 
 namespace App\Models;
 
-use Ramsey\Uuid\Uuid;
-use Illuminate\Support\Str;
-use App\Models\ApplicantArchive;
+use App\Models\Role;
+use App\Models\Employee;
+use App\Models\Internship;
+use App\Models\JobVacancy;
+use App\Models\Traineeship;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Division extends Model
 {
     use HasFactory;
-
-    protected $primaryKey = 'slug';
-    protected $fillable = [
-        'kode_divisi',
-        'nama_divisi',
-        'slug',
-        'manager_divisi',
-        'no_telp',
-        'email',
-        'status',
-        'deskripsi',
-    ];
-
-    static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($division) {
-            $division->slug = Str::slug($division->nama_divisi, '_');
-        });
-        
-        static::updating(function ($division) {
-            $division->slug = Str::slug($division->nama_divisi, '_');
-        });
-    }
+    protected $table = 'divisions';
 
     public function manager(): BelongsTo
     {
@@ -57,5 +35,10 @@ class Division extends Model
     public function traineeship(): HasMany
     {
         return $this->hasMany(Traineeship::class, 'divisi_id');
+    }
+
+    public function role(): HasMany
+    {
+        return $this->hasMany(Role::class, 'divisi_id');
     }
 }

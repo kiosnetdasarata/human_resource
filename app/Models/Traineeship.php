@@ -6,20 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Traineeship extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'hr_point_id',
         'nama_lengkap',
-        'divisi_id',
+        'jk',
+        'nomor_telepone',
+        'email',
+        'alamat',
+        'link_sosmed',
+        'is_kuliah',
+        'nama_instansi',
+        'semester',
+        'tahun_lulus',
         'role_id',
         'durasi',
-        // 'slug',
-        'email',
-        'nomor_telepone',
-        'alamat',
         'tanggal_lamaran',
         'status_traineeship',
         'file_cv',

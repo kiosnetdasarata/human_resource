@@ -2,9 +2,12 @@
 
 namespace App\Http\Requests\Traineeship;
 
+use App\Rules\SocialMediaLink;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Validation\Rules\File;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreTraineeshipRequest extends FormRequest
@@ -26,15 +29,20 @@ class StoreTraineeshipRequest extends FormRequest
     {
         return [
             'nama_lengkap' => 'required|string',
-            'role_id' => 'required|exists:roles,id',
-            'durasi' => 'required|in:3,6',
+            // 'hr_point_id' => 'int|exists:hr_points,id',
+            'jk' => 'required|in:Laki-Laki,Perempuan',
+            'nomor_telepone' => 'required|numeric|digits_between:10,15',
             'email' => 'required|email|unique:traineeships,email',
-            'nomor_telepone' => 'required|unique:traineeships,nomor_telepone|min:10|max:15',
             'alamat' => 'required|string',
+            'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
+            'is_kuliah' => 'required|in:0,1',
+            'nama_instansi' => 'required|string',
+            'semester' => 'required|numeric|max:20',
+            'tahun_lulus' => 'required_if:is_kuliah,0',
+            'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
+            'durasi' => 'required|in:3,6',
             'tanggal_lamaran' => 'required|date_format:Y-m-d',
-            'status_traineeship' => 'required|string',
-            'file_cv' => 'required', File::types(['pdf'])
-                                ->max(5 * 1024),
+            'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
         ];
     }
 
@@ -43,7 +51,7 @@ class StoreTraineeshipRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()->all(),
+                'errors' => $validator->errors(),
                 'input' => $this->input()
             ], 422)
         );

@@ -24,6 +24,7 @@ use App\Interfaces\StatusLevelRepositoryInterface;
 use App\Repositories\Employee\EmployeeCIRepository;
 use App\Interfaces\BranchCompanyRepositoryInterface;
 use App\Repositories\Internship\InternshipRepository;
+use App\Repositories\Internship\PartnershipRepository;
 use App\Repositories\Internship\TraineeshipRepository;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use App\Repositories\Employee\EmployeeArchiveRepository;
@@ -33,6 +34,7 @@ use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Repositories\Employee\EmployeeEducationRepository;
 use App\Repositories\Employee\EmployeeTrainingsRepository;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
+use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use App\Repositories\Internship\InternshipContractRepository;
 use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
@@ -62,7 +64,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(DivisionRepositoryInterface::class, DivisionRepository::class);
         $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);
-        $this->app->bind(JobTitleRepositoryInterface::class, JobTitleRepository::class);
         $this->app->bind(SalesRepositoryInterface::class, SalesRepository::class);
         $this->app->bind(StatusLevelRepositoryInterface::class, StatusLevelRepository::class);
         $this->app->bind(TechnicianRepositoryInterface::class, TechnicianRepository::class);
@@ -72,6 +73,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(InternshipRepositoryInterface::class, InternshipRepository::class);
         $this->app->bind(InternshipContractRepositoryInterface::class, InternshipContractRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+        $this->app->bind(PartnershipRepositoryInterface::class, PartnershipRepository::class);
     }
 
     /**

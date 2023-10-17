@@ -27,13 +27,14 @@ use App\Http\Controllers\Internship\TraineeshipController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::get('/test', function () {
+    // dd(Employee::all());
+});
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
+Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmployeeDetails']);
+Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::apiResource('employee', EmployeeController::class);
 // ->only(['index, show, delete']);
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 // Route::middleware([
     // 'jwt:api',
     // 'is_human_resource,
@@ -63,6 +64,7 @@ Route::apiResource('employee', EmployeeController::class);
     Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
     Route::apiResource('technician', TechnicianController::class)->except(['create']);
     Route::apiResource('traineeship', TraineeshipController::class);
+    Route::apiResource('employee', EmployeeController::class)->except(['create']);
 
     Route::post('/employees/create', [EmployeesController::class, 'storeFormOne']);
     Route::post('/employees/full-create/{uuid}', [EmployeesController::class, 'storeFormTwo']);

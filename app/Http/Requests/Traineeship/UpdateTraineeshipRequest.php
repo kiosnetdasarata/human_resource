@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Traineeship;
 
+use App\Rules\SocialMediaLink;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -27,14 +28,18 @@ class UpdateTraineeshipRequest extends FormRequest
         $traineeship = $this->route('traineeship');
         return [
             'nama_lengkap' => 'string',
-            'role_id' => 'exists:roles,id',
-            'durasi' => 'in:3,6',
-            'email' => 'email|unique:traineeship,email,'.$traineeship.',id',
-            'nomor_telepone' => 'unique:traineeships,nomor_telepone,'.$traineeship.',id|min:10|max:15',
+            'jk' => 'in:Laki-Laki,Perempuan',
+            'nomor_telepone' => 'numeric|digits_between:10,15',
+            'email' => 'email|unique:traineeships,email,'. $traineeship,
             'alamat' => 'string',
-            'tanggal_lamaran' => 'date_format:Y-m-d',
-            'status_traineeship' => 'string',
-            'file_cv' => File::types(['pdf'])->max(5 * 1024),
+            'link_sosmed' => ['url', new SocialMediaLink], //wajib pake https://www.
+            'is_kuliah' => 'in:0,1',
+            'nama_instansi' => 'string',
+            'semester' => 'numeric|max:20',
+            'tahun_lulus' => 'required_if:is_kuliah,0',
+            'role_id' => 'exists:job_vacancies,role_id,is_active,1',
+            'durasi' => 'in:3,6',
+            'file_cv' => [File::types(['pdf'])->max(5 * 1024),],
         ];
     }
 
@@ -43,7 +48,7 @@ class UpdateTraineeshipRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()->all(),
+                'errors' => $validator->errors(),
                 'input' => $this->input()
             ], 422)
         );

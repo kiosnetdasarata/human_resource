@@ -30,19 +30,15 @@ class InternshipService
         return $this->traineeship->getAll();
     }
 
-    public function findTraineeship($name, $withtrashes = false)
+    public function findTraineeship($id, $withtrashes = false)
     {
-        $slug = Str::slug($name,'_');
-        if ($withtrashes) return $this->traineeship->findWithTrashes($slug);
-        return $this->traineeship->find($slug);
+        return $withtrashes ? $this->traineeship->findWithTrashes($id) : $this->traineeship->find($id);
     }
     
     public function createTraineeship($request)
     {
         $traineeship = collect($request)->merge([
-            'slug' => Str::slug($request['nama_lengkap'], '_') . (($count = count($this->findTraineeship($request['nama_lengkap']), true)) > 0 ? '_' . $count+1 : ''),
-            'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
-            'file_cv' => 'dgjghdsdsfdsfgds',
+            'file_cv' => 'filenya ada',
         ]);
         
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
@@ -53,16 +49,17 @@ class InternshipService
 
     public function updateTraineeship($slug, $request) 
     {
-        $old = $this->findInternship($slug);
+        $old = $this->findTraineeship($slug);
         $traineeship = collect($request)->diffAssoc($old);
 
-        if (isset($traineeship["nama_lengkap"]))
-            $traineeship->put(
-                'slug', Str::slug($traineeship["nama_lengkap"]) 
-                    . (($count = count($this->findtraineeship($traineeship["nama_lengkap"], true))) > 1 ? '-' . $count + 1 : ''),
-            );
+        // if ($traineeship->has("nama_lengkap"))
+        //     $traineeship->put(
+        //         'slug', Str::slug($traineeship["nama_lengkap"]) 
+        //             . (($count = count($this->findtraineeship($traineeship["nama_lengkap"], true))) > 1 ? '-' . $count + 1 : ''),
+        //     );
 
-        if ($traineeship->file('file_cv') == null) {
+        if ($traineeship->has('file_cv')) {
+            $traineeship->put('file_cv', 'test_cv');
             // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
         }
         $this->traineeship->update($old, $traineeship->all());
