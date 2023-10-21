@@ -14,7 +14,7 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
 
     public function getAll()
     {
-        return $this->employeeContract->get();
+        return $this->employeeContract->with('employee')->get();
     }
 
     public function find($id)

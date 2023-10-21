@@ -43,12 +43,12 @@ class FirstFormEmployeeRequest extends FormRequest
             'nik' => 'required|digits:16|unique:employee_confidential_informations,nik',
             'no_tlpn_darurat' => 'required|string|digits_between:10,15',
             'nama_kontak_darurat' => 'required|string',
-            'status_kontak_darurat' => 'required|string|in:Ayah,Ibu,Istri,Anak,Kakek,Nenek,Saudara',
+            'status_kontak_darurat' => 'required|in:Ayah,Ibu,Istri,Anak,Kakek,Nenek,Saudara',
             'foto_ktp' => ['required', File::types(['jpg','jpeg','png'])->max(2 * 1024),],
             'foto_kk' => ['required', File::types(['jpg','jpeg','png'])->max(2 * 1024),],
             'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
 
-            'pendidikan_terakhir' => 'required|string',
+            'pendidikan_terakhir' => 'required|in:Sarjana,SMK/SMA,SMP',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
 
@@ -64,7 +64,7 @@ class FirstFormEmployeeRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()->all(),
+                'errors' => $validator->errors(),
                 'input' => $this->input()
             ], 422)
         );

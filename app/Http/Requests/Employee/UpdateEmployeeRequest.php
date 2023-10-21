@@ -7,14 +7,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class SecondFormEmployeeRequest extends FormRequest
+class UpdateEmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->method('patch');
     }
 
     /**
@@ -25,17 +25,19 @@ class SecondFormEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nomor_bpjs' => 'required|digits_between:0,16|unique:employee_confidential_informations,nomor_bpjs',
+            'alamat' => 'string',
+            'no_tlpn' => 'string|digits_between:10,15',
+            'email' => 'email',
+            'foto_ktp' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
+            'foto_kk' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
+            'pendidikan_terakhir' => 'in:Sarjana,SMK/SMA,SMP',
+            'tahun_lulus' => 'required_with|pendidikan_terakhir',
+            'status_perkawinan' => 'required|in:Belum Menikah,Menikah',
+            
             'nama_bank' => 'required|string',
             'nomor_rekening' => 'required|numeric',
-            
-            'nomor_kontrak' => 'required|numeric|unique:employee_contracts,nomor_kontrak',
-            'jenis_kontrak' => 'required|string',
-            'start_kontrak' => 'required|date_format:Y-m-d',
-            'end_kontrak' => 'required|date_format:Y-m-d',
-            'work_start' => 'required|date_format:Y-m-d',
-            'supervisor' => 'exists:employee_personal_informations,nip',
-            'file_terms' => ['required', File::types(['pdf'])->max(5 * 1024),],
+            'no_tlpn_darurat' => 'required|string|digits_between:10,15',
+            'nama_kontak_darurat' => 'required|string',
         ];
     }
 

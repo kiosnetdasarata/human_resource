@@ -14,7 +14,7 @@ class EmployeeCIRepository implements EmployeeCIRepositoryInterface
 
     public function getAll()
     {
-        return $this->employeeConfidentalInformation->get();
+        return $this->employeeConfidentalInformation->with('employee')->get();
     }
 
     public function find($uuid)

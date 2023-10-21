@@ -2,19 +2,27 @@
 
 namespace App\Models;
 
-use App\Models\EmployeeDetail;
+use App\Models\User;
+use App\Models\Sales;
+use App\Models\Presence;
+use App\Models\Technician;
+use App\Models\ContractHistory;
+use App\Models\EmployeeHistory;
+use App\Models\EmployeeContract;
 use App\Models\EmployeeEducation;
+use App\Models\EmployeeTrainings;
+use App\Models\EmployeeContractHistory;
+use App\Models\EmployeeConfidentalInformation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
-    use HasFactory, SoftDeletes;
-
+    use HasFactory;
+    
     protected $table = 'employee_personal_informations';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -79,7 +87,7 @@ class Employee extends Model
         return $this->hasMany(ContractHistory::class, 'nip_id','nip');
     }//x
 
-    public function employeeConfidentalInformation(): HasOne
+    public function employeeCI(): HasOne
     {
         return $this->hasOne(EmployeeConfidentalInformation::class, 'nip_id', 'nip');
     }//x
