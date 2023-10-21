@@ -2,19 +2,20 @@
 
 use App\Models\Employee;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\StatusLevelController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmployeeHistoryController;
+use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\TraineeshipController;
 
 /*
@@ -35,6 +36,8 @@ Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmp
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::apiResource('employee', EmployeeController::class);
 // ->only(['index, show, delete']);
+
+Route::post('/internship/{idInternship}', [InternshipController::class, 'store']);
 // Route::middleware([
     // 'jwt:api',
     // 'is_human_resource,
@@ -48,7 +51,7 @@ Route::apiResource('employee', EmployeeController::class);
     });
 
     // Route get job title by division
-    Route::get('/division/{division}/job-titles', [JobTitleController::class, 'index']);
+    Route::get('/division/{division}/role', [RoleController::class, 'index']);
 
     // Route get branch
     Route::get('/branchs', BranchController::class);
@@ -59,7 +62,7 @@ Route::apiResource('employee', EmployeeController::class);
 
     Route::apiResource('division', DivisionController::class)->except(['show']);
     Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
-    Route::apiResource('job-title', JobTitleController::class)->except(['show']);
+    Route::apiResource('job-title', RoleController::class)->except(['show']);
     Route::apiResource('sales', SalesController::class)->except(['create']);
     Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
     Route::apiResource('technician', TechnicianController::class)->except(['create']);

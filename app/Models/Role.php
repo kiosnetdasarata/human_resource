@@ -18,7 +18,6 @@ class Role extends Model
 
     public function division():BelongsTo
     {
-        // dd('aaa');
         return $this->belongsTo(Division::class, 'divisi_id');
     }
 

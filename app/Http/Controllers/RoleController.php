@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Interfaces\JobTitleRepositoryInterface;
 use App\Http\Requests\JobTitle\StoreJobTitleRequest;
 use App\Http\Requests\JobTitle\UpdateJobTitleRequest;
+use App\Interfaces\RoleRepositoryInterface;
 
-class JobTitleController extends Controller
+class RoleController extends Controller
 {
-    public function __construct(private JobTitleRepositoryInterface $jobTitleRepositoryInterface)
+    public function __construct(private RoleRepositoryInterface $roleRepositoryInterface)
     {
-        
     }
     /**
      * Display a listing of the resource.
@@ -20,7 +19,7 @@ class JobTitleController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->jobTitleRepositoryInterface->getAll($division),
+                'data' => $this->roleRepositoryInterface->getAll($division),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -36,7 +35,7 @@ class JobTitleController extends Controller
     public function store(StoreJobTitleRequest $request)
     {
         try {
-            $this->jobTitleRepositoryInterface->create($request->validated());
+            $this->roleRepositoryInterface->create($request->validated());
 
             return response()->json([
                 'status' => 'success',
@@ -58,7 +57,7 @@ class JobTitleController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->jobTitleRepositoryInterface->find($id),
+                'data' => $this->roleRepositoryInterface->find($id),
             ], 200);
 
         } catch (\Exception $e) {
@@ -75,7 +74,7 @@ class JobTitleController extends Controller
     public function update(UpdateJobTitleRequest $request, $id)
     {
         try {
-            $this->jobTitleRepositoryInterface->update($id,$request->validated());
+            $this->roleRepositoryInterface->update($id,$request->validated());
             
             return response()->json([
                 'status' => 'success'
@@ -96,7 +95,7 @@ class JobTitleController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->jobTitleRepositoryInterface->delete($this->jobTitleRepositoryInterface->find($id));
+            $this->roleRepositoryInterface->delete($this->roleRepositoryInterface->find($id));
             
             return response()->json([
                 'status' => 'success',

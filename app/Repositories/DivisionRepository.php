@@ -14,7 +14,7 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getAll()
     {
-        return $this->division->with('jobTitles')->get()->map(function ($e) {
+        return $this->division->with('role')->get()->map(function ($e) {
             return[
                 'id' => $e->id,
                 'nama_divisi' => $e->nama_divisi,
