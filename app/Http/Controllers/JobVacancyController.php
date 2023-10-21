@@ -42,7 +42,18 @@ class JobVacancyController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try{
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->jobVacancy->find($id),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode(),
+            ]);
+        }
     }
 
     /**
