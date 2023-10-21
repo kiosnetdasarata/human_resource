@@ -2,11 +2,11 @@
 
 namespace App\Interfaces;
 
-interface EmployeeRepositoryInterface
+interface JobVacancyRepositoryInterface
 {
     public function getAll();
     public function find($uuid);
-    public function findBySlug($uuid);
+    public function findByRole($uuid);
     public function create($request);
     public function update($employee, $request);
     public function delete($id);

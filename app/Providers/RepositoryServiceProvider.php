@@ -8,7 +8,7 @@ use App\Repositories\ZoneRepository;
 use App\Repositories\SalesRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\DivisionRepository;
-use App\Repositories\JobTitleRepository;
+use App\Repositories\JobVacancyRepository;
 use App\Repositories\TechnicianRepository;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
@@ -17,7 +17,7 @@ use App\Repositories\StatusLevelRepository;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Repositories\BranchCompanyRepository;
 use App\Interfaces\DivisionRepositoryInterface;
-use App\Interfaces\JobTitleRepositoryInterface;
+use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
 use App\Repositories\Employee\EmployeeRepository;
 use App\Interfaces\StatusLevelRepositoryInterface;
@@ -74,6 +74,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(InternshipContractRepositoryInterface::class, InternshipContractRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(PartnershipRepositoryInterface::class, PartnershipRepository::class);
+        $this->app->bind(JobVacancyRepositoryInterface::class, JobVacancyRepository::class);
     }
 
     /**

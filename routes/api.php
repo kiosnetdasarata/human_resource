@@ -10,6 +10,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\StatusLevelController;
@@ -34,6 +35,7 @@ Route::get('/test', function () {
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmployeeDetails']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
+Route::apiResource('job-vacancy', JobVacancyController::class);
 Route::apiResource('employee', EmployeeController::class);
 // ->only(['index, show, delete']);
 
