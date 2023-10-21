@@ -83,7 +83,7 @@ class TraineeshipController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-                'line' => $e->getTrace(),
+                // 'line' => $e->getTrace(),
                 'input' => $request->validated(),
                 'status_code' => 500,
             ]);

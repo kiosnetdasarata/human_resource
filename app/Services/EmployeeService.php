@@ -15,7 +15,6 @@ use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
-use App\Models\Employee;
 
 class EmployeeService
 {
@@ -68,7 +67,8 @@ class EmployeeService
     {
         return DB::transaction(function () use ($uuid, $request) {
             $employee = $this->findEmployeePersonal($uuid, 'id');
-            $request = collect($request)->push('nip', $employee['nip']);
+            $request = collect($request)->put('nip', $employee['nip']);
+            $request->put('nip_id', $employee['nip']);
     
             $this->updateEmployeePersonal($uuid, $request);
             $this->updateEmployeeConfidential($employee->employeeCI->id, $request);
@@ -89,10 +89,8 @@ class EmployeeService
             if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
                 throw new \Exception('pendidikan_terakhir : '. $request['pendidikan_terakhir']. ' sudah ada');
             }
-
         }
-
-        $this->employeeEducation->create($request);
+        $this->employeeEducation->create($request->all());
     }
 
     public function getAllEmployeePersonal($withtrashes = false)

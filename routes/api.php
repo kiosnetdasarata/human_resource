@@ -17,7 +17,9 @@ use App\Http\Controllers\StatusLevelController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmployeeHistoryController;
 use App\Http\Controllers\Internship\InternshipController;
+use App\Http\Controllers\Internship\PartnershipController;
 use App\Http\Controllers\Internship\TraineeshipController;
+use App\Http\Controllers\Internship\FilePartnershipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,35 +31,48 @@ use App\Http\Controllers\Internship\TraineeshipController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('/test', function () {
-    // dd(Employee::all());
-});
-Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
-Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmployeeDetails']);
-Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-Route::apiResource('job-vacancy', JobVacancyController::class);
-Route::apiResource('employee', EmployeeController::class);
-// ->only(['index, show, delete']);
+/*
+Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
+*/
 
-Route::post('/internship/{idInternship}', [InternshipController::class, 'store']);
+// Route get branch
+Route::get('/branchs', BranchController::class);
+//Route JobVacancy
+Route::apiResource('job-vacancy', JobVacancyController::class)->only('index', 'show');
+//Route Zone
+Route::controller(ZoneController::class)->prefix('zone')->group(function() {
+    Route::get('/provinces', 'getProvinces');
+    Route::get('/{province}/regencies', 'getRegencies');
+    Route::get('/{regency}/districts', 'getDistricts');
+    Route::get('/{district}/villages', 'getVillages');
+});
+// Route get job title by division
+Route::get('/division/{division}/role', [RoleController::class, 'index']);
+
+
+/*
+Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
+*/
+
+//Punya Al, form 3 pake updatenya employee resource
+Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
+Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
+Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmployeeDetails']);
+Route::apiResource('employee', EmployeeController::class)->except(['create']); 
+
+//Punya Aul
+Route::apiResource('traineeship', TraineeshipController::class);
+Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
+Route::apiResource('internship', InternshipController::class)->except(['create']);
+Route::apiResource('partnership', PartnershipController::class);
+Route::apiResource('partnership/file', FilePartnershipController::class);
+
+
+
 // Route::middleware([
     // 'jwt:api',
     // 'is_human_resource,
     // ])->group(function() {
-    //Route Zone
-    Route::controller(ZoneController::class)->group(function() {
-        Route::get('/provinces', 'getProvinces');
-        Route::get('/{province}/regencies', 'getRegencies');
-        Route::get('/{regency}/districts', 'getDistricts');
-        Route::get('/{district}/villages', 'getVillages');
-    });
-
-    // Route get job title by division
-    Route::get('/division/{division}/role', [RoleController::class, 'index']);
-
-    // Route get branch
-    Route::get('/branchs', BranchController::class);
-
     //Route get level
     Route::get('/level', [LevelController::class, 'getLevels']);
     Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
@@ -68,11 +83,6 @@ Route::post('/internship/{idInternship}', [InternshipController::class, 'store']
     Route::apiResource('sales', SalesController::class)->except(['create']);
     Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
     Route::apiResource('technician', TechnicianController::class)->except(['create']);
-    Route::apiResource('traineeship', TraineeshipController::class);
-    Route::apiResource('employee', EmployeeController::class)->except(['create']);
-
-    Route::post('/employees/create', [EmployeesController::class, 'storeFormOne']);
-    Route::post('/employees/full-create/{uuid}', [EmployeesController::class, 'storeFormTwo']);
 
     // Route::get('/employee-archive/{nip}', [EmployeeController::class, 'show'])->withTrashed();
 

@@ -18,11 +18,19 @@ class PartnershipController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $this->partnership->getAllPartnership(),
-            'status_code' => 200,
-        ]);
+        try {
+            return response()->json([
+                'success' => true,
+                'data' => $this->partnership->getAllPartnership(),
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
+        }
     }
 
     /**
