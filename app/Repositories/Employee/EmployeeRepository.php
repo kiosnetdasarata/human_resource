@@ -2,12 +2,7 @@
 
 namespace App\Repositories\Employee;
 
-use App\Models\Role;
-use App\Models\Roles;
-use App\Models\Divisi;
-use App\Models\Division;
 use App\Models\Employee;
-use App\Models\Traineeship;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 
 class EmployeeRepository implements EmployeeRepositoryInterface
@@ -21,6 +16,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     {
         return $this->employee->with('role')->get()->map(function ($e) {
             return [
+                'uuid' => $e->uuid,
                 'nip_pgwi' => $e->nip,
                 'nama' => $e->nama,
                 'divisi' => $e->role->division->nama_divisi,
@@ -31,7 +27,8 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function find($uuid, $table)
     {
-        return $this->employee->where($table, $uuid)->firstOrFail();
+        return $this->employee->with(['employeeCI', 'employeeContract', 'role'])
+                ->where($table, $uuid)->get()->firstOrFail();
     }
 
     public function findBySlug($slug)

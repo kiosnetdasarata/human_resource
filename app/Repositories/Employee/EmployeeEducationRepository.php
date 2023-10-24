@@ -14,12 +14,12 @@ class EmployeeEducationRepository implements EmployeeEducationRepositoryInterfac
 
     public function getAll()
     {
-        return $this->employeeEducation->get();
+        return $this->employeeEducation->with('employee')->get();
     }
 
     public function find($id)
     {
-        return $this->employeeEducation->find($id);
+        return $this->employeeEducation->with('employee')->find($id);
     }
     
     public function create($request)

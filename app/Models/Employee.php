@@ -95,22 +95,22 @@ class Employee extends Model
     public function employeeContract(): HasOne
     {
         return $this->hasOne(EmployeeContract::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function employeeContractHistory(): HasMany
     {
         return $this->hasMany(EmployeeContractHistory::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function employeeEducation(): HasMany
     {
         return $this->hasMany(EmployeeEducation::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function employeeHistory(): HasMany
     {
         return $this->hasMany(EmployeeHistory::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function employeeTrainings(): HasMany
     {

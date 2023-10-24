@@ -52,10 +52,10 @@ class FirstFormEmployeeRequest extends FormRequest
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
 
-            'level_sales_id' => 'exists:level_sales,id',
-            'team_id' => 'exists:mysql4.technician_teams,id',           
-            'katim_id' => 'in:0,1',
-            'is_leader' => 'in:0,1',
+            'level_sales_id' => 'exists:level_sales,id', //wajib diisi kalo divisi sales, kalo bukan diisi juga gak bakal masuk database
+            'team_id' => 'exists:mysql4.technician_teams,id', //sama, tapi versi teknisi,
+            'katim_id' => 'in:0,1', //kalo gak diisi otomatis 0
+            'is_leader' => 'in:0,1', //sama
         ];
     }
 
