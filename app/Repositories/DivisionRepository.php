@@ -18,7 +18,7 @@ class DivisionRepository implements DivisionRepositoryInterface
             return[
                 'id' => $e->id,
                 'nama_divisi' => $e->nama_divisi,
-                'jumlah_jabatan' => count($e->jobTitles),
+                'jumlah_jabatan' => count($e->role),
                 'created_at' => $e->created_at,
                 'updated_at' => $e->updated_at
             ];

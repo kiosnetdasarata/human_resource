@@ -39,6 +39,7 @@ class InternshipService
     {
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
+            'tanggal_lamaran' => Carbon::now(),
         ]);
         
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
@@ -84,21 +85,24 @@ class InternshipService
         return $this->internship->find($item);
     }
 
-    public function createInternship($request)
-    {     
-        $internship = collect($request)->merge([
+    public function createInternship($idTraineenship, $request)
+    {
+        $traineeship = $this->findTraineeship($idTraineenship);
+        if ($traineeship->interviewPoint == null) {
+            throw new \Exception('traineeship tidak memiliki interview point', 404);
+        }
+        $internship = collect($traineeship)->merge([
                 'uuid' => Uuid::uuid4()->getHex(),
-                'internship_nip' => $this->generateNip($request['tanggal_masuk']),
-                'slug' => Str::slug($request['nama_lengkap'], '_') . (($count = count($this->findInternship($request['nama_lengkap'], 'slug'))) > 0 ? '_' . $count+1 : ''),
-                'divisi' => $this->role->find($request['role_id'])->divisi_id,
-                'durasi' => 0,
+                'internship_nip' => $this->generateNip($traineeship['tanggal_masuk'], $traineeship['jk']),
+                'slug' => Str::slug($traineeship['nama_lengkap'], '_') . (($count = count($this->findInternship($traineeship['nama_lengkap'], 'slug'))) > 0 ? '_' . $count+1 : ''),
                 'file_cv' => 'ffgui',
+                'no_tlpn' => $traineeship['nomor_telepone']
             ]);
         if(isset($internship['mitra_id']) && $this->partnership->find($internship['mitra_id'])->filePartnership() == null) {
             throw new \Exception('file mitra tidak ditemukan.');
         }
-        // $internship->put('file_cv', $request->file['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
-
+        // $internship->put('file_cv', $internship['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
+        dd($internship->merge($request)->all());
         $this->internship->create($internship->all());
         return true;
     }
@@ -180,11 +184,12 @@ class InternshipService
         return true;
     }
 
-    private function generateNip($tglKerja)
+    private function generateNip($tglKerja, $jk)
     {
-        return (int) (
-            date_create_from_format('Y-m-d', $tglKerja)->format('ym')
-            . count($this->getAllInternship())
+        return (int) ( '2' .
+            date_create_from_format('Y-m-d', $tglKerja)->format('Ymd')
+            . $jk == 'Laki-Laki' ? '01':'00'
+            . $this->internship->getAllThisYear()
         );
     }
 }

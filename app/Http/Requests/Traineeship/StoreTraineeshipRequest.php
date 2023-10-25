@@ -3,11 +3,9 @@
 namespace App\Http\Requests\Traineeship;
 
 use App\Rules\SocialMediaLink;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreTraineeshipRequest extends FormRequest
@@ -32,7 +30,7 @@ class StoreTraineeshipRequest extends FormRequest
             // 'hr_point_id' => 'int|exists:hr_points,id',
             'jk' => 'required|in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'required|numeric|digits_between:10,15',
-            'email' => 'required|email|unique:traineeships,email',
+            'email' => 'required|email|unique:interships,email|unique:employee_personal_informations,email',
             'alamat' => 'required|string',
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
             'is_kuliah' => 'required|in:0,1',

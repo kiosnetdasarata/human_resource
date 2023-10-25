@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Role;
+use App\Models\Division;
+use App\Models\InterviewPoint;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Traineeship extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'hr_point_id',
@@ -40,9 +41,9 @@ class Traineeship extends Model
     {
         return $this->belongsTo(Role::class);
     }
-    
-    public function internship(): HasOne
+
+    public function interviewPoint(): BelongsTo
     {
-        return $this->hasOne(Internship::class);
-    }//x
+        return $this->belongsTo(InterviewPoint::class, 'hr_point_id');
+    }
 }

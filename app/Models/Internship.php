@@ -17,7 +17,6 @@ class Internship extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'id',
-        'traineeship_id',
         'internship_nip',
         'nama_lengkap',
         'slug',
@@ -33,11 +32,6 @@ class Internship extends Model
         'is_mitra',
         'mitra_id',
     ];
-
-    public function traineeship(): BelongsTo
-    {
-        return $this->belongsTo(Traineeship::class);
-    }
 
     public function division(): BelongsTo
     {
@@ -62,6 +56,6 @@ class Internship extends Model
     public function internshipContract(): HasOne
     {
         return $this->hasOne(InternshipContract::class, 'internship_nip_id');
-    }//x
+    }
     
 }

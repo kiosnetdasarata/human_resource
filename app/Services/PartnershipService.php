@@ -1,8 +1,11 @@
 <?php
 namespace App\Services;
 
+use Carbon\Carbon;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use InvalidArgumentException;
 
 class PartnershipService
 {
@@ -38,15 +41,30 @@ class PartnershipService
         return $this->partnership->delete($this->getPartnership($partnershipId));
     }
 
-    public function getFilePartnership($mitraId)
+    public function getFilePartnerships($mitraId)
     {
-        return $this->filePartnership->find($mitraId);
+        if(($data = $this->getPartnership($mitraId)->filePartnership) == null) {
+            throw new ModelNotFoundException('tidak ada data yang ditemukan', 404);
+        }
+        return $data;
     }
 
-    public function createFilePartnership($request)
+    public function getFilePartnership($id, $type)
     {
-        $mitraId = $request['mitra_id'];
+        $filePartnership = $this->filePartnership->find($id);
+        if ($type === 'moa') return $filePartnership->file_moa;
+
+        if ($type === 'mou') return $filePartnership->file_mou;
+        //2 tahunfull bulan 00/01 jk 3 angka internship tahun itu
+        throw new InvalidArgumentException('tipe harus mou atau moa');
+    }
+
+    public function createFilePartnership($mitraId, $request)
+    {
+        $mitraId = $this->getPartnership($mitraId);
         $filePartnership = collect($request)->merge([
+            'mitra_id' => $mitraId->id,
+            'date_expired' => Carbon::parse($request['date_start'])->addMonth($request['durasi']),
             'file_mou' => 'aaa',
             'file_moa' => 'aaa',
         ]);
@@ -56,12 +74,12 @@ class PartnershipService
         //     'file_moa' => $request->file['file_moa']->storeAs('partnership/'.$mitraId, $mitraId.'_moa_'.Carbon::now().'.pdf', 'gcs'),
         // ]);
         
-        return $this->partnership->create($filePartnership->all());
+        return $this->filePartnership->create($filePartnership->all());
     }
 
     public function updateFilePartnership($mitraId, $request)
     {
-        $fileParnership = $this->getFilePartnership($mitraId)->sortByDesc('tanggal_masuk')->first();
+        $fileParnership = $this->getFilePartnerships($mitraId)->sortByDesc('tanggal_masuk')->first();
         return $fileParnership->update($request);
     }
 

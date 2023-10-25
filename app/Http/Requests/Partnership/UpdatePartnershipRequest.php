@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\ParnershipContract;
+namespace App\Http\Requests\Partnership;
 
-use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateParnershipContractRequest extends FormRequest
+class UpdatePartnershipRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +22,11 @@ class UpdateParnershipContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mitra_id' => 'exists:partnership,id',
-            'file_mou' => File::types(['pdf'])->max(5 * 1024),
-            'file_moa' => File::types(['pdf'])->max(5 * 1024),
-            'date_start' => 'date_format:Y-m-d',
-            'date_expired' => 'date_format:Y-m-d',
-            'durasi' => 'integer'
+            'nama_mitra' => 'string',
+            'alamat' => 'string',
+            'perwakilan_mitra' => 'string',
+            'no_telp' => 'unique:partnerships,no_telp|min:10|max:15',
+            'katergori_mitra' => 'string',
         ];
     }
 }

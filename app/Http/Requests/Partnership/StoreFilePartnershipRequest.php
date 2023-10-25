@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\ParnershipContract;
+namespace App\Http\Requests\Partnership;
 
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreParnershipContractRequest extends FormRequest
+class StoreFilePartnershipRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,10 @@ class StoreParnershipContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mitra_id' => 'required|exists:partnership,id',
-            'file_mou' => ['required', File::types(['pdf'])->max(5 * 1024)],
-            'file_moa' => ['required', File::types(['pdf'])->max(5 * 1024)],
+            'file_mou' => ['required', File::types(['pdf'])->max(5 * 1024),],
+            'file_moa' => ['required', File::types(['pdf'])->max(5 * 1024),],
             'date_start' => 'required|date_format:Y-m-d',
-            'date_expired' => 'required|date_format:Y-m-d',
-            'durasi' => 'required|integer'
+            'durasi' => 'required|int',
         ];
     }
 }

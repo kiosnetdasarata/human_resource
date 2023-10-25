@@ -10,8 +10,21 @@ class Partnership extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'nama_mitra',
+        'alamat',
+        'perwakilan_mitra',
+        'no_tlpn',
+        'kategori_mitra'
+    ];
+
     public function internship(): HasMany
     {
         return $this->hasMany(Internship::class, 'mitra_id');
-    }//x
+    }
+
+    public function filePartnership(): HasMany
+    {
+        return $this->hasMany(FilePartnership::class, 'mitra_id');
+    }
 }

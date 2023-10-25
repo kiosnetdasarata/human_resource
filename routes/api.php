@@ -29,8 +29,8 @@ use App\Http\Controllers\Internship\FilePartnershipController;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "api" middleware group. Make something great!
 |
-*/
-/*
+
+
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
 
@@ -60,18 +60,17 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 //Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmployeeDetails']);
+Route::get('/employee/{uuid}/confidential/', [EmployeeController::class, 'showEmployeeDetails']);
 Route::apiResource('employee', EmployeeController::class)->except(['create']); 
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
 Route::apiResource('internship', InternshipController::class)->except(['create']);
-Route::get('partnership/{mitraId}/file', [FilePartnershipController::class, 'index']);
-Route::get('partnership/{mitraId}/file/{type}', [FilePartnershipController::class, 'show']);
-Route::post('partnership/{mitraId}/file', [FilePartnershipController::class, 'store']);
-
 Route::apiResource('partnership', PartnershipController::class);
+Route::get('partnership/{mitraId}/file', [FilePartnershipController::class, 'index']);
+Route::post('partnership/{mitraId}/file', [FilePartnershipController::class, 'store']);
+Route::get('file-partnership/{id}/{type}', [FilePartnershipController::class, 'show']);
 
 
 // Route::middleware([

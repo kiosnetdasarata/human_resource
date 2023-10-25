@@ -33,6 +33,7 @@ use App\Repositories\Employee\EmployeeContractRepository;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Repositories\Employee\EmployeeEducationRepository;
 use App\Repositories\Employee\EmployeeTrainingsRepository;
+use App\Repositories\Internship\FilePartnershipRepository;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
@@ -43,6 +44,7 @@ use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 use App\Repositories\Employee\EmployeeContractHistoryRepository;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
 use App\Interfaces\Employee\EmployeeTrainingsRepositoryInterface;
+use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
 
@@ -73,8 +75,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(InternshipRepositoryInterface::class, InternshipRepository::class);
         $this->app->bind(InternshipContractRepositoryInterface::class, InternshipContractRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
-        $this->app->bind(PartnershipRepositoryInterface::class, PartnershipRepository::class);
         $this->app->bind(JobVacancyRepositoryInterface::class, JobVacancyRepository::class);
+        $this->app->bind(FilePartnershipRepositoryInterface::class, FilePartnershipRepository::class);
+        $this->app->bind(PartnershipRepositoryInterface::class, PartnershipRepository::class);
     }
 
     /**

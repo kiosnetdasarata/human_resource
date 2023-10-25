@@ -17,9 +17,14 @@ class FilePartnershipRepository implements FilePartnershipRepositoryInterface
         return $this->filePartnership->get();
     }
 
-    public function find($mitraid)
+    public function find($id)
     {
-        return $this->filePartnership->where('mitra_id', $mitraid)->sortByDesc()->first();
+        return $this->filePartnership->find($id);
+    }
+
+    public function findByMitra($mitraid)
+    {
+        return $this->filePartnership->where('mitra_id', $mitraid);
     }
 
     public function create($request)

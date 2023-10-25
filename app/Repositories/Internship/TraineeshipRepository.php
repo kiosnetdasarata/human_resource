@@ -13,12 +13,13 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function getAll()
     {
-        return $this->traineeship->get();
+        return $this->traineeship->with('interviewPoint')->get();
     }
 
     public function find($id)
     {
-        return $this->traineeship->findOrFail($id);
+        dd($this->traineeship->find($id));
+        return $this->traineeship->with('interviewPoint')->where('id', $id)->get();
     }
 
     public function findWithTrashes($id)
