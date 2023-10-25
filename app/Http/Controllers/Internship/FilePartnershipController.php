@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Internship;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ParnershipContract\UpdateFileParnershipRequest;
+use App\Http\Requests\Partnership\StoreFilePartnershipRequest;
 use App\Services\PartnershipService;
-use App\Http\Requests\ParnershipContract\StoreParnershipContractRequest;
-use App\Http\Requests\ParnershipContract\UpdateParnershipContractRequest;
 
 class FilePartnershipController extends Controller
 {
@@ -16,22 +15,32 @@ class FilePartnershipController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($mitraId)
     {
-        // return response()->json([
-        //     'status' => 'success',
-        //     'data' => $this->partnershipContract->getAllPartnershipContract(),
-        //     'status_code' => 200,
-        // ]);
+        try {
+            $data = $this->filePartnership->getFilePartnerships($mitraId);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+            ]);
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreParnershipContractRequest $request)
+    public function store($mitraId, StoreFilePartnershipRequest $request)
     {
         try {
-            $this->filePartnership->createFilePartnership($request->validated());
+            $this->filePartnership->createFilePartnership($mitraId, $request->validated());
 
             return response()->json([
                 'status' => 'success',
@@ -42,7 +51,7 @@ class FilePartnershipController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
-                'status_code' => 500,
+                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -50,15 +59,15 @@ class FilePartnershipController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $slug)
+    public function show(string $mitraId, string $type)
     {
         try {
-            $partnershipContract = $this->filePartnership->getFilePartnership($slug);
+            $partnershipContract = $this->filePartnership->getFilePartnership($mitraId, $type);
 
             return response()->json([
                 'status' => 'success',
-                'data' => $partnershipContract,
-            ], 200);
+                'data' => $partnershipContract == null ? "data tidak ditemukan" : $partnershipContract,
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -71,10 +80,10 @@ class FilePartnershipController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateParnershipContractRequest $request, string $slug)
+    public function update(UpdateFileParnershipRequest $request, string $mitraId,)
     {
         try {
-            $this->filePartnership->updateFilePartnership($slug, $request->validated());
+            $this->filePartnership->updateFilePartnership($mitraId, $request->validated());
 
             return response()->json([
                 'status' => 'success',
@@ -93,7 +102,7 @@ class FilePartnershipController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $uuid)
+    public function destroy(string $mitraId, string $type)
     {
         try {
             // $this->filePartnership->delete($uuid);

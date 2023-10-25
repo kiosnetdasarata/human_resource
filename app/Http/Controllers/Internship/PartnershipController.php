@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Internship;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Parnership\StoreParnershipRequest;
-use App\Http\Requests\Parnership\UpdateParnershipRequest;
+use App\Http\Requests\Partnership\StorePartnershipRequest;
+use App\Http\Requests\Partnership\UpdatePartnershipRequest;
 use App\Services\PartnershipService;
-use Illuminate\Http\Request;
 
 class PartnershipController extends Controller
 {
@@ -36,7 +35,7 @@ class PartnershipController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreParnershipRequest $request)
+    public function store(StorePartnershipRequest $request)
     {
         try {
             $this->partnership->createPartnership($request->validated());
@@ -79,10 +78,10 @@ class PartnershipController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateParnershipRequest $request, string $slug)
+    public function update($id, UpdatePartnershipRequest $request)
     {
         try {
-            $this->partnership->updatePartnership($slug, $request->validated());
+            $this->partnership->updatePartnership($id,$request->validated());
 
             return response()->json([
                 'status' => 'success',
