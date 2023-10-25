@@ -16,7 +16,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     {
         return $this->employee->with('role')->get()->map(function ($e) {
             return [
-                'uuid' => $e->uuid,
+                'uuid' => $e->id,
                 'nip_pgwi' => $e->nip,
                 'nama' => $e->nama,
                 'divisi' => $e->role->division->nama_divisi,
