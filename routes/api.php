@@ -49,6 +49,8 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 // Route get job title by division
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
 Route::apiResource('division', DivisionController::class)->except(['show']);
+// Route get Job Title
+Route::apiResource('role', RoleController::class)->except(['show']);
 
 
 /*
@@ -81,7 +83,7 @@ Route::apiResource('partnership', PartnershipController::class);
     Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
     Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
-    Route::apiResource('job-title', RoleController::class)->except(['show']);
+
     Route::apiResource('sales', SalesController::class)->except(['create']);
     Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
     Route::apiResource('technician', TechnicianController::class)->except(['create']);
