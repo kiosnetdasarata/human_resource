@@ -14,12 +14,12 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
 
     public function getAll()
     {
-        return $this->internshipContract->get();
+        return $this->internshipContract->with('internship')->get();
     }
 
     public function find($uuid)
     {
-        return $this->internshipContract->findOrFail($uuid);
+        return $this->internshipContract->with('internship')->findOrFail($uuid);
     }
 
     public function create($request)

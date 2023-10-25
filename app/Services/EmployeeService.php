@@ -183,13 +183,9 @@ class EmployeeService
         });
     }
 
-    public function getAllEmployeeConfidential()
-    {        
-    }
-
     public function findEmployeeConfidential($uuid)
     {
-       return $this->employeeCI->find($uuid);
+       return $this->findEmployeePersonal($uuid, 'id')->employeeCI;
     }
 
     private function storeEmployeeConfidential($request)
@@ -205,7 +201,6 @@ class EmployeeService
         //     'foto_ktp' => $request['foto_ktp']->storeAs('employee/foto_ktp', $request['nip_id'].'_ktp.pdf', 'gcs'),
         //     'foto_kk' => $request['foto_kk']->storeAs('employee/foto_kk', $request['nip_id'].'_kk.pdf', 'gcs'),
         //     'file_cv' => $request['file_cv']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'),
-        //     'nip_id' => $request['nip'],
         // ]);
         $this->employeeCI->create($data->all());
     }

@@ -19,7 +19,7 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
 
     public function find($id)
     {
-        return $this->employeeContract->with('employee')->find($id);
+        return $this->employeeContract->with('employee')->where('id', $id)->get()->firstOrFail();;
     }
     
     public function create($request)
