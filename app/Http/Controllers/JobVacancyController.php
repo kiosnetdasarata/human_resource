@@ -28,6 +28,20 @@ class JobVacancyController extends Controller
             ]);
         }
     }
+    public function role() {
+        try{
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->jobVacancy->getRole(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode(),
+            ]);
+        }
+    }
 
     /**
      * Store a newly created resource in storage.

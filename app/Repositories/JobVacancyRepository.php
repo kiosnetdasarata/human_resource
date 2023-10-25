@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Role;
 use App\Models\JobVacancy;
 use App\Interfaces\JobVacancyRepositoryInterface;
 
@@ -14,12 +15,27 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getAll()
     {
-        return $this->jobVacancy->get();
+        return $this->jobVacancy->with('role')->get();
+    }
+
+    public function getRole()
+    {
+        $roleId = $this->jobVacancy->where('is_active', 1)->select('role_id')->distinct()->get();
+        return Role::whereIn('id', $roleId)->get();
     }
 
     public function find($id)
     {
-        return $this->jobVacancy->findOrFail($id);
+        $jobVacancy = $this->jobVacancy->with('role')->findOrFail($id)->map(function ($e) {
+            return[
+                'id' => $e->id,
+                'nama_divisi' => $e->nama_divisi,
+                'jumlah_jabatan' => count($e->role),
+                'created_at' => $e->created_at,
+                'updated_at' => $e->updated_at
+            ];
+        });
+        dd($jobVacancy);
     }
 
     public function findByRole($id)

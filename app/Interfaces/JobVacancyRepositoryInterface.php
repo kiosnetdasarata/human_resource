@@ -5,6 +5,7 @@ namespace App\Interfaces;
 interface JobVacancyRepositoryInterface
 {
     public function getAll();
+    public function getRole();
     public function find($uuid);
     public function findByRole($uuid);
     public function create($request);

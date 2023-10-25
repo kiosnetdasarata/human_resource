@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Employee;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
@@ -38,6 +37,7 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 // Route get branch
 Route::get('/branchs', BranchController::class);
 //Route JobVacancy
+Route::get('job-vacancy/role', [JobVacancyController::class, 'role']);
 Route::apiResource('job-vacancy', JobVacancyController::class)->only('index', 'show');
 //Route Zone
 Route::controller(ZoneController::class)->prefix('zone')->group(function() {
@@ -48,13 +48,14 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 });
 // Route get job title by division
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
+Route::apiResource('division', DivisionController::class)->except(['show']);
 
 
 /*
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
 
-//Punya Al, form 3 pake updatenya employee resource
+//Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::get('/employee/confidential/{uuid}', [EmployeeController::class, 'showEmployeeDetails']);
@@ -64,9 +65,11 @@ Route::apiResource('employee', EmployeeController::class)->except(['create']);
 Route::apiResource('traineeship', TraineeshipController::class);
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
 Route::apiResource('internship', InternshipController::class)->except(['create']);
-Route::apiResource('partnership', PartnershipController::class);
-Route::apiResource('partnership/file', FilePartnershipController::class);
+Route::get('partnership/{mitraId}/file', [FilePartnershipController::class, 'index']);
+Route::get('partnership/{mitraId}/file/{type}', [FilePartnershipController::class, 'show']);
+Route::post('partnership/{mitraId}/file', [FilePartnershipController::class, 'store']);
 
+Route::apiResource('partnership', PartnershipController::class);
 
 
 // Route::middleware([
@@ -77,7 +80,6 @@ Route::apiResource('partnership/file', FilePartnershipController::class);
     Route::get('/level', [LevelController::class, 'getLevels']);
     Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
-    Route::apiResource('division', DivisionController::class)->except(['show']);
     Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
     Route::apiResource('job-title', RoleController::class)->except(['show']);
     Route::apiResource('sales', SalesController::class)->except(['create']);
