@@ -17,11 +17,20 @@ class TraineeshipController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $this->traineeship->getAllTraineeship(),
-            'status_code' => 200,
-        ]);
+        try {
+            return response()->json([
+                'success' => true,
+                'data' => $this->traineeship->getAllTraineeship(),
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
+        }
+
     }
 
     /**
@@ -33,12 +42,12 @@ class TraineeshipController extends Controller
             $this->traineeship->createTraineeship($request->validated());
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
                 'status_code' => 500,
@@ -55,35 +64,36 @@ class TraineeshipController extends Controller
             $traineeship = $this->traineeship->findTraineeship($slug);
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'data' => $traineeship,
-            ], 200);
+                'status_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'success' => false,
+                'message' => $e->getMessage() == '' ? 'Data tidak ditemukan' : $e->getMessage(),
+                'status_code' => 500
+            ]);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTraineeshipRequest $request, string $slug)
+    public function update(UpdateTraineeshipRequest $request, string $id)
     {
         try {
-            $this->traineeship->updateTraineeship($slug, $request->validated());
+            $this->traineeship->updateTraineeship($id, $request->validated());
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'status_code' => 200
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                // 'line' => $e->getTrace(),
+                'success' => false,
+                'message' => $e->getMessage() ? 'null' : 'data tidak ditemukan',
                 'input' => $request->validated(),
                 'status_code' => 500,
             ]);
@@ -99,13 +109,13 @@ class TraineeshipController extends Controller
             $this->traineeship->deleteTraineeship($uuid);
             
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'status_code' => 200,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => $e->getMessage(),
                 'status_code' => 500,
             ]);

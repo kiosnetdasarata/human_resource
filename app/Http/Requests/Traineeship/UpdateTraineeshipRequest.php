@@ -25,12 +25,11 @@ class UpdateTraineeshipRequest extends FormRequest
      */
     public function rules(): array
     {
-        $traineeship = $this->route('traineeship');
         return [
             'nama_lengkap' => 'string',
             'jk' => 'in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'numeric|digits_between:10,15',
-            'email' => 'email|unique:interships,email|unique:employee_personal_informations,email',
+            'email' => 'email|unique:internships,email|unique:employee_personal_informations,email',
             'alamat' => 'string',
             'link_sosmed' => ['url', new SocialMediaLink], //wajib pake https://www.
             'is_kuliah' => 'in:0,1',

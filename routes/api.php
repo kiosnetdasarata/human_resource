@@ -18,7 +18,9 @@ use App\Http\Controllers\EmployeeHistoryController;
 use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\PartnershipController;
 use App\Http\Controllers\Internship\TraineeshipController;
+use App\Http\Controllers\Internship\InterviewPointController;
 use App\Http\Controllers\Internship\FilePartnershipController;
+use App\Http\Controllers\Internship\InternshipContractController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,10 +68,12 @@ Route::apiResource('employee', EmployeeController::class)->except(['create']);
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
+Route::apiResource('traineeship.interview-point', [InterviewPointController::class])->except('show');
 Route::apiResource('internship', InternshipController::class)->except(['create']);
+Route::apiResource('internship.intern-contract', InternshipContractController::class);
+
 Route::apiResource('partnership', PartnershipController::class);
-Route::get('partnership/{mitraId}/file', [FilePartnershipController::class, 'index']);
-Route::post('partnership/{mitraId}/file', [FilePartnershipController::class, 'store']);
+Route::get('partnership.file', FilePartnershipController::class);
 Route::get('file-partnership/{id}/{type}', [FilePartnershipController::class, 'show']);
 
 

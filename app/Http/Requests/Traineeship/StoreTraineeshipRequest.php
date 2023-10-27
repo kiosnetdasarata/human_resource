@@ -30,7 +30,7 @@ class StoreTraineeshipRequest extends FormRequest
             // 'hr_point_id' => 'int|exists:hr_points,id',
             'jk' => 'required|in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'required|numeric|digits_between:10,15',
-            'email' => 'required|email|unique:interships,email|unique:employee_personal_informations,email',
+            'email' => 'required|email|unique:internships,email|unique:employee_personal_informations,email',
             'alamat' => 'required|string',
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
             'is_kuliah' => 'required|in:0,1',

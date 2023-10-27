@@ -47,6 +47,8 @@ use App\Interfaces\Employee\EmployeeTrainingsRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
+use App\Interfaces\Internship\InterviewPointRepositoryInterface;
+use App\Repositories\Internship\InterviewPointRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -78,6 +80,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(JobVacancyRepositoryInterface::class, JobVacancyRepository::class);
         $this->app->bind(FilePartnershipRepositoryInterface::class, FilePartnershipRepository::class);
         $this->app->bind(PartnershipRepositoryInterface::class, PartnershipRepository::class);
+        $this->app->bind(InterviewPointRepositoryInterface::class, InterviewPointRepository::class);
     }
 
     /**

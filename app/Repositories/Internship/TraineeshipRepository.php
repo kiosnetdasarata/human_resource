@@ -18,8 +18,7 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function find($id)
     {
-        dd($this->traineeship->find($id));
-        return $this->traineeship->with('interviewPoint')->where('id', $id)->get();
+        return $this->traineeship->with('interviewPoint')->where('id', $id)->get()->firstOrFail();
     }
 
     public function findWithTrashes($id)
