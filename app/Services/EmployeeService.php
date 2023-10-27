@@ -69,7 +69,6 @@ class EmployeeService
             $employee = $this->findEmployeePersonal($uuid, 'id');
             $request = collect($request)->put('nip', $employee['nip']);
             $request->put('nip_id', $employee['nip']);
-    
             $this->updateEmployeePersonal($uuid, $request);
             $this->updateEmployeeConfidential($employee->employeeCI->id, $request);
             if(isset($request['pendidikan_terakhir']))
@@ -82,13 +81,13 @@ class EmployeeService
         $edu = $this->findEmployeePersonal($nip, 'nip')->employeeEducation;
         if (count($edu) > 0)
         foreach ($edu as $data) {
+            if ($request['pendidikan_terakhir'] == 'Sarjana') break;
             if (array_search($data['pendidikan_terakhir'], $arr) > array_search($request['pendidikan_terakhir'], $arr) && 
                 $data['tahun_lulus'] <= $request['tahun_lulus']) {
                     throw new \Exception ('tahun lulus tidak valid');
                 }
-            if ($request['pendidikan_terakhir'] == 'Sarjana') break;
             if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
-                throw new \Exception('pendidikan_terakhir : '. $request['pendidikan_terakhir']. ' sudah ada');
+                throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada');
             }
         }
         $this->employeeEducation->create($request->all());
@@ -128,23 +127,23 @@ class EmployeeService
 
             $this->employee->create($data->all());
             
-            if ($data['divisi_id'] === 4) {
-                $this->sales->create([
-                    'nip_id' => $data['nip'],
-                    'slug' => $data['slug'],
-                    'id' => Uuid::uuid4()->getHex(),
-                    'level_id' => isset($data['level_sales_id']) ? $data['level_sales_id'] : 0,
-                ]);
+            // if ($data['divisi_id'] === 4) {
+            //     $this->sales->create([
+            //         'nip_id' => $data['nip'],
+            //         'slug' => $data['slug'],
+            //         'id' => Uuid::uuid4()->getHex(),
+            //         'level_id' => isset($data['level_sales_id']) ? $data['level_sales_id'] : 0,
+            //     ]);
 
-            } else if ($data['divisi_id'] == 5) {
-                $this->technician->create([
-                    'team_id' => $data['team_id'],
-                    'id' => Uuid::uuid4()->getHex(),
-                    'slug' => $data['slug'],
-                    'nip_id' => $data['nip'],
-                    'is_katim' => isset($data['katim']) ? $data['katim'] : 0,
-                ]);
-            }
+            // } else if ($data['divisi_id'] == 5) {
+            //     $this->technician->create([
+            //         'team_id' => $data['team_id'],
+            //         'id' => Uuid::uuid4()->getHex(),
+            //         'slug' => $data['slug'],
+            //         'nip_id' => $data['nip'],
+            //         'is_katim' => isset($data['katim']) ? $data['katim'] : 0,
+            //     ]);
+            // }
             return $data;
         });
     }
@@ -153,8 +152,7 @@ class EmployeeService
     {
         $old = $this->findEmployeePersonal($uuid, 'id');
         $employee = collect($request)->diffAssoc($old);
-    
-        if (($employee->has('nama'))) {
+        if ($employee->has('nama')) {
             $employee->put(
                 'slug', Str::slug($employee["nama"]) . (($count = count($this->findSlugEmployeePersonal($employee["nama"]), true)) > 1 ? '-' . $count + 1 : ''),
             );
@@ -164,7 +162,7 @@ class EmployeeService
             if ($old->technician() != null)
                 $this->technician->update($old['nip'], ['slug' => $employee['slug']]);
         }
-        if ($employee->has('foto_profil'))
+        // if ($employee->has('foto_profil'))
             // $employee->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
         $this->employee->update($old, $employee->all());
     }
