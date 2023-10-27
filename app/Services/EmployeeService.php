@@ -72,7 +72,8 @@ class EmployeeService
     
             $this->updateEmployeePersonal($uuid, $request);
             $this->updateEmployeeConfidential($employee->employeeCI->id, $request);
-            $this->addEducation($employee->nip, $request);
+            if(isset($request['pendidikan_terakhir']))
+                $this->addEducation($employee->nip, $request);
         });
     }
 
