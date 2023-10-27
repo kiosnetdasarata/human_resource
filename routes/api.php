@@ -68,12 +68,12 @@ Route::apiResource('employee', EmployeeController::class)->except(['create']);
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
-Route::apiResource('traineeship.interview-point', [InterviewPointController::class])->except('show');
+Route::apiResource('traineeship.interview-point', InterviewPointController::class)->except('show');
 Route::apiResource('internship', InternshipController::class)->except(['create']);
 Route::apiResource('internship.intern-contract', InternshipContractController::class);
 
 Route::apiResource('partnership', PartnershipController::class);
-Route::get('partnership.file', FilePartnershipController::class);
+Route::apiResource('partnership.file', FilePartnershipController::class);
 Route::get('file-partnership/{id}/{type}', [FilePartnershipController::class, 'show']);
 
 
