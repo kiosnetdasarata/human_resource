@@ -27,8 +27,11 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function find($uuid, $table)
     {
-        return $this->employee->with(['employeeCI', 'employeeContract', 'role'])
-                ->where($table, $uuid)->get()->firstOrFail();
+        return $this->employee->with(['employeeCI', 'employeeContract', 'role'
+                                        , 'employeeEducation' => function ($query) {
+                                            $query->latest()->first();
+                                        }])
+                ->where($table, $uuid)->get()->first();
     }
 
     public function findBySlug($slug)

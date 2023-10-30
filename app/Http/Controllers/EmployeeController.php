@@ -48,11 +48,6 @@ class EmployeeController extends Controller
 
     public function returnException($e, $input = [])
     {
-        // if ($e instanceof ModelNotFoundException) {
-        //     $message = 'modelnya gaada, periksa lagi routenya';
-        // } elseif ($e instanceof RuntimeException) {
-        //     $message = 'runtime error';
-        // }
         return response()->json([
             'status' => 'error',
             'message' => isset($message) ? $message : $e->getMessage(),
@@ -81,6 +76,9 @@ class EmployeeController extends Controller
     {
         try {
             $employee = $this->employeeService->findEmployeePersonal($id, 'id');
+            if ($employee == null) {
+                throw new \Exception('data tidak ditemukan');
+            }
             return response()->json([
                 'status' => 'success',
                 'data' => $employee,
