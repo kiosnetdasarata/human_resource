@@ -45,9 +45,9 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 });
 // Route get job title by division
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
-Route::apiResource('division', DivisionController::class)->except(['show']);
+Route::get('/division', [DivisionController::class, 'index']);
 // Route get Job Title
-Route::apiResource('role', RoleController::class)->except(['show']);
+Route::get('role', [RoleController::class, 'index']);
 // Route get Level
 // Route::get('/levels')
 
