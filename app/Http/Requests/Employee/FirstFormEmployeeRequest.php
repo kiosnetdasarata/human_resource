@@ -30,6 +30,7 @@ class FirstFormEmployeeRequest extends FormRequest
             'level_id' => 'required|exists:levels,id',
             'nama' => 'required|string',
             'alamat' => 'required|string',
+            'alamat_sekarang' => 'required|string',
             'dusun_id' => 'required|exists:villages,id',
             'tempat_lahir' => 'required|string',
             'tgl_lahir' => 'required|date_format:Y-m-d',    

@@ -11,8 +11,10 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
+use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
 
@@ -28,6 +30,7 @@ class EmployeeService
         private EmployeeArchiveRepositoryInterface $employeeArchive,
         private EmployeeContractRepositoryInterface $employeeContract,
         private EmployeeEducationRepositoryInterface $employeeEducation,
+        private EmployeeContractHistoryRepositoryInterface $employeeContractHistory
     )
     {}
 
@@ -51,14 +54,14 @@ class EmployeeService
 
     public function secondForm($uuid, $request)
     {
-        $employee = $this->findEmployeePersonal($uuid, 'id');
+        return DB::transaction(function () use ($uuid, $request) {
+            $employee = $this->findEmployeePersonal($uuid, 'id');
 
-        if ($employee->employeeContract != null) {
-            throw new \Exception('data is exist');
-        }
-        return DB::transaction(function () use ($employee, $request) {
-            $this->updateEmployeeConfidential($employee->employeeCI->id, $request);
-            $this->storeEmployeeContract(collect($request)->merge(['nip_id' => $employee->nip])->all());
+            if ($employee->employeeContract != null) {
+                throw new \Exception('data is exist');
+            }
+            $this->updateEmployeeConfidential($uuid, $request);
+            $this->storeEmployeeContract($uuid, collect($request)->merge(['nip_id' => $employee->nip])->all());
             $this->user->setIsactive($employee->user(), true);
         });
     }
@@ -116,7 +119,7 @@ class EmployeeService
                 'slug' => Str::slug($request["nama"], '_') . (($count = count($this->findSlugEmployeePersonal($request["nama"]),true)) > 0 ? '_' . $count+1 : ''),
                 'id' => Uuid::uuid4()->getHex(),
                 'nip' => Carbon::now()->format('ym')
-                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? 1 : 2)
+                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
                         . count($this->getAllEmployeePersonal(true)),
                 'level_id' => $this->role->find($request['role_id'])->level_id,
                 'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
@@ -206,7 +209,7 @@ class EmployeeService
 
     public function updateEmployeeConfidential($uuid, $request)
     {
-        $old = $this->findEmployeeConfidential($uuid);
+        $old = $this->findEmployeePersonal($uuid, 'id')->employeeCI;
         $data = collect($request)->diffAssoc($old);
         if ($data->has('foto_ktp')) {
             // $data->put('foto_ktp', $request['foto_ktp']->storeAs('employee/foto_ktp', $data['nip'].'_ktp.pdf', 'gcs'));
@@ -234,26 +237,41 @@ class EmployeeService
         });
     }
 
-    public function findEmployeeContract($uuid, $table)
+    public function getEmployeeContract($uuid)
     {
-       return $this->employeeContract->find($uuid, $table);
+        $data = $this->findEmployeePersonal($uuid, 'id')->employeeContract;
+        if ($data == null || $data->end_contract < Carbon::now()) {
+            throw new ModelNotFoundException('file kontrak tidak ditemukan atau kadaluarsa', 404);
+        }
+        return $data;
     }
 
-    private function storeEmployeeContract($request)
+    public function getEmployeeContracts($uuid)
     {
-        return DB::transaction(function ()  use ($request) {
+        return $this->findEmployeePersonal($uuid, 'id')->employeeContractHistory;
+    }
+
+    private function storeEmployeeContract($uuid, $request)
+    {
+        return DB::transaction(function ()  use ($request, $uuid) {
+            $contract = $this->getAllEmployeePersonal($uuid, 'id')->employeeContract;
+            if ($contract != null) {
+                $this->deleteEmployeeContract($uuid);
+            }
             $data = collect($request)->merge([
                 'file_terms' => "aaaa",
                 // $request['file_terms']->storeAs('employee/file_terms', $request['nip_id'].'_terms.pdf', 'gcs'),
                 'id' => Uuid::uuid4()->getHex(),
             ]);
+            
             $this->employeeContract->create($data->all());
+            $this->user->setIsactive($contract->employee->user, true);
         });
     }
 
     public function updateEmployeeContract($id, $request)
     {
-        $old = $this->findEmployeeContract($id, 'id');
+        $old = $this->getEmployeeContract($id);
         $data = collect($request)->diffAssoc($old);
         if ($data->has('file_terms')) {
             // $data->put('file_terms', $request['file_terms']->storeAs('employee/file_terms', $request['nip'].'_terms.pdf', 'gcs'));
@@ -264,12 +282,13 @@ class EmployeeService
     public function deleteEmployeeContract($uuid)
     {
         return DB::transaction(function ()  use ($uuid) {
-            $contract = $this->findEmployeeContract($uuid, 'id');
-            if ($contract->end_contract > Carbon::now()) {
-                throw new \Exception('tidak bisa menghapus kontrak karena kontrak belum berakhir');
-            }
+            $contract = $this->findEmployeePersonal($uuid, 'id')->employeeContract;
             $this->employeeContract->delete($contract);
-            $this->user->setIsactive($contract->employee->user, true);
+            $history = collect($contract)->merge([
+                'kontrak_ke' => count($this->employeeContractHistory->find($contract->nip_id)) +1,
+            ]);
+            $this->employeeContractHistory->create($history);
+            $this->user->setIsactive($contract->employee->user, false);
         });
     }
 }
