@@ -3,16 +3,19 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\JobVacancyController;
+use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\PartnershipController;
 use App\Http\Controllers\Internship\TraineeshipController;
+use App\Http\Controllers\Employee\EmployeeContractController;
 use App\Http\Controllers\Internship\InterviewPointController;
 use App\Http\Controllers\Internship\FilePartnershipController;
 use App\Http\Controllers\Internship\InternshipContractController;
@@ -49,7 +52,7 @@ Route::get('/division', [DivisionController::class, 'index']);
 // Route get Job Title
 Route::get('role', [RoleController::class, 'index']);
 // Route get Level
-// Route::get('/levels')
+Route::get('/levels', [LevelController::class, 'getLevels']);
 
 /*
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
@@ -59,9 +62,11 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 // Route::apiSingleton('employee.confidential', EmployeeController::class);
-Route::get('/employee/{uuid}/contract/history', [EmployeeController::class, 'index']);
-// Route::apiSingleton('employee.contract', EmployeeController::class);
+// Route::get('/employee/{uuid}/contract/history', [EmployeeController::class, 'index']);
+Route::apiSingleton('employee.contract', EmployeeContractController::class);
 Route::apiResource('employee', EmployeeController::class)->except(['store']);
+Route::apiResource('sales', SalesController::class)->except(['store']);
+Route::apiResource('teknisi', TechnicianController::class)->except(['store']);
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
