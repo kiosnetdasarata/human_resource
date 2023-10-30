@@ -13,12 +13,28 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function getAll()
     {
-        return $this->traineeship->with('interviewPoint')->get();
+        return $this->traineeship->with(['interviewPoint', 'role'])->get()->map(function ($e) {
+            $poin = $e->interviewPoint;
+            $rata2 = 0;
+            if ($poin != null)
+                $rata2 = (double) ($poin->presentasi + $poin->kualitas_kerja + $poin->etika
+                        + $poin->adaptif + $poin->kerja_sama + $poin->disiplin
+                        + $poin->tanggung_jawab+ $poin->inovatif_kreatif 
+                        + $poin->problem_solving + $poin->kemampuan_teknis + $poin->tugas) / 11;
+            return [
+                'Nama Lengkap' => $e->nama_lengkap,
+                'Nama Jabatan' => $e->role->nama_jabatan,
+                'Status' => $e->status_traineeship,
+                'Nilai' => $rata2,
+                'Ket HR' => $poin == null ? '' : $poin->keterangan_hr,
+                'Ket User' => $poin == null ? '' : $poin->keterangan_user,
+            ];
+        });
     }
 
     public function find($id)
     {
-        return $this->traineeship->with('interviewPoint')->where('id', $id)->get()->firstOrFail();
+        return $this->traineeship->with('interviewPoint')->where('id', $id)->get()->first();
     }
 
     public function findWithTrashes($id)

@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Internship extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -20,17 +22,23 @@ class Internship extends Model
         'internship_nip',
         'nama_lengkap',
         'slug',
-        'alamat',
+        'jk',
+        'no_tlpn',
         'email',
-        'no_telp',
-        'divisi_id',
-        'role_id',
-        'supervisor',
-        'tanggal_masuk',
-        'durasi',
-        'file_cv',
-        'is_mitra',
+        'alamat',
+        'link_sosmed',
+        'is_kuliah',
+        'nama_instansi',
+        'semester',
+        'tahun_lulus',
         'mitra_id',
+        'role_id',
+        'durasi',
+        'tanggal_masuk',
+        'status_internship',
+        'status_phase',
+        'supervisor',
+        'file_cv',
     ];
 
     public function division(): BelongsTo
@@ -53,9 +61,9 @@ class Internship extends Model
         return $this->belongsTo(Partnership::class, 'mitra_id');
     }
 
-    public function internshipContract(): HasOne
+    public function internshipContract(): HasMany
     {
-        return $this->hasOne(InternshipContract::class, 'internship_nip_id');
+        return $this->hasMany(InternshipContract::class, 'internship_nip_id', 'internship_nip');
     }
     
 }

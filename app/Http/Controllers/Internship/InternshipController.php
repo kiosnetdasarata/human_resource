@@ -28,10 +28,10 @@ class InternshipController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreInternshipRequest $request)
+    public function store($idTraineenship, StoreInternshipRequest $request)
     {
         try {
-            $this->internshipService->createInternship($request->validated());
+            $this->internshipService->createInternship($idTraineenship, $request->validated());
 
             return response()->json([
                 'status' => 'success',
@@ -107,6 +107,7 @@ class InternshipController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
+                'line' => $e->getTrace(),
                 'status_code' => 500,
             ]);
         }

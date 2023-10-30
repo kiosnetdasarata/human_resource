@@ -22,7 +22,8 @@ class UpdateIntershipContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'durasi_kontrak' => 'required|in:3,6',
+            'date_start' => 'required|date_format:Y-m-d',
         ];
     }
 }

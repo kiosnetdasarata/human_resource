@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Internship;
 use Illuminate\Http\Request;
 use App\Services\InternshipService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Internship\StoreInterviewPointRequest;
+use App\Http\Requests\InterviewPoint\StoreInterviewPointRequest;
+use App\Http\Requests\InterviewPoint\UpdateInterviewPointRequest;
 
 class InterviewPointController extends Controller
 {
@@ -36,23 +37,52 @@ class InterviewPointController extends Controller
     /**
      * Display the specified resource.
      */
-    // public function show(string $id)
-    // {
-    // }
+    public function show(string $id)
+    {
+        try {
+            $data = $this->internshipService->showInterviewPoint($id);
+            if ($data == null) {
+                $data = 'traineeship belum memiliki interview point';
+            }
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => 500
+            ]);
+        }
+    }
 
-    // /**
-    //  * Update the specified resource in storage.
-    //  */
-    // public function update(Request $request, string $id)
-    // {
-    //     //
-    // }
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateInterviewPointRequest $request, string $id)
+    {
+        try {
+            $this->internshipService->updateInterviewPoint($id, $request->validated());
+            return response()->json([
+                'success' => true,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => 500
+            ]);
+        }
+    }
 
-    // /**
-    //  * Remove the specified resource from storage.
-    //  */
-    // public function destroy(string $id)
-    // {
-    //     //
-    // }
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
 }

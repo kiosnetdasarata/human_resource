@@ -24,18 +24,13 @@ class StoreInternshipRequest extends FormRequest
      */
     public function rules(): array
     {
+        // dd('aaa');
         return [
-            'traineeship_id' => 'required|exists:traineeships,id',
-            'nama_lengkap' => 'required|string',
-            'alamat' => 'required|string',
-            'jk' => 'required|in:Laki-Laki,Perempuan',
-            'email' => 'required|email|unique:internships,email',
-            'no_tlpn' => 'required|min:10|max:|unique:internships,no_telp',
-            'role_id' => 'required|in:role,id',
-            'supervisor' => 'required|in:employee,id',
-            'tgl_masuk' => 'required|date_format:Y-m-d',
-            'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
-            'mitra_id' => 'in:parnertships,id',
+            'status_internship' => 'required|in:Internship,Magang',
+            'status_phase' => 'required|in:Onboarding,Join,Selesai',
+            'tanggal_masuk' => 'required|date:Y-m-d',
+            'mitra_id' => 'int|exists:partnerships,id',
+            // 'supervisor' => 'in:employee,id',
         ];
     }
 

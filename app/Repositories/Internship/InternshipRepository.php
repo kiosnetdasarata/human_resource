@@ -16,6 +16,11 @@ class InternshipRepository implements InternshipRepositoryInterface
         return $this->internship->get();
     }
 
+    public function getAllThisYear()
+    {
+        return count($this->internship->whereYear('created_at', now()->year)->get());
+    }
+
     public function findBySlug($slug)
     {
         return $this->internship->where('slug', 'LIKE','%'. $slug.'%')->get();
@@ -23,7 +28,9 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->internship->findOrFail($uuid);
+        return $this->internship->with(['internshipContract' => function ($query) {
+            $query->latest();
+        }])->where('id', $uuid)->get()->first();
     }
 
     public function create($request)

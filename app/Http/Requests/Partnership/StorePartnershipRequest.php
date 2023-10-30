@@ -22,11 +22,11 @@ class StorePartnershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama_mitra' => 'required|string|unique:parnerships,nama_mitra',
+            'nama_mitra' => 'required|string|unique:partnerships,nama_mitra',
             'alamat' => 'required|string',
             'perwakilan_mitra' => 'required|string',
             'no_tlpn' => 'required|numeric|digits_between:10,15|unique:partnerships,no_tlpn',
-            'katgori_mitra' => 'required|in:Universitas,SMK,Bootcamp',
+            'kategori_mitra' => 'required|in:Universitas,SMK,Bootcamp',
         ];
     }
 }

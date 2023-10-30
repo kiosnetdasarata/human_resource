@@ -3,18 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
-use App\Http\Controllers\LevelController;
-use App\Http\Controllers\SalesController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\JobVacancyController;
-use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\StatusLevelController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\EmployeeHistoryController;
 use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\PartnershipController;
 use App\Http\Controllers\Internship\TraineeshipController;
@@ -53,7 +48,8 @@ Route::get('/division/{division}/role', [RoleController::class, 'index']);
 Route::apiResource('division', DivisionController::class)->except(['show']);
 // Route get Job Title
 Route::apiResource('role', RoleController::class)->except(['show']);
-
+// Route get Level
+// Route::get('/levels')
 
 /*
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
@@ -62,39 +58,43 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 //Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-Route::get('/employee/{uuid}/confidential/', [EmployeeController::class, 'showEmployeeDetails']);
-Route::apiResource('employee', EmployeeController::class)->except(['create']); 
+Route::apiSingleton('employee.confidential', EmployeeController::class);
+Route::get('/employee/{uuid}/contract/history', [EmployeeController::class, 'index']);
+Route::apiSingleton('employee.contract', EmployeeController::class);
+Route::apiResource('employee', EmployeeController::class)->except(['create']);
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
+Route::apiSingleton('traineeship.interview-point', InterviewPointController::class)->creatable();
+
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
-Route::apiResource('traineeship.interview-point', InterviewPointController::class)->except('show');
 Route::apiResource('internship', InternshipController::class)->except(['create']);
-Route::apiResource('internship.intern-contract', InternshipContractController::class);
+Route::get('/internship/{idInternship}/contract/history', [InternshipContractController::class, 'index']);
+Route::apiSingleton('internship.contract', InternshipContractController::class)->creatable()->except('destroy');
 
-Route::apiResource('partnership', PartnershipController::class);
-Route::apiResource('partnership.file', FilePartnershipController::class);
-Route::get('file-partnership/{id}/{type}', [FilePartnershipController::class, 'show']);
+Route::apiResource('partnership', PartnershipController::class)->except('destroy');
+Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::class, 'index']);
+Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
+// Route::get('file-partnership/{}/{type}', [FilePartnershipController::class, 'show']);
 
 
-// Route::middleware([
-    // 'jwt:api',
-    // 'is_human_resource,
-    // ])->group(function() {
-    //Route get level
-    Route::get('/level', [LevelController::class, 'getLevels']);
-    Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
-    Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
+//Route belom jadi
+// Route::get('/level', [LevelController::class, 'getLevels']);
+// Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
 
-    Route::apiResource('sales', SalesController::class)->except(['create']);
-    Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
-    Route::apiResource('technician', TechnicianController::class)->except(['create']);
+// Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
+
+// Route::apiResource('sales', SalesController::class)->except(['create']);
+// Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
+// Route::apiResource('technician', TechnicianController::class)->except(['create']);
 
     // Route::get('/employee-archive/{nip}', [EmployeeController::class, 'show'])->withTrashed();
-
+Route::middleware([
+        'jwt:api',
+        ])->group(function() {
     Route::post('logout', LogoutController::class);
-// });
+});
 
 Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);

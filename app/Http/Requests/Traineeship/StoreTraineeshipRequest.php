@@ -35,7 +35,7 @@ class StoreTraineeshipRequest extends FormRequest
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
             'is_kuliah' => 'required|in:0,1',
             'nama_instansi' => 'required|string',
-            'semester' => 'required|numeric|max:20',
+            'semester' => 'required_if:is_kuliah:1|numeric|max:20',
             'tahun_lulus' => 'required_if:is_kuliah,0',
             'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
             'durasi' => 'required|in:3,6',

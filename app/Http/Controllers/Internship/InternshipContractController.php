@@ -10,23 +10,36 @@ use App\Http\Requests\InternshipContract\UpdateIntershipContractRequest;
 
 class InternshipContractController extends Controller
 {
-    public function __construct(private InternshipService $internshipContract) 
+    public function __construct(private InternshipService $internshipService) 
     {
     }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($idInternship)
     {
+        try {
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->internshipService->getInternshipContracts($idInternship),
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode(),
+            ]);
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreIntershipContractRequest $request)
+    public function store($idInternship, StoreIntershipContractRequest $request)
     {
         try {
-            $this->internshipContract->createinternshipContract($request->validated());
+            $this->internshipService->createinternshipContract($idInternship,$request->validated());
 
             return response()->json([
                 'status' => 'success',
@@ -45,10 +58,10 @@ class InternshipContractController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $slug)
+    public function show($id)
     {
         try {
-            $internshipContract = $this->internshipContract->findinternshipContract($slug);
+            $internshipContract = $this->internshipService->getinternshipContract($id);
 
             return response()->json([
                 'status' => 'success',
@@ -58,7 +71,7 @@ class InternshipContractController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -66,23 +79,23 @@ class InternshipContractController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateIntershipContractRequest $request, string $slug)
+    public function update(UpdateIntershipContractRequest $request, string $id)
     {
-        // try {
-        //     $this->internshipContract->updateInternshipContract($slug, $request->validated());
+        try {
+            $this->internshipService->updateInternshipContract($id, $request->validated());
 
-        //     return response()->json([
-        //         'status' => 'success',
-        //         'status_code' => 200
-        //     ]);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => $e->getMessage(),
-        //         'input' => $request->validated(),
-        //         'status_code' => 500,
-        //     ]);
-        // }
+            return response()->json([
+                'status' => 'success',
+                'status_code' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => 500,
+            ]);
+        }
     }
 
     /**
@@ -91,7 +104,7 @@ class InternshipContractController extends Controller
     public function destroy(string $uuid)
     {
         try {
-            $this->internshipContract->deleteinternshipContract($uuid);
+            $this->internshipService->deleteinternshipContract($uuid);
             
             return response()->json([
                 'status' => 'success',

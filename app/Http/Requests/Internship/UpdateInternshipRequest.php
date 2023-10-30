@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Internship;
 
-use Illuminate\Validation\Rules\File;
+use App\Rules\SocialMediaLink;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,17 +26,20 @@ class UpdateInternshipRequest extends FormRequest
     {
         $internship = $this->route('internship');
         return [
-            'traineeship_id' => 'exists:traineeships,id',
             'nama_lengkap' => 'string',
+            'no_tlpn' => 'min:10|max:15|unique:internships,no_telp'.$internship.',id',
+            'email' => 'email|unique:internships,email,'.$internship.',id',
             'alamat' => 'string',
-            'jk' => 'in:Laki-Laki,Perempuan',
-            'email' => 'email|unique:internship,email'.$internship.',uuid',
-            'no_tlpn' => 'min:10|max:15|unique:internship,no_telp'.$internship.',uuid',
-            'role_id' => 'in:role,id',
-            'supervisor' => 'in:employee,id',
-            'tgl_masuk' => 'date_format:Y-m-d',
-            'mitra_id' => 'in:parnertships,id',
-            'file_cv' => File::types(['pdf'])->max(5 * 1024),
+            'link_sosmed' => ['url', new SocialMediaLink],
+            'is_kuliah' => 'in:0,1',
+            'nama_instansi' => 'string',
+            'semester' => 'required_if:is_kuliah,1|numeric|max:20',
+            'tahun_lulus' => 'required_if:is_kuliah,0',
+            'mitra_id' => 'in:partnerships,id',
+            'role_id' => 'exists:roles,id',
+            'status_internship' => 'in:Internship,Magang',
+            'status_phase' => 'in:Onboarding,Join,Selesai',
+            'supervisor' => 'exists:employee_personal_informations,nip',
         ];
     }
 

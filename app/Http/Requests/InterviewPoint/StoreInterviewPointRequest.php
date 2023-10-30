@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Internship;
+namespace App\Http\Requests\InterviewPoint;
 
 use Illuminate\Foundation\Http\FormRequest;
 

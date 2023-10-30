@@ -2,10 +2,11 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use InvalidArgumentException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use InvalidArgumentException;
 
 class PartnershipService
 {
@@ -41,22 +42,18 @@ class PartnershipService
         return $this->partnership->delete($this->getPartnership($partnershipId));
     }
 
-    public function getFilePartnerships($mitraId)
+    public function getFilePartnership($mitraId)
     {
-        if(($data = $this->getPartnership($mitraId)->filePartnership) == null) {
-            throw new ModelNotFoundException('tidak ada data yang ditemukan', 404);
+        $data = $this->getPartnership($mitraId)->filePartnership[0];
+        if($data == null || $data->date_expired < Carbon::now()) {
+            throw new ModelNotFoundException('file mitra tidak ditemukan atau kadaluarsa', 404);
         }
         return $data;
     }
 
-    public function getFilePartnership($id, $type)
+    public function getFilePartnerships($id)
     {
-        $filePartnership = $this->filePartnership->find($id);
-        if ($type === 'moa') return $filePartnership->file_moa;
-
-        if ($type === 'mou') return $filePartnership->file_mou;
-        //2 tahunfull bulan 00/01 jk 3 angka internship tahun itu
-        throw new InvalidArgumentException('tipe harus mou atau moa');
+        return $this->getPartnership($id)->filePartnership;
     }
 
     public function createFilePartnership($mitraId, $request)
@@ -79,11 +76,30 @@ class PartnershipService
 
     public function updateFilePartnership($mitraId, $request)
     {
-        $fileParnership = $this->getFilePartnerships($mitraId)->sortByDesc('tanggal_masuk')->first();
-        return $fileParnership->update($request);
+        return DB::transaction(function () use ($mitraId, $request) {
+            $fileParnership = $this->getFilePartnership($mitraId);
+            $data = collect($request)->diffAssoc($fileParnership);
+            if (isset($data['durasi']))
+                $this->filePartnership->update($fileParnership, [
+                    'durasi' => $data['durasi'],
+                    'date_expired' => Carbon::parse($data['date_start'])->addMonth($data['durasi'])
+                ]);
+            if (isset($data['date_start']))
+                $fileParnership = $this->getFilePartnership($mitraId);
+                $this->filePartnership->update($fileParnership, [
+                    'date_start' => $data['date_start'],
+                    'date_expired' => Carbon::parse($data['date_start'])->addMonth($fileParnership['durasi'])
+                ]);
+            // $data['file_mou']->storeAs('partnership/'.$mitraId, $mitraId.'_mou_'.Carbon::now().'.pdf', 'gcs');
+            // $data['file_moa']->storeAs('partnership/'.$mitraId, $mitraId.'_moa_'.Carbon::now().'.pdf', 'gcs');
+        });
     }
 
-    // public function deleteFilePartnership($mitraId,
+    public function deleteFilePartnership($mitraId)
+    {
+        $fileParnership = $this->getFilePartnership($mitraId);
+        return $this->filePartnership->delete($fileParnership);
+    }
 }
 
 ?>

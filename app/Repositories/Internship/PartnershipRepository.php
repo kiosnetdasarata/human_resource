@@ -19,8 +19,8 @@ class PartnershipRepository implements PartnershipRepositoryInterface
     public function find($id)
     {
         return $this->partnership->with(['filePartnership' => function ($query) {
-            $query->latest()->first();
-        }])->findOrFail($id);
+            $query->latest();
+        }])->where('id', $id)->get()->firstOrFail();
     }
 
     public function create($request)

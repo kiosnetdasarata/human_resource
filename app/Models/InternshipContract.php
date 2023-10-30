@@ -25,6 +25,6 @@ class InternshipContract extends Model
 
     public function internship(): BelongsTo
     {
-        return $this->belongsTo(Internship::class, 'internship_nip_id');
+        return $this->belongsTo(Internship::class, 'internship_nip_id', 'internship_nip');
     }
 }

@@ -19,7 +19,7 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
 
     public function find($uuid)
     {
-        return $this->internshipContract->with('internship')->findOrFail($uuid);
+        return $this->internshipContract->with('internship')->where('id', $uuid)->get()->first();
     }
 
     public function create($request)
@@ -29,7 +29,7 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
 
     public function update($internshipContract, $request)
     {
-        return $internshipContract->internship($request);
+        return $internshipContract->update($request);
     }
 
     public function delete($internshipContract)

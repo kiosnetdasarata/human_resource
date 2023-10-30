@@ -21,12 +21,13 @@ class UpdatePartnershipRequest extends FormRequest
      */
     public function rules(): array
     {
+        $partnership = $this->route('partnership');
         return [
-            'nama_mitra' => 'string',
+            'nama_mitra' => 'string|unique:partnerships,nama_mitra,'.$partnership.',id',
             'alamat' => 'string',
             'perwakilan_mitra' => 'string',
-            'no_telp' => 'unique:partnerships,no_telp|min:10|max:15',
-            'katergori_mitra' => 'string',
+            'no_tlpn' => 'numeric|digits_between:10,15|unique:partnerships,no_tlpn,'.$partnership.',id',
+            'kategori_mitra' => 'in:Universitas,SMK,Bootcamp',
         ];
     }
 }

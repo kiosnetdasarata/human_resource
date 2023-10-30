@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Internship;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ParnershipContract\UpdateFileParnershipRequest;
-use App\Http\Requests\Partnership\StoreFilePartnershipRequest;
 use App\Services\PartnershipService;
+use App\Http\Requests\Partnership\StoreFilePartnershipRequest;
+use App\Http\Requests\Partnership\UpdateFilePartnershipRequest;
 
 class FilePartnershipController extends Controller
 {
@@ -15,10 +15,10 @@ class FilePartnershipController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($mitraId)
+    public function index($IdMitra)
     {
         try {
-            $data = $this->filePartnership->getFilePartnerships($mitraId);
+            $data = $this->filePartnership->getFilePartnerships($IdMitra);
             
             return response()->json([
                 'status' => 'success',
@@ -59,28 +59,29 @@ class FilePartnershipController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $mitraId, string $type)
+    public function show(string $mitraId)
     {
         try {
-            $partnershipContract = $this->filePartnership->getFilePartnership($mitraId, $type);
-
+            $data = $this->filePartnership->getFilePartnership($mitraId);
+            
             return response()->json([
                 'status' => 'success',
-                'data' => $partnershipContract == null ? "data tidak ditemukan" : $partnershipContract,
+                'data' => $data,
+                'status_code' => 200,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+            ]);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFileParnershipRequest $request, string $mitraId,)
+    public function update(UpdateFilePartnershipRequest $request, string $mitraId,)
     {
         try {
             $this->filePartnership->updateFilePartnership($mitraId, $request->validated());
