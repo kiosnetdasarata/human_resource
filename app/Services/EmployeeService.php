@@ -103,7 +103,9 @@ class EmployeeService
 
     public function findEmployeePersonal($uuid, $table)
     {
-       return $this->employee->find($uuid, $table);
+       $employee = $this->employee->find($uuid, $table);
+       if ($employee->nip == '231020') throw new \Exception ('ini data testing BE, pake yang laen dulu');
+       return $employee;
     }
 
     public function findSlugEmployeePersonal($name, $withtrashes = false)
