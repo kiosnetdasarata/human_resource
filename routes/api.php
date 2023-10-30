@@ -58,17 +58,17 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 //Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-Route::apiSingleton('employee.confidential', EmployeeController::class);
+// Route::apiSingleton('employee.confidential', EmployeeController::class);
 Route::get('/employee/{uuid}/contract/history', [EmployeeController::class, 'index']);
-Route::apiSingleton('employee.contract', EmployeeController::class);
-Route::apiResource('employee', EmployeeController::class)->except(['create']);
+// Route::apiSingleton('employee.contract', EmployeeController::class);
+Route::apiResource('employee', EmployeeController::class)->except(['store']);
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
 Route::apiSingleton('traineeship.interview-point', InterviewPointController::class)->creatable();
 
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
-Route::apiResource('internship', InternshipController::class)->except(['create']);
+Route::apiResource('internship', InternshipController::class)->except(['store']);
 Route::get('/internship/{idInternship}/contract/history', [InternshipContractController::class, 'index']);
 Route::apiSingleton('internship.contract', InternshipContractController::class)->creatable()->except('destroy');
 
