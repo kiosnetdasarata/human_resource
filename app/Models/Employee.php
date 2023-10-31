@@ -37,6 +37,7 @@ class Employee extends Model
         'nama',
         'slug',
         'alamat',
+        'alamat_sekarang',
         'dusun_id',
         'tempat_lahir',
         'tgl_lahir',
@@ -86,12 +87,12 @@ class Employee extends Model
     public function contractHistory(): HasMany
     {
         return $this->hasMany(ContractHistory::class, 'nip_id','nip');
-    }//x
+    }
 
     public function employeeCI(): HasOne
     {
         return $this->hasOne(EmployeeConfidentalInformation::class, 'nip_id', 'nip');
-    }//x
+    }
     
     public function employeeContract(): HasOne
     {

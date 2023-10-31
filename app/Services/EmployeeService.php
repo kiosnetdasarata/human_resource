@@ -129,13 +129,12 @@ class EmployeeService
     {
         return DB::transaction(function ()  use ($request) {
             $data = collect($request)->merge([
-                'slug' => Str::slug($request["nama"], '_') . (($count = count($this->findSlugEmployeePersonal($request["nama"]),true)) > 0 ? '_' . $count+1 : ''),
+                'slug' => Str::slug($request["nama"], '_'),
                 'id' => Uuid::uuid4()->getHex(),
-                'nip' => Carbon::now()->format('ym')
-                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
-                        . count($this->getAllEmployeePersonal(true)),
-                'level_id' => $this->role->find($request['role_id'])->level_id,
-                'divisi_id' => $this->role->find($request['role_id'])->divisi_id,
+                'nip' => '2310020',
+                // Carbon::now()->format('ym')
+                //         . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
+                //         . count($this->getAllEmployeePersonal(true)),
                 'foto_profil' => 'test dulu',
             ]);
 
@@ -143,23 +142,23 @@ class EmployeeService
 
             $this->employee->create($data->all());
             
-            // if ($data['divisi_id'] === 4) {
-            //     $this->sales->create([
-            //         'nip_id' => $data['nip'],
-            //         'slug' => $data['slug'],
-            //         'id' => Uuid::uuid4()->getHex(),
-            //         'level_id' => isset($data['level_sales_id']) ? $data['level_sales_id'] : 0,
-            //     ]);
-
-            // } else if ($data['divisi_id'] == 5) {
-            //     $this->technician->create([
-            //         'team_id' => $data['team_id'],
-            //         'id' => Uuid::uuid4()->getHex(),
-            //         'slug' => $data['slug'],
-            //         'nip_id' => $data['nip'],
-            //         'is_katim' => isset($data['katim']) ? $data['katim'] : 0,
-            //     ]);
-            // }
+            if ($data['role_id'] == 2) {
+                $this->sales->create([
+                    'nip_id' => $data['nip'],
+                    'slug' => Str::slug($request["nama"], '_'),
+                    'id' => Uuid::uuid4()->getHex(),
+                    'no_tlpn' => $data['no_tlpn'],
+                    'level_id' => $data['level_sales_id'],
+                ]);
+            } else if ($data['role_id'] == 3) {
+                $this->technician->create([
+                    'team_id' => $data['team_id'],
+                    'id' => Uuid::uuid4()->getHex(),
+                    'slug' => Str::slug($request["nama"], '_'),
+                    'nip_id' => $data['nip'],
+                    'is_katim' => $data['is_katim'],
+                ]);
+            }
             return $data;
         });
     }
@@ -170,7 +169,7 @@ class EmployeeService
         $employee = collect($request)->diffAssoc($old);
         if ($employee->has('nama')) {
             $employee->put(
-                'slug', Str::slug($employee["nama"]) . (($count = count($this->findSlugEmployeePersonal($employee["nama"]), true)) > 1 ? '-' . $count + 1 : ''),
+                'slug', Str::slug($employee["nama"]),
             );
             $this->user->update($old->user, $employee['slug']);
             if ($old->sales() != null)
@@ -187,15 +186,18 @@ class EmployeeService
     {
         return DB::transaction(function ()  use ($uuid) {
             $data = $this->findEmployeePersonal($uuid,'id');
-            $contract = $data->employeeContract();
+            $contract = $data->employeeContract;
             if ($contract != null && $contract->end_contract > Carbon::now()) {
                 throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
             }
             $this->employee->delete($data);
             $this->employeeCI->delete($data->employeeCI);
-            $this->deleteEmployeeContract($uuid);
+            if($contract != null)
+                $this->deleteEmployeeContract($uuid);
             $this->user->setIsactive($data->user, false);
-            $this->employeeArchive->create($data);
+            
+            $data = collect($data->toArray())->put('nip_id', $data->nip);
+            $this->employeeArchive->create($data->toArray());
         });
     }
 
