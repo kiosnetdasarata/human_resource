@@ -4,14 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\LevelController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\PartnershipController;
 use App\Http\Controllers\Internship\TraineeshipController;
@@ -61,7 +62,7 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 //Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-// Route::apiSingleton('employee.confidential', EmployeeController::class);
+// Route::apiSingleton('employee.confidential', EmployeeConfidentialController::class);
 // Route::get('/employee/{uuid}/contract/history', [EmployeeController::class, 'index']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class);
 Route::apiResource('employee', EmployeeController::class)->except(['store']);

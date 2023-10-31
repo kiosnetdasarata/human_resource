@@ -75,13 +75,25 @@ class EmployeeService
             $this->updateEmployeePersonal($uuid, $request);
             $this->updateEmployeeConfidential($employee->employeeCI->id, $request);
             if(isset($request['pendidikan_terakhir']))
-                $this->addEducation($employee->nip, $request);
+                $this->addEducation($employee->id, $request);
         });
     }
 
-    public function addEducation($nip, $request) {
+    public function updateEducation($uuid, $request)
+    {
+        $edu = $this->findEmployeePersonal($uuid, 'id')->employeeEducation[0];
+        return $this->employeeEducation->update($edu, $request);
+    }
+
+    public function deleteEducation($uuid)
+    {
+        $edu = $this->findEmployeePersonal($uuid, 'id')->employeeEducation[0];
+        return $this->employeeEducation->delete($edu);
+    }
+
+    public function addEducation($uuid, $request) {
         $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-        $edu = $this->findEmployeePersonal($nip, 'nip')->employeeEducation;
+        $edu = $this->findEmployeePersonal($uuid, 'id')->employeeEducation;
         if (count($edu) > 0)
         foreach ($edu as $data) {
             if ($request['pendidikan_terakhir'] == 'Sarjana') break;
@@ -104,7 +116,7 @@ class EmployeeService
     public function findEmployeePersonal($uuid, $table)
     {
        $employee = $this->employee->find($uuid, $table);
-       if ($employee->nip == '231020') throw new \Exception ('ini data testing BE, pake yang laen dulu');
+       if ($employee->nip == '231020' || $employee->nip == '2310020') throw new \Exception ('ini data testing BE, pake yang lain dulu');
        return $employee;
     }
 
@@ -112,7 +124,6 @@ class EmployeeService
     {
         return $withtrashes ? $this->employee->findBySlugWithTrashes($name) : $this->employee->findBySlug(Str::slug($name,'_'));
     }
-
 
     private function storeEmployeePersonal($request)
     {
@@ -181,15 +192,11 @@ class EmployeeService
                 throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
             }
             $this->employee->delete($data);
-            $this->employeeCI->delete($data);
-
+            $this->employeeCI->delete($data->employeeCI);
+            $this->deleteEmployeeContract($uuid);
+            $this->user->setIsactive($data->user, false);
             $this->employeeArchive->create($data);
         });
-    }
-
-    public function findEmployeeConfidential($uuid)
-    {
-       return $this->findEmployeePersonal($uuid, 'id')->employeeCI;
     }
 
     private function storeEmployeeConfidential($request)
@@ -224,19 +231,6 @@ class EmployeeService
         }
 
         $this->employeeCI->update($old, $data->all());
-    }
-
-    public function deleteEmployeeConfidential($uuid)
-    {
-        return DB::transaction(function ()  use ($uuid) {
-            $information = $this->findEmployeeConfidential($uuid);
-            $contract = $information->employeeContract();
-            if ($contract != null && $contract->end_contract > Carbon::now()) {
-                throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
-            }
-            $this->employeeCI->delete($information);
-            $this->user->setIsactive($information->employee->user, true);
-        });
     }
 
     public function getEmployeeContract($uuid)

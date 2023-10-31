@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Employee;
 
 use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
@@ -111,7 +111,7 @@ class EmployeeController extends Controller
         try {           
             return response()->json([
                 'status' => 'success',
-                'data' => $this->employeeService->findEmployeeConfidential($uuid),
+                'data' => $this->employeeService->findEmployeePersonal($uuid, 'id')->employeeCI,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
