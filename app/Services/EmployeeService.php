@@ -131,10 +131,10 @@ class EmployeeService
             $data = collect($request)->merge([
                 'slug' => Str::slug($request["nama"], '_'),
                 'id' => Uuid::uuid4()->getHex(),
-                'nip' => '2310020',
-                // Carbon::now()->format('ym')
-                //         . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
-                //         . count($this->getAllEmployeePersonal(true)),
+                'nip' => 
+                Carbon::now()->format('ym')
+                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
+                        . count($this->getAllEmployeePersonal(true)),
                 'foto_profil' => 'test dulu',
             ]);
 
