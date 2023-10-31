@@ -27,10 +27,10 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function find($uuid, $table)
     {
-        return $this->employee->with(['employeeCI', 'employeeContract', 'role'
+        return $this->employee->with(['employeeCI', 'employeeContract', 'role','employeeContractHistory'
                                         , 'employeeEducation' => function ($query) {
                                             $query->latest()->first();
-                                        }])
+                                        },])
                 ->where($table, $uuid)->get()->first();
     }
 

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Employee;
 
+use Illuminate\Http\Request;
 use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Requests\Employee\FirstFormEmployeeRequest;
 use App\Http\Requests\Employee\SecondFormEmployeeRequest;
+use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
@@ -48,11 +50,13 @@ class EmployeeController extends Controller
 
     public function returnException($e, $input = [])
     {
+        dd($e);
         return response()->json([
             'status' => 'error',
             'message' => isset($message) ? $message : $e->getMessage(),
             'input' => $input,
             'status_code' => 500,
+            'line' => $e->getTrace(),
         ]);
     }
 
@@ -123,10 +127,13 @@ class EmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($uuid)
+    public function destroy(Request $request, $uuid)
     {
         try {
-            $this->employeeService->deleteEmployeePersonal($uuid);
+            $data = Validator::make($request->all(), ['status_terminate' => 'required']);
+            if ($data->fails()) throw new \Exception($data->errors());
+            
+            $this->employeeService->deleteEmployeePersonal($data->validated(), $uuid);
             return response()->json([
                 'status' => 'success',
                 'status_code' => 200,

@@ -56,7 +56,7 @@ class EmployeeService
     {
         return DB::transaction(function () use ($uuid, $request) {
             $employee = $this->findEmployeePersonal($uuid, 'id');
-
+            
             if ($employee->employeeContract != null) {
                 throw new \Exception('data is exist');
             }
@@ -116,7 +116,7 @@ class EmployeeService
     public function findEmployeePersonal($uuid, $table)
     {
        $employee = $this->employee->find($uuid, $table);
-       if ($employee->nip == '231020' || $employee->nip == '2310020') throw new \Exception ('ini data testing BE, pake yang lain dulu');
+       if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
        return $employee;
     }
 
@@ -182,9 +182,9 @@ class EmployeeService
         $this->employee->update($old, $employee->all());
     }
 
-    public function deleteEmployeePersonal($uuid)
+    public function deleteEmployeePersonal($request, $uuid)
     {
-        return DB::transaction(function ()  use ($uuid) {
+        return DB::transaction(function ()  use ($uuid, $request) {
             $data = $this->findEmployeePersonal($uuid,'id');
             $contract = $data->employeeContract;
             if ($contract != null && $contract->end_contract > Carbon::now()) {
@@ -192,11 +192,18 @@ class EmployeeService
             }
             $this->employee->delete($data);
             $this->employeeCI->delete($data->employeeCI);
-            if($contract != null)
-                $this->deleteEmployeeContract($uuid);
-            $this->user->setIsactive($data->user, false);
             
-            $data = collect($data->toArray())->put('nip_id', $data->nip);
+            if ($contract != null)
+                $this->deleteEmployeeContract($uuid);
+
+            $this->user->setIsactive($data->user, false);
+
+            $data = collect($data->toArray())->merge($data->employeeCI->toArray())
+                    ->merge($request)->merge([
+                        'tanggal_terminate' => Carbon::now(),
+                        'divisi_id' => $data->role->divisi_id,
+                    ]);
+
             $this->employeeArchive->create($data->toArray());
         });
     }
@@ -246,14 +253,15 @@ class EmployeeService
 
     public function getEmployeeContracts($uuid)
     {
+        dd($this->findEmployeePersonal($uuid, 'id')->employeeContractHistory);
         return $this->findEmployeePersonal($uuid, 'id')->employeeContractHistory;
     }
 
     private function storeEmployeeContract($uuid, $request)
     {
         return DB::transaction(function ()  use ($request, $uuid) {
-            $contract = $this->getAllEmployeePersonal($uuid, 'id')->employeeContract;
-            if ($contract != null) {
+            $employee = $this->findEmployeePersonal($uuid, 'id');
+            if ($employee->employeeContract != null) {
                 $this->deleteEmployeeContract($uuid);
             }
             $data = collect($request)->merge([
@@ -263,7 +271,7 @@ class EmployeeService
             ]);
             
             $this->employeeContract->create($data->all());
-            $this->user->setIsactive($contract->employee->user, true);
+            $this->user->setIsactive($employee->user, true);
         });
     }
 
@@ -283,7 +291,7 @@ class EmployeeService
             $contract = $this->findEmployeePersonal($uuid, 'id')->employeeContract;
             $this->employeeContract->delete($contract);
             $history = collect($contract)->merge([
-                'kontrak_ke' => count($this->employeeContractHistory->find($contract->nip_id)) +1,
+                'kontrak_ke' => count($this->employeeContractHistory->find($contract->nip_id)) + 1,
             ]);
             $this->employeeContractHistory->create($history);
             $this->user->setIsactive($contract->employee->user, false);
