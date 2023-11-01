@@ -1,31 +1,32 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Employee;
 
-use App\Http\Requests\Sales\StoreSalesRequest;
-use App\Http\Requests\Sales\UpdateSalesRequest;
-use App\Interfaces\SalesRepositoryInterface;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Employee\StoreEmployeeEduRequest;
+use App\Http\Requests\Employee\UpdateEmployeeEduRequest;
+use App\Services\EmployeeService;
 
-class SalesController extends Controller
+class EmployeeEducationController extends Controller
 {
-    public function __construct(private SalesRepositoryInterface $sales)
+    public function __construct(private EmployeeService $employeeService) 
     {
     }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id)
     {
         try {
             return response()->json([
                 'success' => true,
-                'data' => $this->sales->getAll(),
-                'status_code' => 200,
+                'data' => $this->employeeService->findEmployeePersonal($id, 'id')->employeeEducation,
+                'status_code' => 200
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
             ]);
         }
@@ -34,27 +35,40 @@ class SalesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSalesRequest $request)
-    {
-        abort(404);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function store($uuid, StoreEmployeeEduRequest $request)
     {
         try {
+            $this->employeeService->addEducation($uuid, $request);
+            
             return response()->json([
                 'success' => true,
-                'data' => $this->sales->find($id),
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'status_code' => 500,
+            ]);
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'data' =>$this->employeeService->findEmployeePersonal($id, 'id')->employeeEducation[0],
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -62,23 +76,18 @@ class SalesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSalesRequest $request, $id)
+    public function update(UpdateEmployeeEduRequest $request, string $id)
     {
         try {
-            
-            $this->sales->update($id,$request->validated());
-            
+            $this->employeeService->updateEducation($id, $request);
             return response()->json([
                 'success' => true,
-                'status' => 'success',
                 'status_code' => 200,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
+                'error' => $e->getMessage(),
                 'status_code' => 500,
             ]);
         }
@@ -90,17 +99,15 @@ class SalesController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->sales->delete($id);
-            
+            $this->employeeService->deleteEducation($id);
             return response()->json([
                 'success' => true,
                 'status_code' => 200,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'status_code' => 500,
             ]);
         }

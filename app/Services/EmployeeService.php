@@ -131,10 +131,10 @@ class EmployeeService
             $data = collect($request)->merge([
                 'slug' => Str::slug($request["nama"], '_'),
                 'id' => Uuid::uuid4()->getHex(),
-                'nip' => 
-                Carbon::now()->format('ym')
-                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
-                        . count($this->getAllEmployeePersonal(true)),
+                'nip' => '214576545',
+                // Carbon::now()->format('ym')
+                //         . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
+                //         . count($this->getAllEmployeePersonal(true)),
                 'foto_profil' => 'test dulu',
             ]);
 
@@ -187,14 +187,14 @@ class EmployeeService
         return DB::transaction(function ()  use ($uuid, $request) {
             $data = $this->findEmployeePersonal($uuid,'id');
             $contract = $data->employeeContract;
-            if ($contract != null && $contract->end_contract > Carbon::now()) {
-                throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
-            }
-            $this->employee->delete($data);
-            $this->employeeCI->delete($data->employeeCI);
-            
-            if ($contract != null)
+            if ($contract != null) {
+                if ($contract->end_contract > Carbon::now())
+                    throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
+                
                 $this->deleteEmployeeContract($uuid);
+            }
+            $this->employeeCI->delete($data->employeeCI);
+            $this->employee->delete($data);
 
             $this->user->setIsactive($data->user, false);
 
@@ -203,7 +203,6 @@ class EmployeeService
                         'tanggal_terminate' => Carbon::now(),
                         'divisi_id' => $data->role->divisi_id,
                     ]);
-
             $this->employeeArchive->create($data->toArray());
         });
     }
@@ -292,8 +291,9 @@ class EmployeeService
             $this->employeeContract->delete($contract);
             $history = collect($contract)->merge([
                 'kontrak_ke' => count($this->employeeContractHistory->find($contract->nip_id)) + 1,
+                'nip_id' => $contract->nip_id,
             ]);
-            $this->employeeContractHistory->create($history);
+            $this->employeeContractHistory->create($history->all());
             $this->user->setIsactive($contract->employee->user, false);
         });
     }

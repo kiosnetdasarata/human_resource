@@ -25,8 +25,7 @@ class UpdateTechnicianRequest extends FormRequest
     {
         return [
             'team_id' => 'integer|exists:mysql4.technician_teams,id',
-            'employees_nip' => 'integer|unique:technicians,karyawan_nip|exists:employees,nip_pgwi',
-            'katim' => 'integer|in:0,1',
+            'is_katim' => 'integer|in:0,1',
         ];
     }
 

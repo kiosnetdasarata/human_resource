@@ -1,32 +1,32 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Employee;
 
-use App\Http\Requests\Sales\StoreSalesRequest;
-use App\Http\Requests\Sales\UpdateSalesRequest;
-use App\Interfaces\SalesRepositoryInterface;
+use App\Http\Controllers\Controller;
+use App\Services\EmployeeService;
+use Illuminate\Http\Request;
 
-class SalesController extends Controller
+class EmployeeContractController extends Controller
 {
-    public function __construct(private SalesRepositoryInterface $sales)
-    {
+    public function __construct(private EmployeeService $employeeService) {
     }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id)
     {
         try {
             return response()->json([
                 'success' => true,
-                'data' => $this->sales->getAll(),
+                'data' => $this->employeeService->getEmployeeContracts($id),
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+                'error' => $e->getMessage(),
+                'status_code' => 500
             ]);
         }
     }
@@ -34,7 +34,7 @@ class SalesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSalesRequest $request)
+    public function store(Request $request)
     {
         abort(404);
     }
@@ -42,19 +42,19 @@ class SalesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
         try {
             return response()->json([
                 'success' => true,
-                'data' => $this->sales->find($id),
-                'status_code' => 200,
+                'data' => $this->employeeService->getEmployeeContract($id),
+                'status_code' => 200
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-                'status_code' => 500,
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -62,22 +62,19 @@ class SalesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSalesRequest $request, $id)
+    public function update(Request $request, string $id)
     {
         try {
-            
-            $this->sales->update($id,$request->validated());
-            
+            $this->employeeService->updateEmployeeContract($id, $request);
+
             return response()->json([
                 'success' => true,
-                'status' => 'success',
-                'status_code' => 200,
+                'status_code' => 200
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'input' => $request->validated(),
                 'status_code' => 500,
             ]);
@@ -90,17 +87,16 @@ class SalesController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->sales->delete($id);
-            
+            $this->employeeService->deleteEmployeeContract($id);
+
             return response()->json([
                 'success' => true,
                 'status_code' => 200,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'status_code' => 500,
             ]);
         }

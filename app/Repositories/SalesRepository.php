@@ -27,9 +27,11 @@ class SalesRepository implements SalesRepositoryInterface
         return $this->sales->create($request);
     }
     
-    public function update($sales, $request)
+    public function update($id, $request)
     {
-        return $sales->update($request);
+        $sales = $this->find($id);
+        $data = collect($request)->diffAssoc($sales);
+        return $sales->update($data->all());
     }
     
     public function delete($sales)

@@ -2,32 +2,24 @@
 
 namespace App\Models;
 
-use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Technician extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
         'id',
-        'team_id',
         'nip_id',
-        'katim',
+        'slug',
+        'team_id',
+        'is_katim',
     ];
-
-    // static function boot() 
-    // {
-    //     parent::boot();
-
-    //     static::creating(function ($sales) {
-    //         $sales->uuid = Uuid::uuid4()->getHex();
-    //     });
-    // }
 
     public function technicianTeam(): BelongsTo
     {

@@ -36,9 +36,4 @@ class EmployeeContract extends Model
     {
         return $this->belongsTo(Employee::class, 'nip_id', 'nip');
     }
-
-    public function employeeCI(): HasOne
-    {
-        return $this->employee()->employeeConfidentalInformation();
-    }
 }

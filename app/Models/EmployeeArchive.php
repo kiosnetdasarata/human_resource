@@ -10,14 +10,14 @@ class EmployeeArchive extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nip',
+        'nip_id',
         'nik',
         'nama',
         'alamat',
         'dusun_id',
         'tgl_lahir',
         'email',
-        'no_telp',
+        'no_tlpn',
         'tgl_masuk',
         'divisi_id',
         'role_id',
@@ -26,7 +26,7 @@ class EmployeeArchive extends Model
         'rekening_bank',
         'nama_bank',
         'nama_kontak_darurat',
-        'no_telp_darurat',
+        'no_tlpn_darurat',
         'status_kontak_darurat',
         'nomor_kontrak',
         'status_terminate',

@@ -19,7 +19,7 @@ class EmployeeContractHistoryRepository implements EmployeeContractHistoryReposi
 
     public function find($uuid)
     {
-        return $this->employeeContractHistory->findOrFail($uuid);
+        return $this->employeeContractHistory->where('nip_id', $uuid)->get();
     }
     
     public function create($request)

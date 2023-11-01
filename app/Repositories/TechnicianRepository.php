@@ -27,9 +27,11 @@ class TechnicianRepository implements TechnicianRepositoryInterface
         return $this->technician->create($request);
     }
     
-    public function update($technician, $request)
+    public function update($id, $request)
     {
-        return $technician->update($request);
+        $technician = $this->find($id);
+        $data = collect($request)->diffAssoc($technician);
+        return $technician->update($data->all());
     }
     
     public function delete($technician)

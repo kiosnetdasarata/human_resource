@@ -19,14 +19,16 @@ class TechnicianController extends Controller
     {
         try {
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'data' => $this->technicianRepositoryInterface->getAll(),
+                'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
         }
     }
 
@@ -39,14 +41,16 @@ class TechnicianController extends Controller
             $this->technicianRepositoryInterface->create($request->validated());
 
             return response()->json([
-                'status' => 'success',
-            ], 200);
+                'success' => true,
+                'status_code' => 200,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
+                'success' => false,
+                'error' => $e->getMessage(),
                 'input' => $request->validated(),
-            ], 500);
+                'status_code' => 500,
+            ]);
         }
     }
 
@@ -59,15 +63,17 @@ class TechnicianController extends Controller
             $technician = $this->technicianRepositoryInterface->find($id);
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'data' => $technician,
-            ], 200);
+                'status_code' => 200,
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
         }
     }
 
@@ -80,15 +86,17 @@ class TechnicianController extends Controller
             $this->technicianRepositoryInterface->update($id,$request->validated());
             
             return response()->json([
-                'status' => 'success'
-            ], 200);
+                'success' => true,
+                'status_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated()
-            ], 500);
+                'success' => false,
+                'error' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => 500,
+            ]);
         }
     }
 
@@ -101,14 +109,16 @@ class TechnicianController extends Controller
             $this->technicianRepositoryInterface->delete($this->technicianRepositoryInterface->find($id));
             
             return response()->json([
-                'status' => 'success',
-            ], 200);
+                'success' => true,
+                'status_code' => 200,
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
         }
     }
 }

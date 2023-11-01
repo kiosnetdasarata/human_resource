@@ -50,7 +50,6 @@ class EmployeeController extends Controller
 
     public function returnException($e, $input = [])
     {
-        dd($e);
         return response()->json([
             'status' => 'error',
             'message' => isset($message) ? $message : $e->getMessage(),

@@ -24,7 +24,8 @@ class UpdateSalesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'komisi_id' => 'integer|exists:commissions,id',
+            'level_id' => 'integer|exists:level_sales,id',
+            'no_tlpn' => 'numeric|digits_between:10,20'
         ];
     }
 
