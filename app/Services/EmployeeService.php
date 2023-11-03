@@ -90,7 +90,7 @@ class EmployeeService
     public function findEmployeePersonal($uuid)
     {
        $employee = $this->employee->find($uuid);
-       if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
+    //    if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
        return $employee;
     }
 
@@ -245,9 +245,10 @@ class EmployeeService
                 'nip_id' => $employee->nip,
                 // $request['file_terms']->storeAs('employee/file_terms', $request['nip_id'].'_terms.pdf', 'gcs'),
                 'id' => Uuid::uuid4()->getHex(),
+                'kontrak_ke' => (count($this->employeeContractHistory->find($employee->nip)) + 1),
             ]);
-            
             $this->employeeContract->create($data->all());
+            $this->employeeContractHistory->create($data->all());
             $this->user->setIsactive($employee->user, true);
         });
     }
@@ -267,11 +268,6 @@ class EmployeeService
         return DB::transaction(function ()  use ($uuid) {
             $contract = $this->findEmployeePersonal($uuid)->employeeContract;
             $this->employeeContract->delete($contract);
-            $history = collect($contract)->merge([
-                'kontrak_ke' => (count($this->employeeContractHistory->find($contract->nip_id)) + 1),
-                'nip_id' => $contract->nip_id,
-            ]);
-            $this->employeeContractHistory->create($history->all());
             $this->user->setIsactive($contract->employee->user, false);
         });
     }

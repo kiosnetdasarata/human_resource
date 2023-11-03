@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeContract extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     public $incrementing = false;
     protected $keyType = 'string';
