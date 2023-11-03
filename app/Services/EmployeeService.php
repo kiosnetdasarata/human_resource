@@ -37,9 +37,12 @@ class EmployeeService
     public function firstForm($request)
     {
         return DB::transaction(function ()  use ($request) {
-            $employeePersonal = $this->storeEmployeePersonal($request);
+            if ($request['tahun_lulus'] > Carbon::now()->year())
+                throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');$employeePersonal = $this->storeEmployeePersonal($request);
+            
             $employeePersonal->put('nip_id', $employeePersonal['nip']);
             $this->storeEmployeeConfidential($employeePersonal->all());
+            
             $this->employeeEducation->create($employeePersonal->all());
             
             $this->user->create([
@@ -55,7 +58,7 @@ class EmployeeService
     public function secondForm($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $employee = $this->findEmployeePersonal($uuid, 'id');
+            $employee = $this->findEmployeePersonal($uuid);
             
             if ($employee->employeeContract != null) {
                 throw new \Exception('data is exist');
@@ -69,7 +72,7 @@ class EmployeeService
     public function updateEmployee($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $employee = $this->findEmployeePersonal($uuid, 'id');
+            $employee = $this->findEmployeePersonal($uuid);
             $request = collect($request)->put('nip', $employee['nip']);
             $request->put('nip_id', $employee['nip']);
             $this->updateEmployeePersonal($uuid, $request);
@@ -79,44 +82,15 @@ class EmployeeService
         });
     }
 
-    public function updateEducation($uuid, $request)
-    {
-        $edu = $this->findEmployeePersonal($uuid, 'id')->employeeEducation[0];
-        return $this->employeeEducation->update($edu, $request);
-    }
-
-    public function deleteEducation($uuid)
-    {
-        $edu = $this->findEmployeePersonal($uuid, 'id')->employeeEducation[0];
-        return $this->employeeEducation->delete($edu);
-    }
-
-    public function addEducation($uuid, $request) {
-        $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-        $edu = $this->findEmployeePersonal($uuid, 'id')->employeeEducation;
-        if (count($edu) > 0)
-        foreach ($edu as $data) {
-            if ($request['pendidikan_terakhir'] == 'Sarjana') break;
-            if (array_search($data['pendidikan_terakhir'], $arr) > array_search($request['pendidikan_terakhir'], $arr) && 
-                $data['tahun_lulus'] <= $request['tahun_lulus']) {
-                    throw new \Exception ('tahun lulus tidak valid');
-                }
-            if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
-                throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada');
-            }
-        }
-        $this->employeeEducation->create($request->all());
-    }
-
     public function getAllEmployeePersonal($withtrashes = false)
     {
         return $withtrashes ? $this->employee->findWithTrashes() : $this->employee->getAll();
     }
 
-    public function findEmployeePersonal($uuid, $table)
+    public function findEmployeePersonal($uuid)
     {
-       $employee = $this->employee->find($uuid, $table);
-       if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
+       $employee = $this->employee->find($uuid);
+    //    if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
        return $employee;
     }
 
@@ -131,10 +105,9 @@ class EmployeeService
             $data = collect($request)->merge([
                 'slug' => Str::slug($request["nama"], '_'),
                 'id' => Uuid::uuid4()->getHex(),
-                'nip' => '214576545',
-                // Carbon::now()->format('ym')
-                //         . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
-                //         . count($this->getAllEmployeePersonal(true)),
+                'nip' => Carbon::now()->format('ym')
+                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
+                        . count($this->getAllEmployeePersonal(true)),
                 'foto_profil' => 'test dulu',
             ]);
 
@@ -165,21 +138,23 @@ class EmployeeService
 
     public function updateEmployeePersonal($uuid, $request)
     {
-        $old = $this->findEmployeePersonal($uuid, 'id');
-        $employee = collect($request)->diffAssoc($old);
-        if ($employee->has('nama')) {
-            $employee->put(
-                'slug', Str::slug($employee["nama"]),
-            );
-            $this->user->update($old->user, $employee['slug']);
-            if ($old->sales() != null)
-                $this->sales->update($old['nip'], ['slug' => $employee['slug']]);
-            if ($old->technician() != null)
-                $this->technician->update($old['nip'], ['slug' => $employee['slug']]);
-        }
-        // if ($employee->has('foto_profil'))
-            // $employee->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
-        $this->employee->update($old, $employee->all());
+        return DB::transaction(function () use ($uuid, $request) {
+            $old = $this->findEmployeePersonal($uuid);
+            $employee = collect($request)->diffAssoc($old);
+            if ($employee->has('nama')) {
+                $employee->put(
+                    'slug', Str::slug($employee["nama"]),
+                );
+                $this->user->update($old->user, $employee['slug']);
+                if ($old->sales() != null)
+                    $this->sales->update($old['nip'], ['slug' => $employee['slug']]);
+                if ($old->technician() != null)
+                    $this->technician->update($old['nip'], ['slug' => $employee['slug']]);
+            }
+            // if ($employee->has('foto_profil'))
+                // $employee->put('foto_profil', $request['foto_profil']->storeAs('employee/file_cv', $request['nip_id'].'_cv.pdf', 'gcs'));
+            $this->employee->update($old, $employee->all());
+        });
     }
 
     public function deleteEmployeePersonal($request, $uuid)
@@ -195,15 +170,15 @@ class EmployeeService
             }
             $this->employeeCI->delete($data->employeeCI);
             $this->employee->delete($data);
-
             $this->user->setIsactive($data->user, false);
 
-            $data = collect($data->toArray())->merge($data->employeeCI->toArray())
+            $data = collect($data->toArray())
+                    ->merge($data->employeeCI->toArray())
                     ->merge($request)->merge([
                         'tanggal_terminate' => Carbon::now(),
                         'divisi_id' => $data->role->divisi_id,
                     ]);
-            $this->employeeArchive->create($data->toArray());
+            $this->employeeArchive->create($data->all());
         });
     }
 
@@ -226,7 +201,7 @@ class EmployeeService
 
     public function updateEmployeeConfidential($uuid, $request)
     {
-        $old = $this->findEmployeePersonal($uuid, 'id')->employeeCI;
+        $old = $this->findEmployeePersonal($uuid)->employeeCI;
         $data = collect($request)->diffAssoc($old);
         if ($data->has('foto_ktp')) {
             // $data->put('foto_ktp', $request['foto_ktp']->storeAs('employee/foto_ktp', $data['nip'].'_ktp.pdf', 'gcs'));
@@ -241,30 +216,33 @@ class EmployeeService
         $this->employeeCI->update($old, $data->all());
     }
 
-    public function getEmployeeContract($uuid)
+    public function findEmployeeContract($uuid)
     {
-        $data = $this->findEmployeePersonal($uuid, 'id')->employeeContract;
-        if ($data == null || $data->end_contract < Carbon::now()) {
-            throw new ModelNotFoundException('file kontrak tidak ditemukan atau kadaluarsa', 404);
+        $data = $this->findEmployeePersonal($uuid)->employeeContract;
+        if ($data == null || $data->end_kontrak < Carbon::now()) {
+            throw new ModelNotFoundException('file kontrak tidak ditemukan atau sudah kadaluarsa', 404);
         }
         return $data;
     }
 
     public function getEmployeeContracts($uuid)
     {
-        dd($this->findEmployeePersonal($uuid, 'id')->employeeContractHistory);
-        return $this->findEmployeePersonal($uuid, 'id')->employeeContractHistory;
+        $data = $this->findEmployeePersonal($uuid)->employeeContractHistory;
+        if ($data == []) throw new ModelNotFoundException('data tidak ditemukan');
+        return $data;
     }
 
-    private function storeEmployeeContract($uuid, $request)
+    public function storeEmployeeContract($uuid, $request)
     {
         return DB::transaction(function ()  use ($request, $uuid) {
-            $employee = $this->findEmployeePersonal($uuid, 'id');
+            $employee = $this->findEmployeePersonal($uuid);
             if ($employee->employeeContract != null) {
                 $this->deleteEmployeeContract($uuid);
             }
+
             $data = collect($request)->merge([
                 'file_terms' => "aaaa",
+                'nip_id' => $employee->nip,
                 // $request['file_terms']->storeAs('employee/file_terms', $request['nip_id'].'_terms.pdf', 'gcs'),
                 'id' => Uuid::uuid4()->getHex(),
             ]);
@@ -276,7 +254,7 @@ class EmployeeService
 
     public function updateEmployeeContract($id, $request)
     {
-        $old = $this->getEmployeeContract($id);
+        $old = $this->findEmployeeContract($id);
         $data = collect($request)->diffAssoc($old);
         if ($data->has('file_terms')) {
             // $data->put('file_terms', $request['file_terms']->storeAs('employee/file_terms', $request['nip'].'_terms.pdf', 'gcs'));
@@ -287,15 +265,46 @@ class EmployeeService
     public function deleteEmployeeContract($uuid)
     {
         return DB::transaction(function ()  use ($uuid) {
-            $contract = $this->findEmployeePersonal($uuid, 'id')->employeeContract;
+            $contract = $this->findEmployeePersonal($uuid)->employeeContract;
             $this->employeeContract->delete($contract);
             $history = collect($contract)->merge([
-                'kontrak_ke' => count($this->employeeContractHistory->find($contract->nip_id)) + 1,
+                'kontrak_ke' => (count($this->employeeContractHistory->find($contract->nip_id)) + 1),
                 'nip_id' => $contract->nip_id,
             ]);
             $this->employeeContractHistory->create($history->all());
             $this->user->setIsactive($contract->employee->user, false);
         });
+    }
+
+    public function addEducation($uuid, $request) {
+        if ($request['tahun_lulus'] > Carbon::now()->year())
+            throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
+        $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
+        $edu = $this->findEmployeePersonal($uuid)->employeeEducation;
+        if (count($edu) > 0)
+        foreach ($edu as $data) {
+            if ($request['pendidikan_terakhir'] == 'Sarjana') break;
+            if (array_search($data['pendidikan_terakhir'], $arr) > array_search($request['pendidikan_terakhir'], $arr) && 
+                $data['tahun_lulus'] <= $request['tahun_lulus']) {
+                    throw new \Exception ('tahun lulus tidak valid');
+                }
+            if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
+                throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada');
+            }
+        }
+        $this->employeeEducation->create($request->all());
+    }
+    
+    public function updateEducation($uuid, $request)
+    {
+        $edu = $this->findEmployeePersonal($uuid)->employeeEducation[0];
+        return $this->employeeEducation->update($edu, $request);
+    }
+
+    public function deleteEducation($uuid)
+    {
+        $edu = $this->findEmployeePersonal($uuid)->employeeEducation[0];
+        return $this->employeeEducation->delete($edu);
     }
 }
 ?>

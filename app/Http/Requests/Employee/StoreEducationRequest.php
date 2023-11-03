@@ -4,14 +4,14 @@ namespace App\Http\Requests\Employee;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class HistoryEmployeeRequest extends FormRequest
+class StoreEducationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->isMethod('patch');
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class HistoryEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'pendidikan_terakhir' => 'required|in:Sarjana,SMK/SMA,SMP',
+            'nama_instansi' => 'required|string',
+            'tahun_lulus' => 'required|digits:4',
         ];
     }
 }

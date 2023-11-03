@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Requests\Employee\FirstFormEmployeeRequest;
 use App\Http\Requests\Employee\SecondFormEmployeeRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
@@ -54,8 +55,7 @@ class EmployeeController extends Controller
             'status' => 'error',
             'message' => isset($message) ? $message : $e->getMessage(),
             'input' => $input,
-            'status_code' => 500,
-            'line' => $e->getTrace(),
+            'status_code' => $e->getCode(),
         ]);
     }
 
@@ -80,7 +80,7 @@ class EmployeeController extends Controller
         try {
             $employee = $this->employeeService->findEmployeePersonal($id, 'id');
             if ($employee == null) {
-                throw new \Exception('data tidak ditemukan');
+                throw new ModelNotFoundException('data tidak ditemukan');
             }
             return response()->json([
                 'status' => 'success',
@@ -98,7 +98,6 @@ class EmployeeController extends Controller
     public function update(UpdateEmployeeRequest $request, $uuid)
     {
         try {
-
             $this->employeeService->updateEmployee($uuid, $request->validated());
             return response()->json([
                 'status' => 'success',

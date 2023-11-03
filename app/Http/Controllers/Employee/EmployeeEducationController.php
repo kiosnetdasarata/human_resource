@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Employee;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Employee\StoreEmployeeEduRequest;
-use App\Http\Requests\Employee\UpdateEmployeeEduRequest;
 use App\Services\EmployeeService;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Employee\StoreEducationRequest;
+use App\Http\Requests\Employee\UpdateEducationRequest;
 
 class EmployeeEducationController extends Controller
 {
@@ -27,7 +27,7 @@ class EmployeeEducationController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+                'status_code' => $e->getCode(),
             ]);
         }
     }
@@ -35,7 +35,7 @@ class EmployeeEducationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store($uuid, StoreEmployeeEduRequest $request)
+    public function store($uuid, StoreEducationRequest $request)
     {
         try {
             $this->employeeService->addEducation($uuid, $request);
@@ -48,7 +48,7 @@ class EmployeeEducationController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500,
+                'status_code' => $e->getCode(),
             ]);
         }
     }
@@ -68,7 +68,7 @@ class EmployeeEducationController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+                'status_code' => $e->getCode(),
             ]);
         }
     }
@@ -76,7 +76,7 @@ class EmployeeEducationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEmployeeEduRequest $request, string $id)
+    public function update(UpdateEducationRequest $request, string $id)
     {
         try {
             $this->employeeService->updateEducation($id, $request);
@@ -88,7 +88,7 @@ class EmployeeEducationController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500,
+                'status_code' => $e->getCode(),
             ]);
         }
     }
@@ -108,7 +108,7 @@ class EmployeeEducationController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500,
+                'status_code' => $e->getCode(),
             ]);
         }
     }

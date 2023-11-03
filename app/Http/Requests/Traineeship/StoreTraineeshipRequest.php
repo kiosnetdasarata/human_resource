@@ -27,7 +27,6 @@ class StoreTraineeshipRequest extends FormRequest
     {
         return [
             'nama_lengkap' => 'required|string',
-            // 'hr_point_id' => 'int|exists:hr_points,id',
             'jk' => 'required|in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'required|numeric|digits_between:10,15',
             'email' => 'required|email|unique:internships,email|unique:employee_personal_informations,email',
@@ -35,7 +34,7 @@ class StoreTraineeshipRequest extends FormRequest
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
             'is_kuliah' => 'required|in:0,1',
             'nama_instansi' => 'required|string',
-            'semester' => 'required_if:is_kuliah:1|numeric|max:20',
+            'semester' => 'required_if:is_kuliah,1|numeric|max:20',
             'tahun_lulus' => 'required_if:is_kuliah,0',
             'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
             'durasi' => 'required|in:3,6',

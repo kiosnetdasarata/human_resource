@@ -65,7 +65,7 @@ Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'sto
 // Route::apiSingleton('employee.confidential', EmployeeConfidentialController::class);
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
-Route::apiSingleton('employee.contract', EmployeeContractController::class);
+Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
 Route::apiResource('employee', EmployeeController::class)->except(['store']);
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);

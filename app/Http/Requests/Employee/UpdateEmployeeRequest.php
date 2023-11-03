@@ -28,12 +28,13 @@ class UpdateEmployeeRequest extends FormRequest
             'alamat' => 'string',
             'no_tlpn' => 'string|digits_between:10,15',
             'email' => 'email',
+            'status_perkawinan' => 'in:Belum Menikah,Menikah',
             'foto_ktp' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
             'foto_kk' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
+            
             'pendidikan_terakhir' => 'in:Sarjana,SMK/SMA,SMP',
             'tahun_lulus' => 'required_with:pendidikan_terakhir',
             'nama_instansi' => 'required_with:pendidikan_terakhir',
-            'status_perkawinan' => 'in:Belum Menikah,Menikah',
             
             'nama_bank' => 'string',
             'nomor_rekening' => 'numeric',

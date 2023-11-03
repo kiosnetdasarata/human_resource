@@ -25,13 +25,13 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         });
     }
 
-    public function find($uuid, $table)
+    public function find($uuid)
     {
         return $this->employee->with(['employeeCI', 'employeeContract', 'role','employeeContractHistory'
                                         , 'employeeEducation' => function ($query) {
                                             $query->latest()->first();
                                         },])
-                ->where($table, $uuid)->get()->first();
+                ->where('id', $uuid)->get()->first();
     }
 
     public function findBySlug($slug)

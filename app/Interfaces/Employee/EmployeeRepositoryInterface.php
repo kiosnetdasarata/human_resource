@@ -7,7 +7,7 @@ use App\Models\Employee;
 interface EmployeeRepositoryInterface
 {
     public function getAll();
-    public function find($uuid, $table);
+    public function find($uuid);
     public function findBySlug($slug);
     public function findWithTrashes();
     public function findBySlugWithTrashes($slug);
