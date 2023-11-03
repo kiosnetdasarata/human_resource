@@ -37,7 +37,7 @@ class EmployeeService
     public function firstForm($request)
     {
         return DB::transaction(function ()  use ($request) {
-            if ($request['tahun_lulus'] > Carbon::now()->year())
+            if ($request['tahun_lulus'] > intval(date('Y')))
                 throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');$employeePersonal = $this->storeEmployeePersonal($request);
             
             $employeePersonal->put('nip_id', $employeePersonal['nip']);
@@ -90,7 +90,7 @@ class EmployeeService
     public function findEmployeePersonal($uuid)
     {
        $employee = $this->employee->find($uuid);
-    //    if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
+       if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
        return $employee;
     }
 
