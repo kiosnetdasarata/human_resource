@@ -106,7 +106,7 @@ class EmployeeService
                 'slug' => Str::slug($request["nama"], '_'),
                 'id' => Uuid::uuid4()->getHex(),
                 'nip' => Carbon::now()->format('ym')
-                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '01' : '02')
+                        . ($request['jenis_kelamin'] == 'Laki-Laki' ? '1' : '0')
                         . count($this->getAllEmployeePersonal(true)),
                 'foto_profil' => 'test dulu',
             ]);

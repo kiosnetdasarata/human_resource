@@ -53,15 +53,25 @@ class InternshipService
 
     public function updateTraineeship($slug, $request) 
     {
-        $old = $this->findTraineeship($slug);
-        $traineeship = collect($request)->diffAssoc($old);
-
-        if ($traineeship->has('file_cv')) {
-            $traineeship->put('file_cv', 'test_cv');
-            // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
-        }
-        $this->traineeship->update($old, $traineeship->all());
-        return true;
+        return DB::transaction(function() use ($slug, $request){
+            $old = $this->findTraineeship($slug);
+            $traineeship = collect($request)->diffAssoc($old);
+            if (isset($traineeship['file_cv'])) {
+                $traineeship->put('file_cv', 'test_cv');
+                // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
+            }
+            if (isset($request['status_traineeship'])) {
+                $arr = ['Screening','FU','Assesment'];
+                if ($request['status_traineeship'] == 'Tolak'){}
+                else if ($old['status_traineeship'] == 'Assesment' && ($request['status_traineeship'] == 'Lolos')){
+                    $this->createInternship($old->id, $request);
+                    $this->deleteInternship($old->id);
+                }
+                else if (array_search($old['status_traineeship'], $arr) + 1 != array_search($request['status_traineeship'], $arr))
+                    throw new \Exception ('status traineeship tidak valid');
+            }
+            return $this->traineeship->update($old, $traineeship->all());
+        });
     }
 
     public function deleteTraineeship($slug)
@@ -143,16 +153,17 @@ class InternshipService
 
     public function updateInternship($uuid, $request)
     {
+
         $old = $this->findInternship($uuid);
         $internship = collect($request)->diffAssoc($old);
 
-        if ($internship->has("nama_lengkap"))
+        if (isset($internship["nama_lengkap"]))
             $internship->put(
                 'slug', Str::slug($internship["nama_lengkap"]) 
                     . (($count = count($this->findInternship($internship["nama_lengkap"], 'slug'))) > 1 ? '-' . $count + 1 : ''),
             );
 
-        if ($internship->has('supervisor') && $this->employee->find($internship['supervisor'], 'nip') == null)
+        if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
             throw new \Exception('supervisor bukan karyawan aktif');
 
         return $this->internship->update($old, $internship->all());
@@ -237,7 +248,7 @@ class InternshipService
         return (string) ( 
             '2' 
             . (string) date_create_from_format('Y-m-d', $tglKerja)->format('Ym')
-            . ($jk == 'Laki-Laki' ? '01':'00')
+            . ($jk == 'Laki-Laki' ? '1':'0')
             . $ke
         );
     }
