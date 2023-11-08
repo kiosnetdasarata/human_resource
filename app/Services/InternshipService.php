@@ -43,10 +43,13 @@ class InternshipService
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'tanggal_lamaran' => Carbon::now(),
+            'status_traineeship' => 'Screening',
         ]);
+        if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
+            throw new \Exception('tahun lulus tidak valid');
+        }
         
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
-
         $this->traineeship->create($traineeship->all());
         return true;
     }
@@ -61,16 +64,22 @@ class InternshipService
                 // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
             }
             if (isset($request['status_traineeship'])) {
+                $oldStatus = $old->status_traineeship;
+                $newStatus = $request['status_traineeship'];
                 $arr = ['Screening','FU','Assesment'];
-                if ($request['status_traineeship'] == 'Tolak'){}
-                else if ($old['status_traineeship'] == 'Assesment' && ($request['status_traineeship'] == 'Lolos')){
+                if ($newStatus == 'Tolak'){
+
+                } elseif ($newStatus == 'Assesment' && $oldStatus == null) {
+                    throw new \Exception('traineeship tidak memiliki hr point');
+                } elseif ($oldStatus == 'Assesment' && $newStatus == 'Lolos'){
                     $this->createInternship($old->id, $request);
                     $this->deleteInternship($old->id);
-                }
-                else if (array_search($old['status_traineeship'], $arr) + 1 != array_search($request['status_traineeship'], $arr))
+                } elseif (array_search($oldStatus, $arr) + 1 != array_search($newStatus, $arr)) {
                     throw new \Exception ('status traineeship tidak valid');
+                } 
+            
             }
-            return $this->traineeship->update($old, $traineeship->all());
+            $this->traineeship->update($old, $traineeship->all());
         });
     }
 

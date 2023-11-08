@@ -31,6 +31,8 @@ class Traineeship extends Model
         'tanggal_lamaran',
         'status_traineeship',
         'file_cv',
+        'link_portofolio',
+        'sumber_info',
     ];
 
     public function division(): BelongsTo

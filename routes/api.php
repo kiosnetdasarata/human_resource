@@ -62,13 +62,14 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 //Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-// Route::apiSingleton('employee.confidential', EmployeeConfidentialController::class);
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
 Route::apiResource('employee', EmployeeController::class)->except(['store']);
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
+Route::apiResource('job-aplicant', JobAplicantController::class);
+Route::apiSingleton('job-aplicant.interview-point', InterviewPointController::class)->creatable();
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);

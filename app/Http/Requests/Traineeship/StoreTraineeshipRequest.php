@@ -39,6 +39,8 @@ class StoreTraineeshipRequest extends FormRequest
             'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
             'durasi' => 'required|in:3,6',
             'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
+            'link_portofolio' => 'url',
+            'sumber_info' => 'required|string'
         ];
     }
 

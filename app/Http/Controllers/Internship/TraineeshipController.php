@@ -93,7 +93,7 @@ class TraineeshipController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage() ? 'null' : 'data tidak ditemukan',
+                'message' => $e->getMessage(),
                 'input' => $request->validated(),
                 'status_code' => 500,
             ]);
