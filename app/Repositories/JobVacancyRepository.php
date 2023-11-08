@@ -26,16 +26,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function find($id)
     {
-        $jobVacancy = $this->jobVacancy->with('role')->findOrFail($id)->map(function ($e) {
-            return[
-                'id' => $e->id,
-                'nama_divisi' => $e->nama_divisi,
-                'jumlah_jabatan' => count($e->role),
-                'created_at' => $e->created_at,
-                'updated_at' => $e->updated_at
-            ];
-        });
-        dd($jobVacancy);
+        return $this->jobVacancy->with('role')->where('id', $id)->get()->firstOrFail();
     }
 
     public function findByRole($id)

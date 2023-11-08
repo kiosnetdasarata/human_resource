@@ -66,6 +66,8 @@ class JobVacancyController extends Controller
                 'status' => 'error',
                 'error' => $e->getMessage(),
                 'status_code' => $e->getCode(),
+                
+                'route' => $e->getTrace(),
             ]);
         }
     }
