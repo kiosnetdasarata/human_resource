@@ -88,9 +88,9 @@ class JobAplicantService
 
     public function updateInterviewPoint($id, $request) 
     {
-        $poin = $this->jobApplicant->find($id)->interviewPoint;
+        $poin = $this->jobApplicant->find($id)->interviewPoint; 
         if ($poin == null) {
-            throw new ModelNotFoundException('Traineeship ini belum memiliki interview point');
+            throw new ModelNotFoundException('aplicant ini belum memiliki interview point');
         }
         return $this->interviewPoint->update($poin, $request);
     }
@@ -99,7 +99,7 @@ class JobAplicantService
     {
         $poin = $this->jobApplicant->find($id)->interviewPoint;
         if ($poin == null) {
-            throw new ModelNotFoundException('Traineeship ini belum memiliki interview point');
+            throw new ModelNotFoundException('aplicant ini belum memiliki interview point');
         }
         return $this->interviewPoint->delete($poin);
     }
