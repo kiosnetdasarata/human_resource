@@ -38,6 +38,7 @@ class UpdateTraineeshipRequest extends FormRequest
             'tahun_lulus' => 'required_if:is_kuliah,0',
             'role_id' => 'exists:job_vacancies,role_id,is_active,1',
             'durasi' => 'in:3,6',
+            'status_traineeship' => 'in:FU,Assesment,Lolos,Tolak',
             'file_cv' => [File::types(['pdf'])->max(5 * 1024),],
         ];
     }

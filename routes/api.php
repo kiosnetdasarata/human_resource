@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\JobAplicantController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Internship\InternshipController;

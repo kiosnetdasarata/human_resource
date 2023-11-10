@@ -7,7 +7,7 @@ use SebastianBergmann\Type\TrueType;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreJobAplicatntRequest extends FormRequest
+class StoreJobAplicantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -34,12 +34,14 @@ class StoreJobAplicatntRequest extends FormRequest
             'no_tlpn' => 'required|numeric|digits_between:10,15',
             'pendidikan_terakhir' => 'required|string',
             'nama_instansi' => 'required|string',
-            'tahun_lulus' => 'required_if|digits:4',
+            'tahun_lulus' => 'required_if:digits,4',
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
             'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
             'pengalaman' => 'required|string',
             'ekspetasi_gaji' => 'required|string',
             'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
+            'link_portofolio' => 'required|url',
+            'sumber_info' => 'required|string',
         ];
     }
 }

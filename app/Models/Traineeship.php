@@ -19,6 +19,7 @@ class Traineeship extends Model
         'nama_lengkap',
         'jk',
         'nomor_telepone',
+        'tanggal_lahir',
         'email',
         'alamat',
         'link_sosmed',

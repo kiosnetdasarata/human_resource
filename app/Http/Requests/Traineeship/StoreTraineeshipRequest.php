@@ -29,6 +29,7 @@ class StoreTraineeshipRequest extends FormRequest
             'nama_lengkap' => 'required|string',
             'jk' => 'required|in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'required|numeric|digits_between:10,15',
+            'tanggal_lahir' => 'required|date:Y-m-d',
             'email' => 'required|email|unique:internships,email|unique:employee_personal_informations,email',
             'alamat' => 'required|string',
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
