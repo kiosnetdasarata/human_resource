@@ -117,25 +117,30 @@ class Employee extends Model
     public function employeeTrainings(): HasMany
     {
         return $this->hasMany(EmployeeTrainings::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function presence(): HasMany
     {
         return $this->hasMany(Presence::class, 'nip','nip');
-    }//x
+    }
 
     public function sales(): HasOne
     {
         return $this->hasOne(Sales::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function technician(): HasOne
     {
         return $this->hasOne(Technician::class, 'nip_id', 'nip');
-    }//x
+    }
 
     public function user(): HasOne
     {
         return $this->hasOne(User::class, 'nip_id', 'nip');
+    }
+
+    public function levelStatusAllowance(): HasMany
+    {
+        return $this->hasMany(LevelStatusAllowance::class, 'nip_id', 'nip');
     }
 }

@@ -70,7 +70,8 @@ Route::apiResource('employee', EmployeeController::class)->except(['store']);
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
 Route::apiResource('job-aplicant', JobAplicantController::class);
-Route::apiSingleton('job-aplicant.interview-point', InterviewPointController::class)->creatable();
+Route::patch('job-aplicant/{id}/update-status', [JobAplicantController::class, 'changeStatus']);
+Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointController::class)->creatable();
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);

@@ -5,20 +5,27 @@ namespace App\Http\Controllers\Internship;
 use Illuminate\Http\Request;
 use App\Services\InternshipService;
 use App\Http\Controllers\Controller;
+use App\Services\JobAplicantService;
 use App\Http\Requests\InterviewPoint\StoreInterviewPointRequest;
 use App\Http\Requests\InterviewPoint\UpdateInterviewPointRequest;
 
 class InterviewPointController extends Controller
 {
-    public function __construct(private InternshipService $internshipService) {
+    public function __construct(
+        private InternshipService $internshipService,
+        private JobAplicantService $jobAplicantService) {
     }
     /**
      * Store a newly created resource in storage.
      */
-    public function store($idTraineeship, StoreInterviewPointRequest $request)
+    public function store($aplicantType, $id, StoreInterviewPointRequest $request)
     {
         try {
-            $this->internshipService->addInterviewPoint($idTraineeship,$request->validated());
+            if ($aplicantType == 'traineeship')
+                $this->internshipService->addInterviewPoint($id,$request->validated());
+            else if ($aplicantType == 'job-aplicant')
+                $this->jobAplicantService->addInterviewPoint($id,$request->validated());
+            else throw new \Exception ('Invalid route parameter');
 
             return response()->json([
                 'status' => 'success',
@@ -42,7 +49,7 @@ class InterviewPointController extends Controller
         try {
             $data = $this->internshipService->showInterviewPoint($id);
             if ($data == null) {
-                $data = 'traineeship belum memiliki interview point';
+                $data = 'aplicant belum memiliki interview point';
             }
             return response()->json([
                 'success' => true,
@@ -73,7 +80,7 @@ class InterviewPointController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500
+                'status_code' => 500,
             ]);
         }
     }

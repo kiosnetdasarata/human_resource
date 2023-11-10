@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
-use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobAplicantRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 
 class JobAplicantService
 {
@@ -42,7 +43,7 @@ class JobAplicantService
 
     public function update($id, $request) 
     {
-        return DB::transaction(function() use ($id, $request){
+        return DB::transaction(function() use ($id, $request){  
             $old = $this->find($id);
             $traineeship = collect($request)->diffAssoc($old);
             if (isset($traineeship['file_cv'])) {
@@ -56,13 +57,13 @@ class JobAplicantService
                     throw new \Exception ('status traineeship tidak valid');
                 } elseif ($newStatus == 'Assesment' && $oldStatus == null) {
                     throw new \Exception('job aplicant tidak memiliki hr point');
+                } elseif ($newStatus == 'Tolak'){
+                    $this->jobApplicant->delete($old);
+                    if ($old->interviewPoint != null)
+                        $this->interviewPoint->delete($old->interviewPoint);
                 }
             }
             $this->jobApplicant->update($old, $traineeship->all());
-
-            if ($newStatus == 'Tolak'){
-                $this->jobApplicant->delete($old);
-            }
         });
     }
 
@@ -80,5 +81,27 @@ class JobAplicantService
         });
     }
 
+    public function showInterviewPoint($id)
+    {
+        return $this->find($id)->interviewPoint;
+    }
+
+    public function updateInterviewPoint($id, $request) 
+    {
+        $poin = $this->jobApplicant->find($id)->interviewPoint;
+        if ($poin == null) {
+            throw new ModelNotFoundException('Traineeship ini belum memiliki interview point');
+        }
+        return $this->interviewPoint->update($poin, $request);
+    }
+
+    public function deleteInterviewPoint($id)
+    {
+        $poin = $this->jobApplicant->find($id)->interviewPoint;
+        if ($poin == null) {
+            throw new ModelNotFoundException('Traineeship ini belum memiliki interview point');
+        }
+        return $this->interviewPoint->delete($poin);
+    }
 }
 ?>

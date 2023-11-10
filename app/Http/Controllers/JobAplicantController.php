@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\JobAplicant\StoreJobAplicantRequest;
+use Illuminate\Http\Request;
 use App\Services\EmployeeService;
 use App\Services\JobAplicantService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\JobAplicant\StoreJobAplicantRequest;
 
 class JobAplicantController extends Controller
 {
@@ -88,7 +89,28 @@ class JobAplicantController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+                'trace' => $e->getTrace()
+            ]);
+        }
+    }
+
+    public function changeStatus($id, Request $request) 
+    {
+        try {
+            $data = Validator::make($request->all(), ['status_tahap' => 'required|in:FU,Assesment,Tolak,Lolos']);
+            if ($data->fails()) throw new \Exception($data->errors());
+
+            $this->jobAplicantService->update($id, $data->validated());
+            return response()->json([
+                'success' => true,
+                'status_code' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }

@@ -45,6 +45,7 @@ class InternshipService
             'tanggal_lamaran' => Carbon::now(),
             'status_traineeship' => 'Screening',
         ]);
+
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
             throw new \Exception('tahun lulus tidak valid');
         }
@@ -56,30 +57,31 @@ class InternshipService
 
     public function updateTraineeship($slug, $request) 
     {
-        return DB::transaction(function() use ($slug, $request){
+        return DB::transaction(function() use ($slug, $request) {
             $old = $this->findTraineeship($slug);
             $traineeship = collect($request)->diffAssoc($old);
             if (isset($traineeship['file_cv'])) {
                 $traineeship->put('file_cv', 'test_cv');
                 // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
             }
-            if (isset($request['status_traineeship'])) {
-                $oldStatus = $old->status_traineeship;
-                $newStatus = $request['status_traineeship'];
-                $arr = ['Screening','FU','Assesment'];
-                if ($newStatus == 'Tolak'){
-
-                } elseif ($newStatus == 'Assesment' && $oldStatus == null) {
-                    throw new \Exception('traineeship tidak memiliki hr point');
-                } elseif ($oldStatus == 'Assesment' && $newStatus == 'Lolos'){
-                    $this->createInternship($old->id, $request);
-                    $this->deleteInternship($old->id);
-                } elseif (array_search($oldStatus, $arr) + 1 != array_search($newStatus, $arr)) {
-                    throw new \Exception ('status traineeship tidak valid');
-                } 
             
+            if (isset($request['status_tahap'])) {
+                $oldStatus = $old->status_tahap;
+                $newStatus = $request['status_tahap'];
+                if ($newStatus == 'Assesment' && $oldStatus == null) {
+                    throw new \Exception ('traineeship tidak memiliki hr point');
+                } elseif ($newStatus == 'Lolos') {
+                    if ($oldStatus != 'Assesment')
+                        throw new \Exception ('status traineeship tidak valid');
+                    $this->createInternship($old->id, $request);
+                }
             }
+
             $this->traineeship->update($old, $traineeship->all());
+
+            if ($newStatus == 'Tolak' || $newStatus == 'Lolos') {
+                $this->traineeship->delete($old);
+            }
         });
     }
 

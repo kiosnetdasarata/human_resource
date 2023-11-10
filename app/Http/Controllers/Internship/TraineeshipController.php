@@ -121,4 +121,6 @@ class TraineeshipController extends Controller
             ]);
         }
     }
+
+    
 }

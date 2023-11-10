@@ -43,4 +43,9 @@ class JobApplicant extends Model
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+
+    public function interviewPoint(): BelongsTo
+    {
+        return $this->belongsTo(InterviewPoint::class, 'hr_point_id');
+    }
 }
