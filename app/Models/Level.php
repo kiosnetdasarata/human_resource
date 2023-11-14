@@ -11,8 +11,14 @@ class Level extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'kode_level',
+        'nama_level',
+        'deskripsi',
+    ];
+
     public function roles(): HasMany
     {
         return $this->hasMany(Role::class);
-    }//x
+    }
 }

@@ -17,6 +17,16 @@ class Division extends Model
     use HasFactory;
     protected $table = 'divisions';
 
+    protected $fillable = [
+        'nama_divisi',
+        'slug',
+        'kode_divisi',
+        'manager_divisi',
+        'email',
+        'no_tlpn',
+        'status',
+    ];
+
     public function manager(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'manager_divisi', 'nip');

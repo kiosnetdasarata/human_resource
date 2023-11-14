@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\RoleRepositoryInterface;
+use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\JobTitle\StoreJobTitleRequest;
 use App\Http\Requests\JobTitle\UpdateJobTitleRequest;
-use App\Interfaces\RoleRepositoryInterface;
 
 class RoleController extends Controller
 {
@@ -32,7 +33,7 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreJobTitleRequest $request)
+    public function store(StoreRoleRequest $request)
     {
         try {
             $this->roleRepositoryInterface->create($request->validated());
@@ -71,23 +72,23 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateJobTitleRequest $request, $id)
-    {
-        try {
-            $this->roleRepositoryInterface->update($id,$request->validated());
+    // public function update(UpdateJobTitleRequest $request, $id)
+    // {
+    //     try {
+    //         $this->roleRepositoryInterface->update($id,$request->validated());
             
-            return response()->json([
-                'status' => 'success'
-            ], 200);
+    //         return response()->json([
+    //             'status' => 'success'
+    //         ], 200);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated()
-            ], 500);
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $e->getMessage(),
+    //             'input' => $request->validated()
+    //         ], 500);
+    //     }
+    // }
 
     /**
      * Remove the specified resource from storage.

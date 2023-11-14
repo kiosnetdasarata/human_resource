@@ -34,7 +34,7 @@ class InterviewPointController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'error' => $e->getMessage() == null ? 'data Traineeship tidak ditemukan' : $e->getMessage(),
+                'error' => $e->getMessage() == null ? 'data aplicant tidak ditemukan' : $e->getMessage(),
                 'input' => $request->validated(),
                 'status_code' => 500,
             ]);
@@ -44,10 +44,15 @@ class InterviewPointController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($aplicantType, $id)
     {
         try {
-            $data = $this->internshipService->showInterviewPoint($id);
+            if ($aplicantType == 'traineeship')
+                $data = $this->internshipService->showInterviewPoint($id);
+            else if ($aplicantType == 'job-aplicant')
+                $data = $this->jobAplicantService->showInterviewPoint($id);
+            else throw new \Exception ('Invalid route parameter');
+            
             if ($data == null) {
                 $data = 'aplicant belum memiliki interview point';
             }
@@ -68,10 +73,15 @@ class InterviewPointController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateInterviewPointRequest $request, string $id)
+    public function update($aplicantType, UpdateInterviewPointRequest $request, string $id)
     {
         try {
-            $this->internshipService->updateInterviewPoint($id, $request->validated());
+            if ($aplicantType == 'traineeship')
+                $this->internshipService->updateInterviewPoint($id, $request->validated());
+            else if ($aplicantType == 'job-aplicant')
+                $this->jobAplicantService->updateInterviewPoint($id, $request->validated());
+            else throw new \Exception ('Invalid route parameter');
+            
             return response()->json([
                 'success' => true,
                 'status_code' => 200,

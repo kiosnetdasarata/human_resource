@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface RoleRepositoryInterface
+interface LevelRepositoryInterface
 {
     public function getAll();
     public function find($uuid);

@@ -27,7 +27,7 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function find($slug)
     {
-        return $this->division->where('slug', $slug)->firstOrFail();
+        return $this->division->where('slug', $slug)->with('role')->get()->firstOrFail();
     }
 
     public function create($request)

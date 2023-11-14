@@ -273,7 +273,7 @@ class EmployeeService
     }
 
     public function addEducation($uuid, $request) {
-        if ($request['tahun_lulus'] > Carbon::now()->year())
+        if ($request['tahun_lulus'] > date('Y'))
             throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
         $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
         $edu = $this->findEmployeePersonal($uuid)->employeeEducation;

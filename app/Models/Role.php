@@ -15,7 +15,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Role extends Model
 {
     use HasFactory;
-
+    protected $fillable = [
+        'divisi_id',
+        'kode_jabatan',
+        'nama_jabatan',
+        'level_id',
+        'deskripsi',
+    ];
+    
     public function division():BelongsTo
     {
         return $this->belongsTo(Division::class, 'divisi_id');

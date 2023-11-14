@@ -50,11 +50,11 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 });
 // Route get job title by division
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
-Route::get('/division', [DivisionController::class, 'index']);
+Route::apiResource('division', DivisionController::class);
 // Route get Job Title
-Route::get('role', [RoleController::class, 'index']);
+Route::apiresource('role', RoleController::class);
 // Route get Level
-Route::get('/levels', [LevelController::class, 'getLevels']);
+Route::apiResource('level', LevelController::class);
 
 /*
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"

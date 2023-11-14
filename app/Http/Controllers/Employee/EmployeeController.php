@@ -53,9 +53,10 @@ class EmployeeController extends Controller
     {
         return response()->json([
             'status' => 'error',
-            'message' => isset($message) ? $message : $e->getMessage(),
+            'message' => $e->getMessage(),
             'input' => $input,
             'status_code' => $e->getCode(),
+            'line' => $e->getTrace(),
         ]);
     }
 

@@ -29,6 +29,7 @@ class DivisionController extends Controller
     public function store(StoreDivisionRequest $request)
     {
         try {
+            
             $this->divisionRepositoryInterface->create($request->validated());
 
             return response()->json([
@@ -49,17 +50,17 @@ class DivisionController extends Controller
      */
     public function show(string $slug)
     {
-        // try {
-        //     return response()->json([
-        //         'status' => 'success',
-        //         'data' => $this->divisionRepositoryInterface->find($slug),
-        //     ]);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => $e->getMessage()
-        //     ]);
-        // }
+        try {
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->divisionRepositoryInterface->find($slug),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
