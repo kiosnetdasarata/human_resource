@@ -54,6 +54,24 @@ class JobAplicantController extends Controller
         }
     }
 
+    public function find(Request $request)
+    {
+        try {
+            $data = $request->getQueryString();
+            list($key, $value) = explode('=', $data);
+            return response()->json([
+                'success' => true,
+                'data' => $this->jobAplicantService->search($key, $value),
+            ]);          
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode(),
+            ]);
+        }
+    }
+
     /**
      * Display the specified resource.
      */

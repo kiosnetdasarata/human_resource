@@ -26,6 +26,11 @@ class JobAplicantService
         return $this->jobApplicant->find($id);
     }
 
+    public function search($key, $val)
+    {
+        return $this->jobApplicant->search($key, $val);
+    }
+
     public function create($request)
     {
         // if (Carbon::parse($request['tanggal_lahir'])->diffYears(Carbon::now()))
