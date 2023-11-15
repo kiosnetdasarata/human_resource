@@ -1,18 +1,19 @@
 <?php
 namespace App\Services;
 
-use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\RoleRepositoryInterface;
-use App\Interfaces\Internship\InternshipRepositoryInterface;
-use App\Interfaces\Internship\TraineeshipRepositoryInterface;
-use App\Interfaces\Internship\InternshipContractRepositoryInterface;
-use App\Interfaces\Internship\InterviewPointRepositoryInterface;
-use App\Interfaces\Internship\PartnershipRepositoryInterface;
+use App\Interfaces\JobVacancyRepositoryInterface;
+use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Interfaces\Internship\InternshipRepositoryInterface;
+use App\Interfaces\Internship\PartnershipRepositoryInterface;
+use App\Interfaces\Internship\TraineeshipRepositoryInterface;
+use App\Interfaces\Internship\InterviewPointRepositoryInterface;
+use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 
 class InternshipService
 {
@@ -24,6 +25,7 @@ class InternshipService
         private PartnershipRepositoryInterface $partnership,
         private InterviewPointRepositoryInterface $interviewPoint,
         private EmployeeRepositoryInterface $employee,
+        private JobVacancyRepositoryInterface $jobVacancy
         )
     {
     }
@@ -40,10 +42,16 @@ class InternshipService
     
     public function createTraineeship($request)
     {
+        $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
+        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
+        if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
+            return true;
+
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'tanggal_lamaran' => Carbon::now(),
             'status_traineeship' => 'Screening',
+            'slug' => Str::slug($request['nama_lengkap'], '_'),
         ]);
 
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
@@ -64,7 +72,9 @@ class InternshipService
                 $traineeship->put('file_cv', 'test_cv');
                 // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
             }
-            
+            if(isset($traineeship['nama_lengkap'])) {
+                $traineeship->put('slug', Str::slug($traineeship['nama_lengkap']));
+            }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];

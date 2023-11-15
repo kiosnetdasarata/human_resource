@@ -27,6 +27,7 @@ class StoreTraineeshipRequest extends FormRequest
     {
         return [
             'nama_lengkap' => 'required|string',
+            'vacancy_id' => 'required|in:job_vacancies,id,is_active,1,is_intern,1',
             'jk' => 'required|in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'required|numeric|digits_between:10,15',
             'tanggal_lahir' => 'required|date:Y-m-d',

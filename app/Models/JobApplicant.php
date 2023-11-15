@@ -14,6 +14,7 @@ class JobApplicant extends Model
     protected $fillable = [
         'vacancy_id',
         'hr_point_id',
+        'slug',
         'nama_lengkap',
         'tanggal_lahir',
         'jk',

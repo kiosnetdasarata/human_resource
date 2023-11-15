@@ -27,6 +27,7 @@ class UpdateTraineeshipRequest extends FormRequest
     {
         return [
             'nama_lengkap' => 'string',
+            'vacancy_id' => 'required|in:job_vacancies,id,is_active,1,is_intern,1',
             'jk' => 'in:Laki-Laki,Perempuan',
             'nomor_telepone' => 'numeric|digits_between:10,15',
             'email' => 'email|unique:internships,email|unique:employee_personal_informations,email',

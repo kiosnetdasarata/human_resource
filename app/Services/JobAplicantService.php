@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\JobAplicantRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\InterviewPointRepositoryInterface;
@@ -12,7 +14,8 @@ class JobAplicantService
 {
     public function __construct(
         private JobAplicantRepositoryInterface $jobApplicant,
-        private InterviewPointRepositoryInterface $interviewPoint) 
+        private InterviewPointRepositoryInterface $interviewPoint,
+        private JobVacancyRepositoryInterface $jobVacancy) 
     {
     }
 
@@ -33,14 +36,16 @@ class JobAplicantService
 
     public function create($request)
     {
-        // if (Carbon::parse($request['tanggal_lahir'])->diffYears(Carbon::now()))
-            // return true;
+        $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
+        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
+        if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
+            return true;
 
         $aplicant = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'date' => Carbon::now(),
+            'slug' => Str::slug($request['nama_lengkap'], '_'),
         ]);
-        
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
 
         return $this->jobApplicant->create($aplicant->all());
@@ -50,16 +55,19 @@ class JobAplicantService
     {
         return DB::transaction(function() use ($id, $request){  
             $old = $this->find($id);
-            $traineeship = collect($request)->diffAssoc($old);
-            if (isset($traineeship['file_cv'])) {
-                $traineeship->put('file_cv', 'test_cv');
-                // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
+            $jobAplicant = collect($request)->diffAssoc($old);
+            if (isset($jobAplicant['file_cv'])) {
+                $jobAplicant->put('file_cv', 'test_cv');
+                // $jobAplicant->put('file_cv', $request->file['file_cv']->storeAs('jobAplicant/cv', $jobAplicant['uuid'].'.pdf', 'gcs'));
+            }
+            if(isset($jobAplicant['nama_lengkap'])) {
+                $jobAplicant->put('slug', Str::slug($jobAplicant['nama_lengkap']));
             }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];
                 if ($newStatus == 'Lolos' && $oldStatus != 'Assesment') {
-                    throw new \Exception ('status traineeship tidak valid');
+                    throw new \Exception ('status jobAplicant tidak valid');
                 } elseif ($newStatus == 'Assesment' && $oldStatus == null) {
                     throw new \Exception('job aplicant tidak memiliki hr point');
                 } elseif ($newStatus == 'Tolak'){
@@ -68,7 +76,7 @@ class JobAplicantService
                         $this->interviewPoint->delete($old->interviewPoint);
                 }
             }
-            $this->jobApplicant->update($old, $traineeship->all());
+            $this->jobApplicant->update($old, $jobAplicant->all());
         });
     }
 

@@ -25,7 +25,7 @@ class StoreJobAplicantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vacancy_id' => 'required|in:job_vacancies,id,is_active,1',
+            'vacancy_id' => 'required|in:job_vacancies,id,is_active,1,is_intern,0',
             'nama_lengkap' => 'required|string',
             'tanggal_lahir' => 'required|date:Y-m-d',
             'jk' => 'required|in:Laki-Laki,Perempuan',

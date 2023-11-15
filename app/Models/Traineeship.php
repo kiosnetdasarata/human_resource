@@ -16,6 +16,8 @@ class Traineeship extends Model
 
     protected $fillable = [
         'hr_point_id',
+        'vacancy_id',
+        'slug',
         'nama_lengkap',
         'jk',
         'nomor_telepone',
