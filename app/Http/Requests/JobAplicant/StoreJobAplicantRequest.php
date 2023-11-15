@@ -36,7 +36,6 @@ class StoreJobAplicantRequest extends FormRequest
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required_if:digits,4',
             'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
-            'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
             'pengalaman' => 'required|string',
             'ekspetasi_gaji' => 'required|string',
             'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],

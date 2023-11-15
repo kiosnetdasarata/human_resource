@@ -38,7 +38,6 @@ class StoreTraineeshipRequest extends FormRequest
             'nama_instansi' => 'required|string',
             'semester' => 'required_if:is_kuliah,1|numeric|max:20',
             'tahun_lulus' => 'required_if:is_kuliah,0',
-            'role_id' => 'required|exists:job_vacancies,role_id,is_active,1',
             'durasi' => 'required|in:3,6',
             'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
             'link_portofolio' => 'url',
