@@ -54,14 +54,14 @@ class JobAplicantController extends Controller
         }
     }
 
-    public function find(Request $request)
+    public function find(Request $request, $status)
     {
         try {
-            $data = $request->getQueryString();
-            list($key, $value) = explode('=', $data);
+            // $data = $request->getQueryString();
+            // list($key, $value) = explode('=', $data);
             return response()->json([
                 'success' => true,
-                'data' => $this->jobAplicantService->search($key, $value),
+                'data' => $this->jobAplicantService->search('status_tahap', $status),
             ]);          
         } catch (\Exception $e) {
             return response()->json([
