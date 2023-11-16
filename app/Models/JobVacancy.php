@@ -11,6 +11,20 @@ class JobVacancy extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'min_umur',
+        'max_umur',
+        'branch_company_id',
+        'role_id',
+        'slug',
+        'open_date',
+        'close_date',
+        'is_active',
+        'is_intern',
+        'keterangan'
+    ];
+
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class, 'divisi_id');
@@ -29,7 +43,7 @@ class JobVacancy extends Model
     public function archiveJobApplicant(): HasMany
     {
         return $this->hasMany(JobVacancy::class, 'vacancy_id');
-    }//x
+    }
 
     public function jobApplicant(): HasMany
     {

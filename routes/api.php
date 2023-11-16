@@ -40,7 +40,7 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 Route::get('/branchs', BranchController::class);
 //Route JobVacancy
 Route::get('job-vacancy/role', [JobVacancyController::class, 'role']);
-Route::apiResource('job-vacancy', JobVacancyController::class)->only('index', 'show');
+Route::apiResource('job-vacancy', JobVacancyController::class);
 //Route Zone
 Route::controller(ZoneController::class)->prefix('zone')->group(function() {
     Route::get('/provinces', 'getProvinces');

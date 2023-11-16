@@ -48,7 +48,20 @@ class JobVacancyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $this->jobVacancy->create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
+        }
     }
 
     /**

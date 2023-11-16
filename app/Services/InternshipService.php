@@ -44,9 +44,12 @@ class InternshipService
     {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
         $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
+        
+        if (Carbon::now() > $jobVacancy->close_date || Carbon::now() < $jobVacancy->open_date)
+            throw new \Exception('vacancy belum dibuka / sudah ditutup');
         if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
-            return true;
-
+            throw new \Exception('umur tidak valid');
+        
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'tanggal_lamaran' => Carbon::now(),
