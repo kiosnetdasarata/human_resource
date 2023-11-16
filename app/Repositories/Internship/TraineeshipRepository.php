@@ -13,7 +13,7 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function getAll()
     {
-        return $this->traineeship->with(['interviewPoint', 'role'])->get()->map(function ($e) {
+        return $this->traineeship->with(['interviewPoint', 'jobVacancy'])->get()->map(function ($e) {
             $poin = $e->interviewPoint;
             $rata2 = 0;
             if ($poin != null)
@@ -23,7 +23,7 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
                         + $poin->problem_solving + $poin->kemampuan_teknis + $poin->tugas) / 11;
             return [
                 'Nama Lengkap' => $e->nama_lengkap,
-                'Nama Jabatan' => $e->role->nama_jabatan,
+                'Nama Jabatan' => $e->jobVacancy->role->nama_jabatan,
                 'Status' => $e->status_traineeship,
                 'Nilai' => $rata2,
                 'Ket HR' => $poin == null ? '' : $poin->keterangan_hr,

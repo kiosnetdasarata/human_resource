@@ -43,9 +43,9 @@ class Traineeship extends Model
         return $this->belongsTo(Division::class, 'divisi_id');
     }
 
-    public function role(): BelongsTo
+    public function jobVacancy(): BelongsTo
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(JobVacancy::class, 'vacancy_id');
     }
 
     public function interviewPoint(): BelongsTo
