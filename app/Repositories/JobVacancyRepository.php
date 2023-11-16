@@ -43,7 +43,9 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobVacancy->with(['role', 'jobApplicant', 'traineeship'])->where('id', $id)->get()->firstOrFail();
+        $data = collect($this->jobVacancy->with(['role', 'jobapplicant', 'traineeship'])->where('id', $id)->get()->firstOrFail());
+        return $data['is_intern'] == 0 ? 
+            $data->except('traineeship')->all() : $data->except('jobapplicant')->all();
     }
 
     public function findByRole($id)
