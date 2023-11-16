@@ -15,7 +15,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getAll()
     {
-        return $this->jobVacancy->with('role')->get();
+        return $this->jobVacancy->with(['role', 'jobApplicant', 'traineeship'])->get();
     }
 
     public function getRole()
@@ -26,7 +26,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobVacancy->with('role')->where('id', $id)->get()->firstOrFail();
+        return $this->jobVacancy->with(['role', 'jobApplicant', 'traineeship'])->where('id', $id)->get()->firstOrFail();
     }
 
     public function findByRole($id)

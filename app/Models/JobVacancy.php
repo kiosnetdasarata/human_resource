@@ -35,5 +35,10 @@ class JobVacancy extends Model
     {
         return $this->hasMany(JobApplicant::class, 'vacancy_id');
     }
+
+    public function traineeship(): HasMany
+    {
+        return $this->hasMany(Traineeship::class, 'vacancy_id');
+    }
 }
 
