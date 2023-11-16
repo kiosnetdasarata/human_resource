@@ -32,7 +32,7 @@ class Traineeship extends Model
         'role_id',
         'durasi',
         'tanggal_lamaran',
-        'status_traineeship',
+        'status_tahap',
         'file_cv',
         'link_portofolio',
         'sumber_info',

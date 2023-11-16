@@ -17,9 +17,10 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     public function getAll()
     {
         return $this->jobVacancy->with(['role', 'branch'])->get()->map(function ($e) {
-            if ($e->is_intern == 0) {
-                $aplicant = collect($e->jobapplicant);
-            } else $aplicant = collect($e->traineeship);
+            $aplicant = collect($e->jobAplicant);
+            if ($e->is_intern == 1) {
+                $aplicant = $aplicant->merge($e->traineeship);
+            }
             $data = collect($e)->merge([
                 'screening' => count(array_filter($aplicant->all(), function($data) {
                     return $data['status_tahap'] == 'Screening';
@@ -30,6 +31,8 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
                 'assesment' => count(array_filter($aplicant->all(), function($data) {
                     return $data['status_tahap'] == 'Assesment';
                 })),
+                'role' => $e->role->nama_jabatan,
+                'branch' => $e->branch->nama_branch,
             ]);
             return $data->except(['jobapplicant', 'traineeship'])->all();
         });
@@ -45,7 +48,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     {
         $data = collect($this->jobVacancy->with(['role', 'jobapplicant', 'traineeship'])->where('id', $id)->get()->firstOrFail());
         return $data['is_intern'] == 0 ? 
-            $data->except('traineeship')->all() : $data->except('jobapplicant')->all();
+            $data->except('traineeship')->all() : $data->all();
     }
 
     public function findByRole($id)

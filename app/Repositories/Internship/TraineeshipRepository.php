@@ -24,7 +24,7 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
             return [
                 'Nama Lengkap' => $e->nama_lengkap,
                 'Nama Jabatan' => $e->jobVacancy->role->nama_jabatan,
-                'Status' => $e->status_traineeship,
+                'Status' => $e->status_tahap,
                 'Nilai' => $rata2,
                 'Ket HR' => $poin == null ? '' : $poin->keterangan_hr,
                 'Ket User' => $poin == null ? '' : $poin->keterangan_user,

@@ -53,7 +53,6 @@ class InternshipService
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'tanggal_lamaran' => Carbon::now(),
-            'status_traineeship' => 'Screening',
             'slug' => Str::slug($request['nama_lengkap'], '_'),
         ]);
 
