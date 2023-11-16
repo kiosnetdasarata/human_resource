@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Role;
 use App\Models\JobVacancy;
+use Illuminate\Support\Str;
 use App\Interfaces\JobVacancyRepositoryInterface;
 
 class JobVacancyRepository implements JobVacancyRepositoryInterface
@@ -15,7 +16,23 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getAll()
     {
-        return $this->jobVacancy->with(['role', 'jobApplicant', 'traineeship'])->get();
+        return $this->jobVacancy->with(['role', 'branch'])->get()->map(function ($e) {
+            if ($e->is_intern == 0) {
+                $aplicant = collect($e->jobapplicant);
+            } else $aplicant = collect($e->traineeship);
+            $data = collect($e)->merge([
+                'screening' => count(array_filter($aplicant->all(), function($data) {
+                    return $data['status_tahap'] == 'Screening';
+                })),
+                'fu' => count(array_filter($aplicant->all(), function($data) {
+                    return $data['status_tahap'] == 'FU';
+                })),
+                'assesment' => count(array_filter($aplicant->all(), function($data) {
+                    return $data['status_tahap'] == 'Assesment';
+                })),
+            ]);
+            return $data->except(['jobapplicant', 'traineeship'])->all();
+        });
     }
 
     public function getRole()
@@ -36,7 +53,11 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     
     public function create($request)
     {
-        return $this->jobVacancy->create($request);
+        $request = collect($request)->put('slug', Str::slug($request['title'], '_'));
+        if ($request['close_date'] <= $request['open_date']) {
+            throw new \Exception('close date tidak sesuai dengan open date');
+        }
+        return $this->jobVacancy->create($request->all());
     }
     
     public function update($jobVacancy, $request)
