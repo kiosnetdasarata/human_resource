@@ -24,10 +24,11 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
                     return $applicant->has($key) ? $applicant[$key] + $value : $value;
                 });
             }
-            return $data = collect($e)->merge($applicant,[
+            $data = collect($e)->merge([
                 'role' => $e->role->nama_jabatan,
                 'branch' => $e->branch->nama_branch,
-            ])->except(['jobapplicant', 'traineeship'])->all();
+            ])->except(['jobapplicant', 'traineeship']);
+            return $data->merge($applicant->all());
         });
     }
 
