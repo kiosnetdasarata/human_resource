@@ -17,24 +17,17 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     public function getAll()
     {
         return $this->jobVacancy->with(['role', 'branch'])->get()->map(function ($e) {
-            $aplicant = collect($e->jobAplicant);
+            $applicant = collect($e->jobapplicant)->countBy('status_tahap');
             if ($e->is_intern == 1) {
-                $aplicant = $aplicant->merge($e->traineeship);
+                $trainee = $applicant->merge(collect($e->traineeship)->countBy('status_tahap'));
+                $applicant = $applicant->merge($trainee)->map(function ($value, $key) use ($applicant, $trainee) {
+                    return $applicant->has($key) ? $applicant[$key] + $value : $value;
+                });
             }
-            $data = collect($e)->merge([
-                'screening' => count(array_filter($aplicant->all(), function($data) {
-                    return $data['status_tahap'] == 'Screening';
-                })),
-                'fu' => count(array_filter($aplicant->all(), function($data) {
-                    return $data['status_tahap'] == 'FU';
-                })),
-                'assesment' => count(array_filter($aplicant->all(), function($data) {
-                    return $data['status_tahap'] == 'Assesment';
-                })),
+            return $data = collect($e)->merge($applicant,[
                 'role' => $e->role->nama_jabatan,
                 'branch' => $e->branch->nama_branch,
-            ]);
-            return $data->except(['jobapplicant', 'traineeship'])->all();
+            ])->except(['jobapplicant', 'traineeship'])->all();
         });
     }
 
