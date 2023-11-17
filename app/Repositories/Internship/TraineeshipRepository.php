@@ -15,20 +15,13 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
     {
         return $this->traineeship->with(['interviewPoint', 'jobVacancy'])->get()->map(function ($e) {
             $poin = $e->interviewPoint;
-            $rata2 = 0;
+            $data = collect($e)->put('poin', 0);
             if ($poin != null)
-                $rata2 = (double) ($poin->presentasi + $poin->kualitas_kerja + $poin->etika
+                $data['poin'] = (double) ($poin->presentasi + $poin->kualitas_kerja + $poin->etika
                         + $poin->adaptif + $poin->kerja_sama + $poin->disiplin
-                        + $poin->tanggung_jawab+ $poin->inovatif_kreatif 
+                        + $poin->tanggung_jawab + $poin->inovatif_kreatif 
                         + $poin->problem_solving + $poin->kemampuan_teknis + $poin->tugas) / 11;
-            return [
-                'Nama Lengkap' => $e->nama_lengkap,
-                'Nama Jabatan' => $e->jobVacancy->role->nama_jabatan,
-                'Status' => $e->status_tahap,
-                'Nilai' => $rata2,
-                'Ket HR' => $poin == null ? '' : $poin->keterangan_hr,
-                'Ket User' => $poin == null ? '' : $poin->keterangan_user,
-            ];
+            return $data->put('interview_point', '')->except(['interview_point'])->all();
         });
     }
 
