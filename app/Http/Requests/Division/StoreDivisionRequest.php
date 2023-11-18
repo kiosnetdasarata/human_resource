@@ -36,9 +36,8 @@ class StoreDivisionRequest extends FormRequest
     {
         return [
             'nama_divisi' => 'required|unique:divisions,nama_divisi',
-            'slug' => 'required|unique:divisions,nama_divisi',
             'kode_divisi' => 'required|string|unique:divisions,kode_divisi',
-            'manager_divisi' => 'required|exists:employee_personal_informations,id',
+            'manager_divisi' => 'required|exists:employee_personal_informations,nip',
             'email' => 'required|email|unique:divisions,email',
             'no_tlpn' => 'required|numeric|digits_between:10,15|unique:divisions,no_tlpn',
             'status' => 'required|string',

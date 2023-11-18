@@ -18,25 +18,20 @@ class UpdateDivisionRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     */
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'slug' => Str::slug($this->nama_divisi, '_'),
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
     {
+        $division = $this->route('division');
         return [
-            'nama_divisi' => 'required|unique:divisions,nama_divisi',
-            'slug' => 'required|unique:divisions,slug,' . $this->route('slug'). ',slug',
+            'nama_divisi' => 'unique:divisions,nama_divisi,'.$division.',slug',
+            'kode_divisi' => 'string|unique:divisions,kode_divisi,'.$division.',slug',
+            'manager_divisi' => 'exists:employee_personal_informations,nip',
+            'email' => 'email|unique:divisions,email,'.$division.',slug',
+            'no_tlpn' => 'numeric|digits_between:10,15|unique:divisions,no_tlpn,'.$division.',slug',
+            'status' => 'string',
         ];
     }
 
