@@ -66,7 +66,7 @@ Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'sto
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
-Route::apiResource('employee', EmployeeController::class)->except(['store','delete']);
+Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\StoreContractRequest;
 use App\Services\EmployeeService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class EmployeeContractController extends Controller
@@ -19,7 +20,9 @@ class EmployeeContractController extends Controller
     {
         try {
             $data = $this->employeeService->getEmployeeContracts($id);
-            if ($data)
+            if (count($data) <= 0) {
+                throw new ModelNotFoundException('data tidak ditemukan', 404);
+            }
             return response()->json([
                 'success' => true,
                 'data' => $data,

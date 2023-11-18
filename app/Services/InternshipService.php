@@ -45,10 +45,10 @@ class InternshipService
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
         $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
         
-        if (Carbon::now() > $jobVacancy->close_date || Carbon::now() < $jobVacancy->open_date)
-            throw new \Exception('vacancy belum dibuka / sudah ditutup');
+        if (Carbon::now() > $jobVacancy['close_date'] || Carbon::now() < $jobVacancy['open_date'])
+            throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
         if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
-            throw new \Exception('umur tidak valid');
+            throw new \Exception('umur tidak valid',422);
         
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
@@ -57,12 +57,11 @@ class InternshipService
         ]);
 
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
-            throw new \Exception('tahun lulus tidak valid');
+            throw new \Exception('tahun lulus tidak valid',422);
         }
         
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
-        $this->traineeship->create($traineeship->all());
-        return true;
+        return $this->traineeship->create($traineeship->all());
     }
 
     public function updateTraineeship($slug, $request) 
@@ -81,10 +80,10 @@ class InternshipService
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];
                 if ($newStatus == 'Assesment' && $oldStatus == null) {
-                    throw new \Exception ('traineeship tidak memiliki hr point');
+                    throw new \Exception ('hr point dari traineeship tidak ditemukan', 404);
                 } elseif ($newStatus == 'Lolos') {
                     if ($oldStatus != 'Assesment')
-                        throw new \Exception ('status traineeship tidak valid');
+                        throw new \Exception ('status traineeship tidak valid',422);
                     $this->createInternship($old->id, $request);
                 }
             }
@@ -107,7 +106,7 @@ class InternshipService
         return DB::transaction(function ()  use ($id, $request) {
             $traineeship = $this->traineeship->find($id);
             if ($traineeship->hr_point_id != null) {
-                throw new \Exception('Traineeship ini sudah memiliki interview point pada id '. $traineeship->hr_point_id);
+                throw new \Exception('Traineeship ini sudah memiliki interview point pada id '. $traineeship->hr_point_id, 422);
             }
             $this->interviewPoint->create($request);
             $traineeship->update(['hr_point_id' => $this->interviewPoint->latest()->id]);
@@ -166,7 +165,7 @@ class InternshipService
             if (isset($internship['mitra_id'])) {
                 $file = $this->partnership->find($internship['mitra_id'])->filePartnership[0];
                 if ($file == null || $file->date_expired < Carbon::now())
-                    throw new \Exception('file mitra tidak ditemukan atau kadaluarsa');
+                    throw new \Exception('file mitra tidak ditemukan atau kadaluarsa',404);
             }
             // $internship->put('file_cv', $internship['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
             $this->internship->create($internship->all());
@@ -187,7 +186,7 @@ class InternshipService
             );
 
         if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
-            throw new \Exception('supervisor bukan karyawan aktif');
+            throw new \Exception('supervisor tidak ditemuka atau bukan karyawan aktif',404);
 
         return $this->internship->update($old, $internship->all());
     }
@@ -220,7 +219,7 @@ class InternshipService
         return DB::transaction(function () use ($id, $request) {
             $internship = $this->findInternship($id);
             if ($internship == null) {
-                throw new \Exception('internship tidak ditemukan mungkin sudah dihapus');
+                throw new \Exception('internship tidak ditemukan',404);
             }
             $contract = collect($request)->merge([
                 'id' => Uuid::uuid4()->getHex(),

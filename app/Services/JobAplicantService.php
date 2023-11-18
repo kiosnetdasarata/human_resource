@@ -38,8 +38,8 @@ class JobAplicantService
     {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
         $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
-        if (Carbon::now() > $jobVacancy->close_date || Carbon::now() < $jobVacancy->open_date)
-            throw new \Exception('vacancy belum dibuka / sudah ditutup');
+        if (Carbon::now() > $jobVacancy['close_date'] || Carbon::now() < $jobVacancy['open_date'])
+            throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
         if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
             return true;
 
@@ -69,9 +69,9 @@ class JobAplicantService
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];
                 if ($newStatus == 'Lolos' && $oldStatus != 'Assesment') {
-                    throw new \Exception ('status jobAplicant tidak valid');
+                    throw new \Exception ('status jobAplicant tidak valid',422);
                 } elseif ($newStatus == 'Assesment' && $oldStatus == null) {
-                    throw new \Exception('job aplicant tidak memiliki hr point');
+                    throw new \Exception('hr point tidak ditemukan', 404);
                 } elseif ($newStatus == 'Tolak'){
                     $this->jobApplicant->delete($old);
                     if ($old->interviewPoint != null)
@@ -87,9 +87,9 @@ class JobAplicantService
         return DB::transaction(function () use ($id, $request) {
             $jobApplicant = $this->jobApplicant->find($id);
             if ($jobApplicant->hr_point_id != null) {
-                throw new \Exception('job aplicant ini sudah memiliki interview point dengan id '. $jobApplicant->hr_point_id);
+                throw new \Exception('job aplicant ini sudah memiliki interview point dengan id '. $jobApplicant->hr_point_id,422);
             } elseif ($jobApplicant->status_tahap != 'FU') {
-                throw new \Exception('job aplicant harus pada tahap FU');
+                throw new \Exception('job aplicant harus pada tahap FU',422);
             }
             $this->interviewPoint->create($request);
             $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $this->interviewPoint->latest()->id]);
