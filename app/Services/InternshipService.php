@@ -47,7 +47,7 @@ class InternshipService
         
         if (Carbon::now() > $jobVacancy['close_date'] || Carbon::now() < $jobVacancy['open_date'])
             throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
-        if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
+        if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur'])
             throw new \Exception('umur tidak valid',422);
         
         $traineeship = collect($request)->merge([
