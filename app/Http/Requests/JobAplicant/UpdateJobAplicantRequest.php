@@ -5,6 +5,8 @@ namespace App\Http\Requests\JobAplicant;
 use App\Rules\SocialMediaLink;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateJobAplicantRequest extends FormRequest
 {
@@ -43,5 +45,17 @@ class UpdateJobAplicantRequest extends FormRequest
             'sumber_info' => 'string',
         ];
         
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

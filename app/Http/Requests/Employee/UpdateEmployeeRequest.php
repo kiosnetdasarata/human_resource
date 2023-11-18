@@ -49,8 +49,9 @@ class UpdateEmployeeRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'input' => $this->input()
-            ], 422)
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
         );
     }
 }

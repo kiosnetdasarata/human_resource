@@ -3,9 +3,10 @@
 namespace App\Http\Requests\JobAplicant;
 
 use App\Rules\SocialMediaLink;
-use SebastianBergmann\Type\TrueType;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreJobAplicantRequest extends FormRequest
 {
@@ -42,5 +43,17 @@ class StoreJobAplicantRequest extends FormRequest
             'link_portofolio' => 'required|url',
             'sumber_info' => 'required|string',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

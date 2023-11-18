@@ -4,29 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\RoleRepositoryInterface;
 use App\Http\Requests\Role\StoreRoleRequest;
-use App\Http\Requests\JobTitle\StoreJobTitleRequest;
-use App\Http\Requests\JobTitle\UpdateJobTitleRequest;
+use Illuminate\Support\ItemNotFoundException;
 
 class RoleController extends Controller
 {
     public function __construct(private RoleRepositoryInterface $roleRepositoryInterface)
     {
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index($division = null)
     {
         try {
+            $data = $this->roleRepositoryInterface->getAll($division);
+            if (count($data) <= 0) {
+                throw new ItemNotFoundException('data tidak ditemukan');
+            }
             return response()->json([
                 'status' => 'success',
-                'data' => $this->roleRepositoryInterface->getAll($division),
+                'data' =>$data,
+                'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-            ], 500);
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
+            ]);
         }
     }
 
@@ -40,13 +46,15 @@ class RoleController extends Controller
 
             return response()->json([
                 'status' => 'success',
-            ], 200);
+                'status_code' => 200,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
-            ], 500);
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
         }
     }
 
@@ -59,13 +67,15 @@ class RoleController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $this->roleRepositoryInterface->find($id),
-            ], 200);
+                'status_code' => 200,
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
+            ]);
         }
     }
 
@@ -79,14 +89,16 @@ class RoleController extends Controller
             
     //         return response()->json([
     //             'status' => 'success'
-    //         ], 200);
+    // 'status_code' =>200,
+    //         ]);
 
     //     } catch (\Exception $e) {
     //         return response()->json([
     //             'status' => 'error',
     //             'message' => $e->getMessage(),
-    //             'input' => $request->validated()
-    //         ], 500);
+    //             'input' => $request->validated(),
+    // 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+    //         ], );
     //     }
     // }
 
@@ -100,13 +112,15 @@ class RoleController extends Controller
             
             return response()->json([
                 'status' => 'success',
-            ], 200);
+                'status_code' => 200,
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
+            ]);
         }
     }
 }

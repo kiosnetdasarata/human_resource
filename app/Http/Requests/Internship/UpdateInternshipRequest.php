@@ -27,7 +27,7 @@ class UpdateInternshipRequest extends FormRequest
         $internship = $this->route('internship');
         return [
             'nama_lengkap' => 'string',
-            'no_tlpn' => 'min:10|max:15|unique:internships,no_telp'.$internship.',id',
+            'no_tlpn' => 'min:10|max:15|unique:internships,no_telp,'.$internship.',id',
             'email' => 'email|unique:internships,email,'.$internship.',id',
             'alamat' => 'string',
             'link_sosmed' => ['url', new SocialMediaLink],
@@ -49,8 +49,9 @@ class UpdateInternshipRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()->all(),
-                'input' => $this->input()
-            ], 422)
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
         );
     }
 }

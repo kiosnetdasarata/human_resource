@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Partnership;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StorePartnershipRequest extends FormRequest
 {
@@ -28,5 +30,17 @@ class StorePartnershipRequest extends FormRequest
             'no_tlpn' => 'required|numeric|digits_between:10,15|unique:partnerships,no_tlpn',
             'kategori_mitra' => 'required|in:Universitas,SMK,Bootcamp',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

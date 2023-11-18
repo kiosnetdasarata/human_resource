@@ -3,6 +3,8 @@
 namespace App\Http\Requests\InterviewPoint;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreInterviewPointRequest extends FormRequest
 {
@@ -36,5 +38,17 @@ class StoreInterviewPointRequest extends FormRequest
             'keterangan_hr' => 'required|string',
             'keterangan_user' => 'required|string',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

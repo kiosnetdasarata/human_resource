@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Employee;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreEducationRequest extends FormRequest
 {
@@ -26,5 +28,17 @@ class StoreEducationRequest extends FormRequest
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

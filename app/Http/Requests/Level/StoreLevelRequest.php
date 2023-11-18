@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Level;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreLevelRequest extends FormRequest
 {
@@ -26,5 +28,17 @@ class StoreLevelRequest extends FormRequest
             'nama_level' => 'required|unique:levels,nama_level',
             'deskripsi' => 'required|string'
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

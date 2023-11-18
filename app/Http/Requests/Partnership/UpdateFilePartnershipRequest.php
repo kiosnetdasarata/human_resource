@@ -4,6 +4,8 @@ namespace App\Http\Requests\Partnership;
 
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateFilePartnershipRequest extends FormRequest
 {
@@ -28,5 +30,17 @@ class UpdateFilePartnershipRequest extends FormRequest
             'date_start' => 'date_format:Y-m-d',
             'durasi' => 'integer'
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Requests\JobVacancy;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateJobVacancyRequest extends FormRequest
 {
@@ -33,5 +35,17 @@ class UpdateJobVacancyRequest extends FormRequest
             'open_date' => 'date:Y-m-d',
             'is_intern' => 'in:0,1'
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

@@ -40,8 +40,9 @@ class StoreInternshipRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()->all(),
-                'input' => $this->input()
-            ], 422)
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
         );
     }
 }
