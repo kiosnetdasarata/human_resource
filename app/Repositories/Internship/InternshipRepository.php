@@ -30,7 +30,7 @@ class InternshipRepository implements InternshipRepositoryInterface
     {
         return $this->internship->with(['internshipContract' => function ($query) {
             $query->latest();
-        }])->where('id', $uuid)->get()->first();
+        }])->where('id', $uuid)->first();
     }
 
     public function create($request)

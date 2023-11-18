@@ -19,7 +19,7 @@ class EmployeeCIRepository implements EmployeeCIRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->employeeConfidentalInformation->with('employee')->where('id', $uuid)->get()->firstOrFail();
+        return $this->employeeConfidentalInformation->with('employee')->where('id', $uuid)->firstOrFail();
     }
 
     public function create($request)

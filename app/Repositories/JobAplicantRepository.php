@@ -23,7 +23,7 @@ class JobAplicantRepository implements JobAplicantRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobApplicant->with('interviewPoint')->where('id', $id)->get()->first();
+        return $this->jobApplicant->with('interviewPoint')->where('id', $id)->first();
     }
 
     public function findWithTrashes($id)

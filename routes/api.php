@@ -66,7 +66,7 @@ Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'sto
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
-Route::apiResource('employee', EmployeeController::class)->except(['store']);
+Route::apiResource('employee', EmployeeController::class)->except(['store','delete']);
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
 
@@ -78,7 +78,6 @@ Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointControl
 
 //Punya Aul
 Route::apiResource('traineeship', TraineeshipController::class);
-Route::apiSingleton('traineeship.interview-point', InterviewPointController::class)->creatable();
 
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
 Route::apiResource('internship', InternshipController::class)->except(['store']);

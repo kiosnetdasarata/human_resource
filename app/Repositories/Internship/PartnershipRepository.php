@@ -20,7 +20,7 @@ class PartnershipRepository implements PartnershipRepositoryInterface
     {
         return $this->partnership->with(['filePartnership' => function ($query) {
             $query->latest();
-        }])->where('id', $id)->get()->firstOrFail();
+        }])->where('id', $id)->firstOrFail();
     }
 
     public function create($request)

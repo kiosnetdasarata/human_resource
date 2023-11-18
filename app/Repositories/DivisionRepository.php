@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Division;
+use Illuminate\Support\Str;
 use App\Interfaces\DivisionRepositoryInterface;
 
 class DivisionRepository implements DivisionRepositoryInterface
@@ -30,12 +31,12 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function find($slug)
     {
-        return $this->division->where('slug', $slug)->with('role')->get()->firstOrFail();
+        return $this->division->where('slug', $slug)->with('role')->firstOrFail();
     }
 
     public function create($request)
     {
-        return $this->division->create($request);
+        return $this->division->create(collect($request)->put('slug', Str::slug($request['nama_divisi'], '_'))->all());
     }
     
     public function update($division, $request)

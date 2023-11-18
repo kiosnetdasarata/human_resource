@@ -31,7 +31,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                                         , 'employeeEducation' => function ($query) {
                                             $query->latest()->first();
                                         },])
-                ->where('id', $uuid)->get()->first();
+                ->where('id', $uuid)->first();
     }
 
     public function findBySlug($slug)

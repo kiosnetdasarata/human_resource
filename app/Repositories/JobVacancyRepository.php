@@ -16,7 +16,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getAll()
     {
-        return $this->jobVacancy->with(['role', 'branch'])->get()->map(function ($e) {
+        return $this->jobVacancy->get()->map(function ($e) {
             $applicant = collect($e->jobapplicant)->countBy('status_tahap');
             if ($e->is_intern == 1) {
                 $trainee = $applicant->merge(collect($e->traineeship)->countBy('status_tahap'));
@@ -40,7 +40,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function find($id)
     {
-        $data = collect($this->jobVacancy->with(['role', 'jobapplicant', 'traineeship'])->where('id', $id)->get()->firstOrFail());
+        $data = collect($this->jobVacancy->with(['role', 'jobapplicant', 'traineeship'])->where('id', $id)->firstOrFail());
         return $data['is_intern'] == 0 ? 
             $data->except('traineeship')->all() : $data->all();
     }
