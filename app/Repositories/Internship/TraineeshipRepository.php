@@ -42,7 +42,8 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function update($traineeship, $request)
     {
-        return $traineeship->update($request);
+        $traineeship->update($request);
+        return $this->find($traineeship->id);
     }
 
     public function delete($traineeship)

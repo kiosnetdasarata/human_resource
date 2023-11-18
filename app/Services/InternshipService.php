@@ -88,9 +88,9 @@ class InternshipService
                 }
             }
 
-            $this->traineeship->update($old, $traineeship->all());
+            $data = $this->traineeship->update($old, $traineeship->all());
 
-            if ($newStatus == 'Tolak' || $newStatus == 'Lolos') {
+            if ($data->status_tahap == 'Tolak' || $data->status_tahap == 'Lolos') {
                 $this->traineeship->delete($old);
             }
         });
