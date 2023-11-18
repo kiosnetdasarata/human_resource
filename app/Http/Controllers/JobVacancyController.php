@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\JobVacancy\StoreJobVacancyRequest;
 use Illuminate\Http\Request;
 use App\Interfaces\JobVacancyRepositoryInterface;
 
@@ -46,7 +47,7 @@ class JobVacancyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreJobVacancyRequest $request)
     {
         try {
             $this->jobVacancy->create($request->all());
