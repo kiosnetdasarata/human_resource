@@ -6,6 +6,8 @@ use App\Models\Role;
 use App\Models\JobVacancy;
 use Illuminate\Support\Str;
 use App\Interfaces\JobVacancyRepositoryInterface;
+use Nette\Utils\Arrays;
+use PhpParser\Node\Expr\Cast\Array_;
 
 class JobVacancyRepository implements JobVacancyRepositoryInterface
 {
@@ -19,16 +21,18 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
         return $this->jobVacancy->get()->map(function ($e) {
             $applicant = collect($e->jobapplicant)->countBy('status_tahap');
             if ($e->is_intern == 1) {
-                $trainee = $applicant->merge(collect($e->traineeship)->countBy('status_tahap'));
-                $applicant = $applicant->merge($trainee)->map(function ($value, $key) use ($applicant, $trainee) {
-                    return $applicant->has($key) ? $applicant[$key] + $value : $value;
+                $trainee = collect($e->traineeship)->countBy('status_tahap');
+                $applicant = $applicant->mergeRecursive($trainee)->map(function ($value, $key) {
+                    return is_array($value) ? array_sum($value) : $value;
                 });
             }
             $data = collect($e)->merge([
                 'role' => $e->role->nama_jabatan,
                 'branch' => $e->branch->nama_branch,
+                'applicant_count' => count($e->jobapplicant) + count($e->traineeship),
+                'applicant_sum' => $applicant->all()
             ])->except(['jobapplicant', 'traineeship']);
-            return $data->merge($applicant->all());
+            return $data;
         });
     }
 
@@ -59,14 +63,14 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
         return $this->jobVacancy->create($request->all());
     }
     
-    public function update($jobVacancy, $request)
+    public function update($id, $request)
     {
-        return $jobVacancy->update($request);
+        return $this->jobVacancy->find($id)->update($request);
     }
     
-    public function delete($jobVacancy)
+    public function delete($id)
     {
-        return $jobVacancy->delete();
+        return $this->jobVacancy->find($id)->delete();
     }
     
 }

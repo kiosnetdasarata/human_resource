@@ -91,8 +91,8 @@ class JobAplicantService
             } elseif ($jobApplicant->status_tahap != 'FU') {
                 throw new \Exception('job aplicant harus pada tahap FU',422);
             }
-            $this->interviewPoint->create($request);
-            $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $this->interviewPoint->latest()->id]);
+            $poin = $this->interviewPoint->create($request);
+            $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $poin->id]);
         });
     }
 

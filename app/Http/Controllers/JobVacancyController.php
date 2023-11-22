@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\JobVacancy\StoreJobVacancyRequest;
 use Illuminate\Http\Request;
 use App\Interfaces\JobVacancyRepositoryInterface;
+use Illuminate\Support\Facades\Validator;
 
 class JobVacancyController extends Controller
 {
@@ -25,7 +26,7 @@ class JobVacancyController extends Controller
             return response()->json([
                 'status' => 'error',
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -39,7 +40,7 @@ class JobVacancyController extends Controller
             return response()->json([
                 'status' => 'error',
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -50,7 +51,7 @@ class JobVacancyController extends Controller
     public function store(StoreJobVacancyRequest $request)
     {
         try {
-            $this->jobVacancy->create($request->all());
+            $this->jobVacancy->create($request->validated());
 
             return response()->json([
                 'success' => true,
@@ -74,14 +75,13 @@ class JobVacancyController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $this->jobVacancy->find($id),
+                'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
-                
-                'route' => $e->getTrace(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -91,7 +91,25 @@ class JobVacancyController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $validator = Validator::make($request->all(), ['is_active' => 'required|in:0,1']);
+
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors()->first());
+            }
+            
+            $this->jobVacancy->update($id, $validator->validated());
+            return response()->json([
+                'success' => true,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
+        }
     }
 
     /**
@@ -99,6 +117,18 @@ class JobVacancyController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $this->jobVacancy->delete($id);
+            return response()->json([
+                'success' => true,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
+        }
     }
 }

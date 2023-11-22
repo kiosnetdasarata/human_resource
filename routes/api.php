@@ -56,6 +56,7 @@ Route::apiresource('role', RoleController::class);
 // Route get Level
 Route::apiResource('level', LevelController::class);
 
+
 /*
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
@@ -74,10 +75,9 @@ Route::apiResource('technician', TechnicianController::class)->except(['store', 
 Route::get('/job-aplicant/status/{status}', [JobAplicantController::class, 'find']);
 Route::apiResource('job-aplicant', JobAplicantController::class);
 Route::patch('job-aplicant/{id}/update-status', [JobAplicantController::class, 'changeStatus']);
-Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointController::class)->creatable();
 
 //Punya Aul
-Route::apiResource('traineeship', TraineeshipController::class);
+Route::apiResource('traineeship', TraineeshipController::class)->except(['destroy']);
 
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
 Route::apiResource('internship', InternshipController::class)->except(['store']);
@@ -89,19 +89,9 @@ Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::cl
 Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
 // Route::get('file-partnership/{}/{type}', [FilePartnershipController::class, 'show']);
 
+Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
 
-//Route belom jadi
-// Route::get('/level', [LevelController::class, 'getLevels']);
-// Route::get('/level/{level}/commissions', [LevelController::class, 'getCommissions']);
-
-// Route::apiResource('employee-history', EmployeeHistoryController::class)->except(['create']);
-
-// Route::apiResource('sales', SalesController::class)->except(['create']);
-// Route::apiResource('status-level', StatusLevelController::class)->except(['show']);
-// Route::apiResource('technician', TechnicianController::class)->except(['create']);
-
-    // Route::get('/employee-archive/{nip}', [EmployeeController::class, 'show'])->withTrashed();
 Route::middleware([
         'jwt:api',
         ])->group(function() {
