@@ -24,7 +24,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [    
-            'nip_id' => 'required|integer',
+            'nip_id' => 'required|exists:users,nip_id',
             'password' => 'required',
         ];
     }

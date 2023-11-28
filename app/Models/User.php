@@ -25,7 +25,8 @@ class User extends Authenticatable implements JWTSubject
         'is_leader',
         'password',
         'is_active',
-        'slug'
+        'slug',
+        'remember_token'
     ];
 
     /**
@@ -75,7 +76,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
-
     public function employee(): BelongsTo 
     {
         return $this->belongsTo(Employee::class, 'nip_id', 'nip');

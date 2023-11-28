@@ -92,13 +92,18 @@ Route::apiSingleton('partnership.file', FilePartnershipController::class)->creat
 Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
 
-Route::middleware([
-        'jwt:api',
+Route::middleware(['jwt:api', 'hr:api'
         ])->group(function() {
+    Route::get('/hae', function() {
+        dd('hae');
+    });
     Route::post('logout', LogoutController::class);
+    
 });
 
 Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);
     Route::post('register', RegisterController::class);
 });
+
+
