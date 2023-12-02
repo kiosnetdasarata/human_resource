@@ -36,7 +36,7 @@ class InterviewPointController extends Controller
                 'status' => 'error',
                 'error' => $e->getMessage() == null ? 'data aplicant tidak ditemukan' : $e->getMessage(),
                 'input' => $request->validated(),
-                'status_code' => 500,
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -54,7 +54,7 @@ class InterviewPointController extends Controller
             else throw new \Exception ('Invalid route parameter');
             
             if ($data == null) {
-                $data = 'aplicant belum memiliki interview point';
+                throw new \Exception('interview point tidak ditemukan',404);
             }
             return response()->json([
                 'success' => true,
@@ -65,7 +65,7 @@ class InterviewPointController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }
@@ -90,7 +90,7 @@ class InterviewPointController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500,
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }

@@ -26,22 +26,22 @@ class UpdateTraineeshipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama_lengkap' => 'string',
-            'vacancy_id' => 'required|exists:job_vacancies,id,is_active,1,is_intern,1',
-            'jk' => 'in:Laki-Laki,Perempuan',
-            'nomor_telepone' => 'numeric|digits_between:10,15',
-            'email' => 'email|unique:internships,email|unique:employee_personal_informations,email',
-            'alamat' => 'string',
-            'link_sosmed' => ['url', new SocialMediaLink], //wajib pake https://www.
-            'is_kuliah' => 'in:0,1',
-            'nama_instansi' => 'string',
-            'semester' => 'numeric|max:20',
-            'tahun_lulus' => 'required_if:is_kuliah,0',
-            'durasi' => 'in:3,6',
-            'status_tahap' => 'exclude_with:nama_lengkap|in:FU,Assesment,Lolos,Tolak',
-            'file_cv' => [File::types(['pdf'])->max(5 * 1024),],
-            'link_portofolio' => 'url',
-            'sumber_info' => 'string'
+            'nama_lengkap' => 'exclude_with:status_tahap|string',
+            'vacancy_id' => 'exclude_with:status_tahap|exists:job_vacancies,id,is_active,1,is_intern,1',
+            'jk' => 'exclude_with:status_tahap|in:Laki-Laki,Perempuan',
+            'nomor_telepone' => 'exclude_with:status_tahap|numeric|digits_between:10,15',
+            'email' => 'exclude_with:status_tahap|email|unique:internships,email|unique:employee_personal_informations,email',
+            'alamat' => 'exclude_with:status_tahap|string',
+            'link_sosmed' => ['exclude_with:status_tahap','url', new SocialMediaLink], //wajib pake https://www.
+            'is_kuliah' => 'exclude_with:status_tahap|in:0,1',
+            'nama_instansi' => 'exclude_with:status_tahap|string',
+            'semester' => 'exclude_with:status_tahap|numeric|max:20',
+            'tahun_lulus' => 'exclude_with:status_tahap|required_if:is_kuliah,0',
+            'durasi' => 'exclude_with:status_tahap|in:3,6',
+            'status_tahap' => 'in:FU,Assesment,Lolos,Tolak',
+            'file_cv' => ['exclude_with:status_tahap',File::types(['pdf'])->max(5 * 1024),],
+            'link_portofolio' => 'exclude_with:status_tahap|url',
+            'sumber_info' => 'exclude_with:status_tahap|string'
         ];
     }
 

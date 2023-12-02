@@ -105,21 +105,7 @@ class TraineeshipController extends Controller
      */
     public function destroy(string $uuid)
     {
-        try {
-            $this->traineeship->deleteTraineeship($uuid);
-            
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
-        }
     }
 
     
