@@ -7,8 +7,9 @@ use App\Models\Traineeship;
 interface TraineeshipRepositoryInterface
 {
     public function getAll();
-    public function find($slug);
-    public function findWithTrashes($slug);
+    public function find($id);
+    public function findWithTrashes($id);
+    public function findBySlug($slug);
     public function create($request);
     public function update(Traineeship $traineeship, $request);
     public function delete(Traineeship $traineeship);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Traineeship\StoreTraineeshipRequest;
 use App\Http\Requests\Traineeship\UpdateTraineeshipRequest;
 use App\Services\InternshipService;
+use Ramsey\Uuid\Type\Integer;
 
 class TraineeshipController extends Controller
 {
@@ -61,8 +62,9 @@ class TraineeshipController extends Controller
     public function show(string $slug)
     {
         try {
-            $traineeship = $this->traineeship->findTraineeship($slug);
-
+            if($slug instanceof Integer)
+                $traineeship = $this->traineeship->findTraineeship($slug);
+            $traineeship = $this->traineeship->findTraineeshipSlug($slug)->first();
             return response()->json([
                 'success' => true,
                 'data' => $traineeship,

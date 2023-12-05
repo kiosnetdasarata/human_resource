@@ -39,6 +39,11 @@ class InternshipService
     {
         return $withtrashes ? $this->traineeship->findWithTrashes($id) : $this->traineeship->find($id);
     }
+
+    public function findTraineeshipSlug($name) 
+    {
+        return $this->traineeship->findBySlug(Str::slug($name, '_'));    
+    }
     
     public function createTraineeship($request)
     {
@@ -50,10 +55,14 @@ class InternshipService
         if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur'])
             throw new \Exception('umur tidak valid', 422);
         
+        $list = $this->findTraineeshipSlug($request['nama_lengkap']);
+        $slug = Str::slug($request['nama_lengkap']) .
+                    count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+        
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'tanggal_lamaran' => Carbon::now(),
-            'slug' => Str::slug($request['nama_lengkap'], '_'),
+            'slug' => $slug
         ]);
 
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
@@ -71,10 +80,14 @@ class InternshipService
             $traineeship = collect($request)->diffAssoc($old);
             if (isset($traineeship['file_cv'])) {
                 $traineeship->put('file_cv', 'test_cv');
-                // $traineeship->put('file_cv', $request->file['file_cv']->storeAs('traineeship/cv', $traineeship['uuid'].'.pdf', 'gcs'));
+                // $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'],$traineeship->id,'traineeship/cv'));
             }
             if (isset($traineeship['nama_lengkap'])) {
-                $traineeship->put('slug', Str::slug($traineeship['nama_lengkap']));
+                $list = $this->findTraineeshipSlug($request['nama_lengkap']);
+                $slug = Str::slug($traineeship['nama_lengkap']) .
+                            count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+                
+                $traineeship->put('slug', $slug);
             }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
@@ -158,22 +171,26 @@ class InternshipService
     public function createInternship($idTraineenship, $request)
     {
         return DB::Transaction(function() use ($idTraineenship, $request) {
-            $traineeship = $this->findTraineeship($idTraineenship, true);
-            $internship = collect($traineeship)->merge([
-                    'id' => Uuid::uuid4()->getHex(),
-                    'internship_nip' => $this->generateNip($request['tanggal_masuk'], $traineeship->jk),
-                    'slug' => Str::slug($traineeship->nama_lengkap, '_') . (($count = count($this->findInternship($traineeship->nama_lengkap, 'slug'))) > 0 ? '_' . $count+1 : ''),
-                    'file_cv' => $traineeship->file_cv,
-                    'no_tlpn' => $traineeship->nomor_telepone,
-                    'role_id' => $traineeship->jobVacancy->role_id,
-                ])->merge($request);
-            
             if (isset($internship['mitra_id'])) {
                 $file = $this->partnership->find($internship['mitra_id'])->filePartnership[0];
                 if ($file == null || $file->date_expired < Carbon::now())
                     throw new \Exception('file mitra tidak ditemukan atau kadaluarsa',404);
             }
-            // $internship->put('file_cv', $internship['file_cv']->storeAs('internship/cv', $internship['uuid'].'.pdf', 'gcs'));
+            
+            $traineeship = $this->findTraineeship($idTraineenship, true);
+            $list = $this->findInternship($request['nama_lengkap'],'slug');
+            $slug = Str::slug($traineeship['nama_lengkap']) .
+                        count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+            $internship = collect($traineeship)->merge([
+                    'id' => Uuid::uuid4()->getHex(),
+                    'internship_nip' => $this->generateNip($request['tanggal_masuk'], $traineeship->jk),
+                    'slug' => $slug,
+                    'file_cv' => $traineeship->file_cv,
+                    'no_tlpn' => $traineeship->nomor_telepone,
+                    'role_id' => $traineeship->jobVacancy->role_id,
+                ])->merge($request);
+            
+            $internship->put('file_cv', uploadToGCS($internship['file_cv'],$internship->id,'internship/cv'));
             $this->internship->create($internship->all());
             $this->traineeship->delete($traineeship);
         });
@@ -185,10 +202,11 @@ class InternshipService
         $internship = collect($request)->diffAssoc($old);
 
         if (isset($internship["nama_lengkap"]))
-            $internship->put(
-                'slug', Str::slug($internship["nama_lengkap"]) 
-                    . (($count = count($this->findInternship($internship["nama_lengkap"], 'slug'))) > 1 ? '-' . $count + 1 : ''),
-            );
+            $list = $this->findInternship($request['nama_lengkap'],'slug');
+            $slug = Str::slug($internship['nama_lengkap']) .
+                        count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+            
+            $internship->put('slug', $slug);
 
         if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
             throw new \Exception('supervisor tidak ditemuka atau bukan karyawan aktif', 404);
