@@ -7,7 +7,8 @@ use App\Models\JobApplicant;
 interface JobAplicantRepositoryInterface
 {
     public function getAll();
-    public function find($slug);
+    public function find($id);
+    public function findSlug($slug);
     public function search($key, $value);
     public function findWithTrashes($slug);
     public function create($request);

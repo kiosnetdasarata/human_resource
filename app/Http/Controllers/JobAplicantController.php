@@ -58,8 +58,6 @@ class JobAplicantController extends Controller
     public function find(Request $request, $status)
     {
         try {
-            // $data = $request->getQueryString();
-            // list($key, $value) = explode('=', $data);
             return response()->json([
                 'success' => true,
                 'data' => $this->jobAplicantService->search('status_tahap', $status),
@@ -76,13 +74,15 @@ class JobAplicantController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($slug) 
     {
         try {
-            if($id instanceOf Integer)
+            $jobAplicant = ((int) $slug) == 0 ?
+                $this->jobAplicantService->findSlug($slug)->first() :
+                $this->jobAplicantService->find($slug);
             return response()->json([
                 'success' => true,
-                'data' => $this->jobAplicantService->find($id),
+                'data' => $jobAplicant,
                 'status_code' => 200
             ]);
         } catch (\Exception $e) {

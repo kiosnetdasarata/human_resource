@@ -26,6 +26,11 @@ class JobAplicantRepository implements JobAplicantRepositoryInterface
         return $this->jobApplicant->with('interviewPoint')->where('id', $id)->first();
     }
 
+    public function findSlug($slug)
+    {
+        return $this->jobApplicant->with('interviewPoint')->where('slug', 'LIKE', $slug)->withTrashed()->get();
+    }
+
     public function findWithTrashes($id)
     {
         return $this->jobApplicant->withTrashed()->findOrFail($id);
