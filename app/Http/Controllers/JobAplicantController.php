@@ -7,6 +7,7 @@ use App\Services\EmployeeService;
 use App\Services\JobAplicantService;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\JobAplicant\StoreJobAplicantRequest;
+use Ramsey\Uuid\Type\Integer;
 
 class JobAplicantController extends Controller
 {
@@ -75,9 +76,10 @@ class JobAplicantController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
         try {
+            if($id instanceOf Integer)
             return response()->json([
                 'success' => true,
                 'data' => $this->jobAplicantService->find($id),

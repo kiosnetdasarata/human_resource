@@ -59,12 +59,12 @@ class TraineeshipController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $slug)
+    public function show($slug)
     {
         try {
-            if($slug instanceof Integer)
+            if (((int) $slug) != 0)
                 $traineeship = $this->traineeship->findTraineeship($slug);
-            $traineeship = $this->traineeship->findTraineeshipSlug($slug)->first();
+            else $traineeship = $this->traineeship->findTraineeshipSlug($slug)->first();
             return response()->json([
                 'success' => true,
                 'data' => $traineeship,
