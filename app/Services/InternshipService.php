@@ -79,11 +79,11 @@ class InternshipService
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];
-                if ($newStatus == 'Assesment' && $old->hr_point_id == null) {
-                    throw new \Exception ('hr point dari traineeship tidak ditemukan', 404);
+                if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
+                    throw new \Exception ('status traineeship tidak valid', 422);
                 } elseif ($newStatus == 'Lolos') {
-                    if ($oldStatus != 'Assesment')
-                        throw new \Exception ('status traineeship tidak valid',422);
+                    if ($old->hr_point_id == null)
+                        throw new \Exception ('hr point dari traineeship tidak ditemukan', 404);
                     $this->createInternship($old->id, $request);
                 }
             }
@@ -110,8 +110,8 @@ class InternshipService
             $traineeship = $this->traineeship->find($id);
             if ($traineeship->hr_point_id != null) {
                 throw new \Exception('job aplicant ini sudah memiliki interview point dengan id '. $traineeship->hr_point_id,422);
-            } elseif ($traineeship->status_tahap != 'FU') {
-                throw new \Exception('job aplicant harus pada tahap FU',422);
+            } elseif ($traineeship->status_tahap != 'Assessment') {
+                throw new \Exception('job aplicant harus pada tahap Assessment',422);
             }
             $poin = $this->interviewPoint->create($request);
             $this->traineeship->update($traineeship, ['hr_point_id' => $poin->id]);

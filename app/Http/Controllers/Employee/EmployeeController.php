@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Employee;
 use Illuminate\Http\Request;
 use App\Services\EmployeeService;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\ItemNotFoundException;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Requests\Employee\FirstFormEmployeeRequest;
-use App\Http\Requests\Employee\SecondFormEmployeeRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Employee\SecondFormEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -23,13 +24,21 @@ class EmployeeController extends Controller
     public function index()
     { 
         try {
+            $data = $this->employeeService->getAllEmployeePersonal();
+            if (count($data) <= 0) {
+                throw new ItemNotFoundException('data tidak ditemukan');
+            }
             return response()->json([
                 'status' => 'success',
                 'data' => $this->employeeService->getAllEmployeePersonal(),
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            return $this->returnException($e);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
         }
     }
 
@@ -45,19 +54,13 @@ class EmployeeController extends Controller
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            return $this->returnException($e, $request->validated());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
         }
-    }
-
-    public function returnException($e, $input = [])
-    {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'input' => $input,
-            'status_code' => $e->getCode(),
-            'line' => $e->getTrace(),
-        ]);
     }
 
     public function storeFormTwo($uuid, SecondFormEmployeeRequest $request)
@@ -69,7 +72,12 @@ class EmployeeController extends Controller
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            return $this->returnException($e, $request->validated());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
         }
     }
 
@@ -81,7 +89,7 @@ class EmployeeController extends Controller
         try {
             $employee = $this->employeeService->findEmployeePersonal($id, 'id');
             if ($employee == null) {
-                throw new ModelNotFoundException('data tidak ditemukan');
+                throw new ModelNotFoundException('data tidak ditemukan', 404);
             }
             return response()->json([
                 'status' => 'success',
@@ -89,7 +97,11 @@ class EmployeeController extends Controller
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            return $this->returnException($e);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
         }
     }
 
@@ -105,7 +117,12 @@ class EmployeeController extends Controller
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            return $this->returnException($e, $request->validated());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
         }
     }
 
@@ -118,7 +135,11 @@ class EmployeeController extends Controller
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            return $this->returnException($e);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
+            ]);
         }
 
     }
@@ -130,7 +151,7 @@ class EmployeeController extends Controller
     {
         try {
             $data = Validator::make($request->all(), ['status_terminate' => 'required']);
-            if ($data->fails()) throw new \Exception($data->errors());
+            if ($data->fails()) throw new \Exception($data->errors()->first());
             
             $this->employeeService->deleteEmployeePersonal($data->validated(), $uuid);
             return response()->json([
@@ -138,7 +159,11 @@ class EmployeeController extends Controller
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
-            $this->returnException($e);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
+            ]);
         }
     }
 }

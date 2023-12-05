@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use App\Interfaces\UserRepositoryInterface;
 
 class UserRepository implements UserRepositoryInterface
@@ -39,7 +38,7 @@ class UserRepository implements UserRepositoryInterface
     }
     
     public function update($user, $request) {
-        return $user->update(['slug' => $request]);
+        return $user->update($request);
     }
     
 }

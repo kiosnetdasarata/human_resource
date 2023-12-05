@@ -17,6 +17,7 @@ use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
+use Illuminate\Validation\ValidationException;
 
 class EmployeeService
 {
@@ -38,7 +39,8 @@ class EmployeeService
     {
         return DB::transaction(function ()  use ($request) {
             if ($request['tahun_lulus'] > intval(date('Y')))
-                throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');$employeePersonal = $this->storeEmployeePersonal($request);
+                throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang',422);
+            $employeePersonal = $this->storeEmployeePersonal($request);
             
             $employeePersonal->put('nip_id', $employeePersonal['nip']);
             $this->storeEmployeeConfidential($employeePersonal->all());
@@ -61,7 +63,7 @@ class EmployeeService
             $employee = $this->findEmployeePersonal($uuid);
             
             if ($employee->employeeContract != null) {
-                throw new \Exception('data is exist');
+                throw new \Exception('data is exist',422);
             }
             $this->updateEmployeeConfidential($uuid, $request);
             $this->storeEmployeeContract($uuid, collect($request)->merge(['nip_id' => $employee->nip])->all());
@@ -90,7 +92,6 @@ class EmployeeService
     public function findEmployeePersonal($uuid)
     {
        $employee = $this->employee->find($uuid);
-    //    if ($employee->slug == 'JANGAN_DIUBAH') throw new \Exception ('ini data testing BE, pake yang lain dulu');
        return $employee;
     }
 
@@ -141,7 +142,7 @@ class EmployeeService
         return DB::transaction(function () use ($uuid, $request) {
             $old = $this->findEmployeePersonal($uuid);
             $employee = collect($request)->diffAssoc($old);
-            if ($employee->has('nama')) {
+            if (isset($employee['nama'])) {
                 $employee->put(
                     'slug', Str::slug($employee["nama"]),
                 );
@@ -164,7 +165,7 @@ class EmployeeService
             $contract = $data->employeeContract;
             if ($contract != null) {
                 if ($contract->end_contract > Carbon::now())
-                    throw new \Exception('tidak bisa menghapus karena kontrak belum habis');
+                    throw new \Exception('tidak bisa menghapus karena kontrak belum habis',422);
                 
                 $this->deleteEmployeeContract($uuid);
             }
@@ -260,7 +261,7 @@ class EmployeeService
         if ($data->has('file_terms')) {
             // $data->put('file_terms', $request['file_terms']->storeAs('employee/file_terms', $request['nip'].'_terms.pdf', 'gcs'));
         }
-        return $this->employeeContract->update($old, $data);
+        return $this->employeeContract->update($old, $data->all());
     }
 
     public function deleteEmployeeContract($uuid)
@@ -274,7 +275,7 @@ class EmployeeService
 
     public function addEducation($uuid, $request) {
         if ($request['tahun_lulus'] > date('Y'))
-            throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
+            throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang',422);
         $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
         $edu = $this->findEmployeePersonal($uuid)->employeeEducation;
         if (count($edu) > 0)
@@ -282,10 +283,10 @@ class EmployeeService
             if ($request['pendidikan_terakhir'] == 'Sarjana') break;
             if (array_search($data['pendidikan_terakhir'], $arr) > array_search($request['pendidikan_terakhir'], $arr) && 
                 $data['tahun_lulus'] <= $request['tahun_lulus']) {
-                    throw new \Exception ('tahun lulus tidak valid');
+                    throw new \Exception ('tahun lulus tidak valid',422);
                 }
             if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
-                throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada');
+                throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada',422);
             }
         }
         $this->employeeEducation->create($request->all());

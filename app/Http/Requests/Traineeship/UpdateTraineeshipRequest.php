@@ -25,6 +25,7 @@ class UpdateTraineeshipRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
             'nama_lengkap' => 'exclude_with:status_tahap|string',
             'vacancy_id' => 'exclude_with:status_tahap|exists:job_vacancies,id,is_active,1,is_intern,1',

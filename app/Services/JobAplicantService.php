@@ -5,10 +5,10 @@ namespace App\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use App\Interfaces\JobVacancyRepositoryInterface;
-use App\Interfaces\JobAplicantRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\InterviewPointRepositoryInterface;
+use App\Interfaces\JobVacancyRepositoryInterface;
+use App\Interfaces\JobAplicantRepositoryInterface;
 
 class JobAplicantService
 {
@@ -62,20 +62,24 @@ class JobAplicantService
                 $jobAplicant->put('file_cv', 'test_cv');
                 // $jobAplicant->put('file_cv', $request->file['file_cv']->storeAs('jobAplicant/cv', $jobAplicant['uuid'].'.pdf', 'gcs'));
             }
-            if(isset($jobAplicant['nama_lengkap'])) {
+            if (isset($jobAplicant['nama_lengkap'])) {
                 $jobAplicant->put('slug', Str::slug($jobAplicant['nama_lengkap']));
             }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];
-                if ($newStatus == 'Lolos' && $oldStatus != 'Assesment') {
-                    throw new \Exception ('status jobAplicant tidak valid',422);
-                } elseif ($newStatus == 'Assesment' && $oldStatus == null) {
-                    throw new \Exception('hr point tidak ditemukan', 404);
-                } elseif ($newStatus == 'Tolak'){
-                    $this->jobApplicant->delete($old);
-                    if ($old->interviewPoint != null)
-                        $this->interviewPoint->delete($old->interviewPoint);
+                if (isset($request['status_tahap'])) {
+                    $oldStatus = $old->status_tahap;
+                    $newStatus = $request['status_tahap'];
+                    if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
+                        throw new \Exception ('status jobAplicant tidak valid', 422);
+                    } elseif ($newStatus == 'Lolos' || $old->hr_point_id == null) {
+                        throw new \Exception ('hr point dari jobAplicant tidak ditemukan', 404);
+                    } elseif ($newStatus == 'Tolak') {
+                        $this->jobApplicant->delete($old);
+                        if ($old->interviewPoint != null)
+                            $this->interviewPoint->delete($old->interviewPoint);
+                    }
                 }
             }
             $this->jobApplicant->update($old, $jobAplicant->all());
@@ -87,12 +91,12 @@ class JobAplicantService
         return DB::transaction(function () use ($id, $request) {
             $jobApplicant = $this->jobApplicant->find($id);
             if ($jobApplicant->hr_point_id != null) {
-                throw new \Exception('job aplicant ini sudah memiliki interview point dengan id '. $jobApplicant->hr_point_id,422);
-            } elseif ($jobApplicant->status_tahap != 'FU') {
-                throw new \Exception('job aplicant harus pada tahap FU',422);
+                return $this->interviewPoint->update($jobApplicant->hr_point_id, $request);
+            } elseif ($jobApplicant->status_tahap != 'Assessment') {
+                throw new \Exception('job aplicant harus pada tahap Assessment',422);
             }
             $poin = $this->interviewPoint->create($request);
-            $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $poin->id]);
+            return $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $poin->id]);
         });
     }
 
