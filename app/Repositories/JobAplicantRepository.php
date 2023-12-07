@@ -28,7 +28,11 @@ class JobAplicantRepository implements JobAplicantRepositoryInterface
 
     public function findSlug($slug)
     {
-        return $this->jobApplicant->with('interviewPoint')->where('slug', 'LIKE', $slug)->withTrashed()->get();
+        return $this->jobApplicant->with('interviewPoint')
+                    ->where(function ($query) use ($slug) {
+                        $query->where('slug', $slug)
+                            ->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
+                    })->withTrashed()->get();
     }
 
     public function findWithTrashes($id)

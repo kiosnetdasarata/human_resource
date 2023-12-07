@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\EmployeeService;
 use App\Services\JobAplicantService;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\JobAplicant\StoreJobAplicantRequest;
-use Ramsey\Uuid\Type\Integer;
 
 class JobAplicantController extends Controller
 {
@@ -30,7 +28,7 @@ class JobAplicantController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
             ]);
         }
     }
@@ -50,12 +48,12 @@ class JobAplicantController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
     }
 
-    public function find(Request $request, $status)
+    public function find($status)
     {
         try {
             return response()->json([
@@ -66,7 +64,7 @@ class JobAplicantController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
             ]);
         }
     }
@@ -78,8 +76,9 @@ class JobAplicantController extends Controller
     {
         try {
             $jobAplicant = ((int) $slug) == 0 ?
-                $this->jobAplicantService->findSlug($slug)->first() :
+                $this->jobAplicantService->findSlug($slug)->firstOrFail() : 
                 $this->jobAplicantService->find($slug);
+
             return response()->json([
                 'success' => true,
                 'data' => $jobAplicant,
@@ -88,8 +87,8 @@ class JobAplicantController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
+                'error' => $e->getMessage() == null ? 'data tidak ditemukan' : $e->getMessage(),
+                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
             ]);
         }
     }
@@ -110,7 +109,6 @@ class JobAplicantController extends Controller
                 'success' => false,
                 'error' => $e->getMessage(),
                 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-                'trace' => $e->getTrace()
             ]);
         }
     }
@@ -138,20 +136,20 @@ class JobAplicantController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        try {
-            return response()->json([
-                'success' => true,
-                'data' => $this->jobAplicantService->get(),
-                'status_code' => 200
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
-            ]);
-        }
-    }
+    // public function destroy(string $id)
+    // {
+    //     try {
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $this->jobAplicantService->get(),
+    //             'status_code' => 200
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'error' => $e->getMessage(),
+    //             'status_code' => $e->getCode(),
+    //         ]);
+    //     }
+    // }
 }

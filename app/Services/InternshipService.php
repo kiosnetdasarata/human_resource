@@ -42,7 +42,7 @@ class InternshipService
 
     public function findTraineeshipSlug($name) 
     {
-        return $this->traineeship->findBySlug(Str::slug($name, '_'));    
+        return $this->traineeship->findBySlug(Str::slug($name, '_'));
     }
     
     public function createTraineeship($request)
@@ -57,7 +57,7 @@ class InternshipService
         
         $list = $this->findTraineeshipSlug($request['nama_lengkap']);
         $slug = Str::slug($request['nama_lengkap']) .
-                    count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+                    count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
         
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
@@ -84,10 +84,15 @@ class InternshipService
             }
             if (isset($traineeship['nama_lengkap'])) {
                 $list = $this->findTraineeshipSlug($request['nama_lengkap']);
-                $slug = Str::slug($traineeship['nama_lengkap']) .
-                            count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+                $additionalSlug = '';
+                if (count($list) > 0) {
+                    $explodedSlug = explode('_', $list->last()->slug);
+                    $counter = (int) end($explodedSlug);
+                    $additionalSlug = '_' . ($counter + 1);
+                }
+                $slug = Str::slug($traineeship['nama_lengkap'],'_') . $additionalSlug;
                 
-                $traineeship->put('slug', $slug);
+                $traineeship->put('slug', $slug); //kalo test ama test_lagi dibaca sama
             }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
@@ -180,7 +185,7 @@ class InternshipService
             $traineeship = $this->findTraineeship($idTraineenship, true);
             $list = $this->findInternship($request['nama_lengkap'],'slug');
             $slug = Str::slug($traineeship['nama_lengkap']) .
-                        count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+                        count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
             $internship = collect($traineeship)->merge([
                     'id' => Uuid::uuid4()->getHex(),
                     'internship_nip' => $this->generateNip($request['tanggal_masuk'], $traineeship->jk),
@@ -190,7 +195,7 @@ class InternshipService
                     'role_id' => $traineeship->jobVacancy->role_id,
                 ])->merge($request);
             
-            $internship->put('file_cv', uploadToGCS($internship['file_cv'],$internship->id,'internship/cv'));
+            // $internship->put('file_cv', uploadToGCS($internship['file_cv'],$internship->id,'internship/cv'));
             $this->internship->create($internship->all());
             $this->traineeship->delete($traineeship);
         });
@@ -204,7 +209,7 @@ class InternshipService
         if (isset($internship["nama_lengkap"]))
             $list = $this->findInternship($request['nama_lengkap'],'slug');
             $slug = Str::slug($internship['nama_lengkap']) .
-                        count($list) > 0 ?? end(explode('_', end($list->slug))+1);
+                        count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
             
             $internship->put('slug', $slug);
 

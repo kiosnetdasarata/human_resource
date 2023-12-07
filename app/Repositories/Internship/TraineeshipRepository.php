@@ -25,8 +25,13 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
         });
     }
 
-    public function findBySlug($slug) {
-        return $this->traineeship->with('interviewPoint')->where('slug', 'like', $slug.'%')->withTrashed()->get();
+    public function findBySlug($slug) 
+    {
+        return $this->traineeship->with('interviewPoint')
+                    ->where(function ($query) use ($slug) {
+                        $query->where('slug', $slug)
+                            ->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
+                    })->withTrashed()->get();        
     }
 
     public function find($id)

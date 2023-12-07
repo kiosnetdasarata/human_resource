@@ -47,11 +47,14 @@ class JobAplicantService
             throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
         if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
             return true;
-
+        
+        $list = $this->findSlug($request['nama_lengkap'],'slug');
+        $slug = Str::slug($request['nama_lengkap']) .
+                    count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
         $aplicant = collect($request)->merge([
             'file_cv' => 'filenya ada',
             'date' => Carbon::now(),
-            'slug' => Str::slug($request['nama_lengkap'], '_'),
+            'slug' => $slug,
         ]);
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
 
@@ -68,7 +71,10 @@ class JobAplicantService
                 // $jobAplicant->put('file_cv', $request->file['file_cv']->storeAs('jobAplicant/cv', $jobAplicant['uuid'].'.pdf', 'gcs'));
             }
             if (isset($jobAplicant['nama_lengkap'])) {
-                $jobAplicant->put('slug', Str::slug($jobAplicant['nama_lengkap']));
+                $list = $this->findSlug($jobAplicant['nama_lengkap'],'slug');
+                $slug = Str::slug($jobAplicant['nama_lengkap']) .
+                            count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
+                $jobAplicant->put('slug', $slug);
             }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
