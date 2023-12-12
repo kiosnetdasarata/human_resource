@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\JobAplicantService;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\JobAplicant\StoreJobAplicantRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class JobAplicantController extends Controller
 {
@@ -75,10 +76,15 @@ class JobAplicantController extends Controller
     public function show($slug) 
     {
         try {
-            $jobAplicant = ((int) $slug) == 0 ?
-                $this->jobAplicantService->findSlug($slug)->firstOrFail() : 
-                $this->jobAplicantService->find($slug);
-
+            $jobAplicant = (function () use($slug) {
+                if (((int) $slug) == 0) {
+                    $jobApplicant = $this->jobAplicantService->findSlug($slug)->firstOrFail();
+                    if ($slug != $jobApplicant->slug) return null;
+                    return $jobApplicant;
+                } else
+                    return $jobApplicant = $this->jobAplicantService->find($slug);
+            });
+            $jobAplicant == null ?? throw new ModelNotFoundException('data tidak ditemukan',404);
             return response()->json([
                 'success' => true,
                 'data' => $jobAplicant,
@@ -116,7 +122,7 @@ class JobAplicantController extends Controller
     public function changeStatus($id, Request $request) 
     {
         try {
-            $data = Validator::make($request->all(), ['status_tahap' => 'required|in:FU,Assesment,Tolak,Lolos']);
+            $data = Validator::make($request->all(), ['status_tahap' => 'required|in:FU,AsesmentTolak,Lolos']);
             if ($data->fails()) throw new \Exception($data->errors());
 
             $this->jobAplicantService->update($id, $data->validated());

@@ -69,7 +69,7 @@ class InternshipService
             throw new \Exception('tahun lulus tidak valid', 422);
         }
         
-        // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
+        $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'], $traineeship['slug']. '_cv','traineeship/cv'));
         return $this->traineeship->create($traineeship->all());
     }
 
@@ -80,7 +80,7 @@ class InternshipService
             $traineeship = collect($request)->diffAssoc($old);
             if (isset($traineeship['file_cv'])) {
                 $traineeship->put('file_cv', 'test_cv');
-                // $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'],$traineeship->id,'traineeship/cv'));
+                $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'],$traineeship->id,'traineeship/cv'));
             }
             if (isset($traineeship['nama_lengkap'])) {
                 $list = $this->findTraineeshipSlug($request['nama_lengkap']);
@@ -92,12 +92,12 @@ class InternshipService
                 }
                 $slug = Str::slug($traineeship['nama_lengkap'],'_') . $additionalSlug;
                 
-                $traineeship->put('slug', $slug); //kalo test ama test_lagi dibaca sama
+                $traineeship->put('slug', $slug);
             }
             if (isset($request['status_tahap'])) {
                 $oldStatus = $old->status_tahap;
                 $newStatus = $request['status_tahap'];
-                if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
+                if ($newStatus == 'Asesment' && $oldStatus != 'FU') {
                     throw new \Exception ('status traineeship tidak valid', 422);
                 } elseif ($newStatus == 'Lolos') {
                     if ($old->hr_point_id == null)
@@ -195,7 +195,7 @@ class InternshipService
                     'role_id' => $traineeship->jobVacancy->role_id,
                 ])->merge($request);
             
-            // $internship->put('file_cv', uploadToGCS($internship['file_cv'],$internship->id,'internship/cv'));
+            $internship->put('file_cv', uploadToGCS($internship['file_cv'],$internship->id.'_cv','internship/cv'));
             $this->internship->create($internship->all());
             $this->traineeship->delete($traineeship);
         });

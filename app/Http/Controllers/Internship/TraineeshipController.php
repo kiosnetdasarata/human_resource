@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Internship;
 
+use Ramsey\Uuid\Type\Integer;
+use App\Services\InternshipService;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\Traineeship\StoreTraineeshipRequest;
 use App\Http\Requests\Traineeship\UpdateTraineeshipRequest;
-use App\Services\InternshipService;
-use Ramsey\Uuid\Type\Integer;
 
 class TraineeshipController extends Controller
 {
@@ -62,13 +63,19 @@ class TraineeshipController extends Controller
     public function show($slug)
     {
         try {
-            $traineeship = ((int) $slug) == 0 ?
-                $this->traineeship->findTraineeshipSlug($slug)->first() :
-                $this->traineeship->findTraineeship($slug);
+            $traineeship = function () use($slug) {
+                if (((int) $slug) == 0) {
+                    $traneeship = $this->traineeship->findTraineeshipSlug($slug)->firstOrFail();
+                    if ($slug != $traneeship->slug) return null;
+                    return $traneeship;
+                } else
+                    return $traneeship = $this->traineeship->findTraineeship($slug);
+            };
+            $traineeship() == null ?? throw new ModelNotFoundException('data tidak ditemukan',404);
 
             return response()->json([
                 'success' => true,
-                'data' => $traineeship,
+                'data' => $traineeship(),
                 'status_code' => 200
             ]);
 

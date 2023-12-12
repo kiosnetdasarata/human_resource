@@ -82,7 +82,7 @@ class JobAplicantService
                 if (isset($request['status_tahap'])) {
                     $oldStatus = $old->status_tahap;
                     $newStatus = $request['status_tahap'];
-                    if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
+                    if ($newStatus == 'Asesment' && $oldStatus != 'FU') {
                         throw new \Exception ('status jobAplicant tidak valid', 422);
                     } elseif ($newStatus == 'Lolos' || $old->hr_point_id == null) {
                         throw new \Exception ('hr point dari jobAplicant tidak ditemukan', 404);
