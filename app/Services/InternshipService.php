@@ -129,7 +129,7 @@ class InternshipService
             if ($traineeship->hr_point_id != null) {
                 throw new \Exception('job aplicant ini sudah memiliki interview point dengan id '. $traineeship->hr_point_id,422);
             } elseif ($traineeship->status_tahap != 'Assesment') {
-                throw new \Exception('job aplicant harus pada tahap Assesment,422);
+                throw new \Exception('job aplicant harus pada tahap Assesment',422);
             }
             $poin = $this->interviewPoint->create($request);
             $this->traineeship->update($traineeship, ['hr_point_id' => $poin->id]);
