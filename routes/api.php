@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
@@ -99,6 +100,10 @@ Route::middleware(['jwt:api', 'hr:api'
     });
     Route::post('logout', LogoutController::class);
     
+});
+
+Route::post('/test-file', function(Request $request) {
+    dd(uploadToGCS($request->file,null, '/test'));
 });
 
 Route::middleware('guest:api')->group(function() {
