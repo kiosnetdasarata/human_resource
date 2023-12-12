@@ -82,7 +82,7 @@ class JobAplicantService
                 if (isset($request['status_tahap'])) {
                     $oldStatus = $old->status_tahap;
                     $newStatus = $request['status_tahap'];
-                    if ($newStatus == 'Asesment' && $oldStatus != 'FU') {
+                    if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
                         throw new \Exception ('status jobAplicant tidak valid', 422);
                     } elseif ($newStatus == 'Lolos' || $old->hr_point_id == null) {
                         throw new \Exception ('hr point dari jobAplicant tidak ditemukan', 404);
@@ -103,8 +103,8 @@ class JobAplicantService
             $jobApplicant = $this->jobApplicant->find($id);
             if ($jobApplicant->hr_point_id != null) {
                 return $this->interviewPoint->update($jobApplicant->hr_point_id, $request);
-            } elseif ($jobApplicant->status_tahap != 'Assessment') {
-                throw new \Exception('job aplicant harus pada tahap Assessment',422);
+            } elseif ($jobApplicant->status_tahap != 'Assesment') {
+                throw new \Exception('job aplicant harus pada tahap Assesment',422);
             }
             $poin = $this->interviewPoint->create($request);
             return $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $poin->id]);

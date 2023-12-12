@@ -122,7 +122,7 @@ class JobAplicantController extends Controller
     public function changeStatus($id, Request $request) 
     {
         try {
-            $data = Validator::make($request->all(), ['status_tahap' => 'required|in:FU,AsesmentTolak,Lolos']);
+            $data = Validator::make($request->all(), ['status_tahap' => 'required|in:FU,AssesmentTolak,Lolos']);
             if ($data->fails()) throw new \Exception($data->errors());
 
             $this->jobAplicantService->update($id, $data->validated());

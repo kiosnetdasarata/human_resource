@@ -39,7 +39,7 @@ class UpdateTraineeshipRequest extends FormRequest
             'semester' => 'exclude_with:status_tahap|numeric|max:20',
             'tahun_lulus' => 'exclude_with:status_tahap|required_if:is_kuliah,0',
             'durasi' => 'exclude_with:status_tahap|in:3,6',
-            'status_tahap' => 'in:FU,Asesment,Lolos,Tolak',
+            'status_tahap' => 'in:FU,Assesment,Lolos,Tolak',
             'file_cv' => ['exclude_with:status_tahap',File::types(['pdf'])->max(5 * 1024),],
             'link_portofolio' => 'exclude_with:status_tahap|url',
             'sumber_info' => 'exclude_with:status_tahap|string'
