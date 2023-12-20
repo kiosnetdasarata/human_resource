@@ -92,8 +92,7 @@ class EmployeeService
 
     public function findEmployeePersonal($uuid)
     {
-       $employee = $this->employee->find($uuid);
-       return $employee;
+        return $this->employee->find($uuid);
     }
 
     public function findSlugEmployeePersonal($name, $withtrashes = false)

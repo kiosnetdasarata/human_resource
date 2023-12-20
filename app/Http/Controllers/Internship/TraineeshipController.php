@@ -105,6 +105,7 @@ class TraineeshipController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
+                'trace' =>$e->getTrace(),
                 'status_code' => 500,
             ]);
         }

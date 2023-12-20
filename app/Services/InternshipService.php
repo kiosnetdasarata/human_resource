@@ -102,11 +102,10 @@ class InternshipService
                 } elseif ($newStatus == 'Lolos') {
                     if ($old->hr_point_id == null)
                         throw new \Exception ('hr point dari traineeship tidak ditemukan', 404);
-                    $this->createInternship($old->id, $request);
+                    $this->createInternship($old->id, $old);
                 }
             }
             $data = $this->traineeship->update($old, $traineeship->all());
-
             if ($data->status_tahap == 'Tolak' || $data->status_tahap == 'Lolos') {
                 $this->traineeship->delete($old);
             }
@@ -181,23 +180,22 @@ class InternshipService
                 if ($file == null || $file->date_expired < Carbon::now())
                     throw new \Exception('file mitra tidak ditemukan atau kadaluarsa',404);
             }
-            
             $traineeship = $this->findTraineeship($idTraineenship, true);
             $list = $this->findInternship($request['nama_lengkap'],'slug');
             $slug = Str::slug($traineeship['nama_lengkap']) .
                         count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
             $internship = collect($traineeship)->merge([
                     'id' => Uuid::uuid4()->getHex(),
-                    'internship_nip' => $this->generateNip($request['tanggal_masuk'], $traineeship->jk),
+                    'internship_nip' => $this->generateNip($traineeship->jk),
                     'slug' => $slug,
                     'file_cv' => $traineeship->file_cv,
                     'no_tlpn' => $traineeship->nomor_telepone,
                     'role_id' => $traineeship->jobVacancy->role_id,
+                    'file_cv' => $traineeship['file_cv'],
+                    'tanggal_masuk' => now()->format('Y-m-d'),
                 ])->merge($request);
             
-            $internship->put('file_cv', uploadToGCS($internship['file_cv'],$internship->id.'_cv','internship/cv'));
             $this->internship->create($internship->all());
-            $this->traineeship->delete($traineeship);
         });
     }
 
@@ -206,13 +204,14 @@ class InternshipService
         $old = $this->findInternship($uuid);
         $internship = collect($request)->diffAssoc($old);
 
-        if (isset($internship["nama_lengkap"]))
+        if (isset($internship["nama_lengkap"])) {
             $list = $this->findInternship($request['nama_lengkap'],'slug');
             $slug = Str::slug($internship['nama_lengkap']) .
                         count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
             
             $internship->put('slug', $slug);
-
+        }
+        
         if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
             throw new \Exception('supervisor tidak ditemuka atau bukan karyawan aktif', 404);
 
@@ -290,7 +289,7 @@ class InternshipService
         throw new \Exception('Data kontrak tidak ditemukan', 404);
     }
 
-    private function generateNip($tglKerja, $jk)
+    private function generateNip($jk)
     {
         $ke = $this->internship->getAllThisYear() + 1;
         if ((int)($ke/10 == 0)) $ke = '00'.$ke;
@@ -298,7 +297,7 @@ class InternshipService
 
         return (string) ( 
             '2' 
-            . (string) date_create_from_format('Y-m-d', $tglKerja)->format('Ym')
+            . (string) now()->format('Ym')
             . ($jk == 'Laki-Laki' ? '1':'0')
             . $ke
         );

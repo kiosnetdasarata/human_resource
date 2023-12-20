@@ -5,6 +5,5 @@ function uploadToGCS($file,$customName = null,$directory) {
     $customName ?? $customName = $file->getBasename();
     // $path = $file->storeAs($directory, $customName.'.'.$format, 'gcs'); //on
     $path = $directory . '/' . $customName.'.'.$format; // off
-    $path = 'http://storage.googleapis.com/developer_dasarata'.$path;
-    return $path;
+    return 'http://storage.googleapis.com/developer_dasarata'.$path;
 }
