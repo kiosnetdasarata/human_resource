@@ -6,14 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreRoleRequest extends FormRequest
+class UpdateRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->method('patch');
     }
 
     /**
@@ -23,12 +23,13 @@ class StoreRoleRequest extends FormRequest
      */
     public function rules(): array
     {
+        $role = $this->route('role');
         return [
-            'divisi_id' => 'required|exists:divisions,id',
-            'kode_jabatan' => 'required|unique:roles,kode_jabatan',
-            'nama_jabatan' => 'required|unique:roles,nama_jabatan',
-            'level_id' => 'required|exists:levels,id',
-            'deskripsi' => 'required|string',
+            'divisi_id' => 'exists:divisions,id',
+            'kode_jabatan' => 'unique:roles,kode_jabatan,'. $role . ',kode_jabatan',
+            'nama_jabatan' => 'unique:roles,nama_jabatan,'. $role . ',kode_jabatan',
+            'level_id' => 'exists:levels,id',
+            'deskripsi' => 'string',
         ];
     }
 

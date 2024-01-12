@@ -28,7 +28,7 @@ class JobAplicantRepository implements JobAplicantRepositoryInterface
 
     public function findSlug($slug)
     {
-        return $this->jobApplicant->with('interviewPoint')
+        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])
                     ->where(function ($query) use ($slug) {
                         $query->where('slug', $slug)
                             ->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');

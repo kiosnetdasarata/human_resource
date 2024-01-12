@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\RoleRepositoryInterface;
 use App\Http\Requests\Role\StoreRoleRequest;
+use App\Http\Requests\Role\UpdateRoleRequest;
 use Illuminate\Support\ItemNotFoundException;
 
 class RoleController extends Controller
@@ -82,25 +83,25 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    // public function update(UpdateJobTitleRequest $request, $id)
-    // {
-    //     try {
-    //         $this->roleRepositoryInterface->update($id,$request->validated());
+    public function update(UpdateRoleRequest $request, $id)
+    {
+        try {
+            $this->roleRepositoryInterface->update($this->roleRepositoryInterface->find($id),$request->validated());
             
-    //         return response()->json([
-    //             'status' => 'success'
-    // 'status_code' =>200,
-    //         ]);
+            return response()->json([
+                'status' => 'success',
+                'status_code' =>200,
+            ]);
 
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage(),
-    //             'input' => $request->validated(),
-    // 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-    //         ], );
-    //     }
-    // }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ], );
+        }
+    }
 
     /**
      * Remove the specified resource from storage.

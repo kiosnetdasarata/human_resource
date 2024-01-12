@@ -54,8 +54,6 @@ class FirstFormEmployeeRequest extends FormRequest
             'tahun_lulus' => 'required|digits:4',
 
             'level_sales_id' => 'required_if:role_id,2|exists:level_sales,id', //wajib diisi kalo divisi sales, kalo bukan diisi juga gak bakal masuk database
-            'team_id' => 'required_if:role_id,3|digits_between:1,2', //sama, tapi versi teknisi,
-            'is_katim' => 'required_if:role_id,3|in:0,1',
         ];
     }
 

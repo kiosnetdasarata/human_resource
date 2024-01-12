@@ -21,6 +21,8 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 'nama' => $e->nama,
                 'divisi' => $e->role->division->nama_divisi,
                 'jabatan' => $e->role->nama_jabatan,
+                'created_at' => $e->role->created_at,
+                'updated_at' => $e->role->updated_at
             ];
         });
     }

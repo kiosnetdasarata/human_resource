@@ -121,6 +121,7 @@ class EmployeeController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
+                'trace' => $e->getTrace(),
                 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }

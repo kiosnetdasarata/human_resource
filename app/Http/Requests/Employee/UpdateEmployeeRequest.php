@@ -31,14 +31,15 @@ class UpdateEmployeeRequest extends FormRequest
             'status_perkawinan' => 'in:Belum Menikah,Menikah',
             'foto_ktp' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
             'foto_kk' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
-            
-            'pendidikan_terakhir' => 'in:Sarjana,SMK/SMA,SMP',
-            'tahun_lulus' => 'required_with:pendidikan_terakhir',
-            'nama_instansi' => 'required_with:pendidikan_terakhir',
+            'alamat_sekarang' => 'string',
+            // 'pendidikan_terakhir' => 'in:Sarjana,SMK/SMA,SMP',
+            // 'tahun_lulus' => 'required_with:pendidikan_terakhir',
+            // 'nama_instansi' => 'required_with:pendidikan_terakhir',
             
             'nama_bank' => 'string',
             'nomor_rekening' => 'numeric',
             'no_tlpn_darurat' => 'string|digits_between:10,15',
+            'nama_kontak_darurat' => 'string',
             'nama_kontak_darurat' => 'string',
         ];
     }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\LevelRepositoryInterface;
 use App\Http\Requests\Level\StoreLevelRequest;
-
+use App\Http\Requests\Level\UpdateLevelRequest;
 
 class LevelController extends Controller
 {
@@ -20,12 +20,14 @@ class LevelController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $this->levelRepositoryInterface->getAll(),
+                'status_code' => 200
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-            ], 500);
+                'status_code' => 500
+            ]);
         }
     }
 
@@ -39,13 +41,15 @@ class LevelController extends Controller
 
             return response()->json([
                 'status' => 'success',
-            ], 200);
+                'status_code' => 200
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
-            ], 500);
+                'status_code' => 500
+            ]);
         }
     }
 
@@ -58,36 +62,40 @@ class LevelController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $this->levelRepositoryInterface->find($id),
-            ], 200);
+                'status_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500
+            ]);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    // public function update(UpdateJobTitleRequest $request, $id)
-    // {
-    //     try {
-    //         $this->levelRepositoryInterface->update($id,$request->validated());
+    public function update(UpdateLevelRequest $request, $id)
+    {
+        try {
+            $this->levelRepositoryInterface->update($this->levelRepositoryInterface->find($id),$request->validated());
             
-    //         return response()->json([
-    //             'status' => 'success'
-    //         ], 200);
+            return response()->json([
+                'status' => 'success',
+                'status_code' => 200
+            ]);
 
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage(),
-    //             'input' => $request->validated()
-    //         ], 500);
-    //     }
-    // }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'input' => $request->validated(),
+                'status_code' => 500
+            ]);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -99,13 +107,15 @@ class LevelController extends Controller
             
             return response()->json([
                 'status' => 'success',
-            ], 200);
+                'status_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500
+            ]);
         }
     }
 }

@@ -19,7 +19,7 @@ class LevelRepository implements LevelRepositoryInterface
 
     public function find($kodeJabatan)
     {
-        return $this->level->where('divisi_id', $kodeJabatan)->firstOrFail();
+        return $this->level->where('kode_level', $kodeJabatan)->firstOrFail();
     }
     
     public function create($request)

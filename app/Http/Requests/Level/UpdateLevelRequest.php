@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Role;
+namespace App\Http\Requests\Level;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreRoleRequest extends FormRequest
+class UpdateLevelRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->method('patch');
     }
 
     /**
@@ -22,13 +22,12 @@ class StoreRoleRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
-    {
+    {        
+        $level = $this->route('level');
         return [
-            'divisi_id' => 'required|exists:divisions,id',
-            'kode_jabatan' => 'required|unique:roles,kode_jabatan',
-            'nama_jabatan' => 'required|unique:roles,nama_jabatan',
-            'level_id' => 'required|exists:levels,id',
-            'deskripsi' => 'required|string',
+            'kode_level' => 'unique:levels,kode_level,'. $level. ',kode_level',
+            'nama_level' => 'unique:levels,nama_level,'. $level. ',kode_level',
+            'deskripsi' => 'string'
         ];
     }
 

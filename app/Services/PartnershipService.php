@@ -45,7 +45,7 @@ class PartnershipService
     public function getFilePartnership($mitraId)
     {
         $data = $this->getPartnership($mitraId)->filePartnership[0];
-        if($data == null || $data->date_expired < Carbon::now()) {
+        if($data == null || $data->date_expired < now()) {
             throw new ModelNotFoundException('file mitra tidak ditemukan atau kadaluarsa', 404);
         }
         return $data;

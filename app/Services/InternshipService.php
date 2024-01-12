@@ -50,7 +50,7 @@ class InternshipService
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
         $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
         
-        if (Carbon::now() > $jobVacancy['close_date'] || Carbon::now() < $jobVacancy['open_date'])
+        if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date'])
             throw new \Exception('vacancy belum dibuka / sudah ditutup', 403);
         if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur'])
             throw new \Exception('umur tidak valid', 422);
@@ -61,7 +61,7 @@ class InternshipService
         
         $traineeship = collect($request)->merge([
             'file_cv' => 'filenya ada',
-            'tanggal_lamaran' => Carbon::now(),
+            'tanggal_lamaran' => now(),
             'slug' => $slug
         ]);
 
@@ -79,7 +79,7 @@ class InternshipService
             $old = $this->findTraineeship($slug);
             $traineeship = collect($request)->diffAssoc($old);
             if (isset($traineeship['file_cv'])) {
-                $traineeship->put('file_cv', 'test_cv');
+                // $traineeship->put('file_cv', 'test_cv');
                 $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'],$traineeship->id,'traineeship/cv'));
             }
             if (isset($traineeship['nama_lengkap'])) {
@@ -177,7 +177,7 @@ class InternshipService
         return DB::Transaction(function() use ($idTraineenship, $request) {
             if (isset($internship['mitra_id'])) {
                 $file = $this->partnership->find($internship['mitra_id'])->filePartnership[0];
-                if ($file == null || $file->date_expired < Carbon::now())
+                if ($file == null || $file->date_expired < now())
                     throw new \Exception('file mitra tidak ditemukan atau kadaluarsa',404);
             }
             $traineeship = $this->findTraineeship($idTraineenship, true);
@@ -235,7 +235,7 @@ class InternshipService
     public function getInternshipContract($id)
     {
         $data = $this->findInternship($id)->internshipContract[0];
-        if ($data == null || $data->date_expired < Carbon::now()) {
+        if ($data == null || $data->date_expired < now()) {
             throw new ModelNotFoundException('file mitra tidak ditemukan atau kadaluarsa', 404);
         }
         return $data;

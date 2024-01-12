@@ -42,8 +42,8 @@ class JobAplicantService
     public function create($request)
     {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
-        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
-        if (Carbon::now() > $jobVacancy['close_date'] || Carbon::now() < $jobVacancy['open_date'])
+        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
+        if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date'])
             throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
         if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
             return true;
@@ -53,7 +53,7 @@ class JobAplicantService
                     count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
         $aplicant = collect($request)->merge([
             'file_cv' => 'filenya ada',
-            'date' => Carbon::now(),
+            'date' => now(),
             'slug' => $slug,
         ]);
         // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));

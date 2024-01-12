@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
@@ -64,7 +63,7 @@ class EmployeeService
             $employee->employeeContract != null ??
                 throw new \Exception('data is exist',422);
             
-            $this->updateEmployeeConfidential($uuid, $request);
+            $this->updateEmployeeConfidential($employee->employeeCI, $request);
             $this->storeEmployeeContract($uuid, collect($request)->merge(['nip_id' => $employee->nip])->all());
             $this->user->setIsactive($employee->user(), true);
         });
@@ -78,7 +77,7 @@ class EmployeeService
             $request->put('nip_id', $employee['nip']);
 
             $this->updateEmployeePersonal($uuid, $request);
-            $this->updateEmployeeConfidential($employee->employeeCI->id, $request);
+            $this->updateEmployeeConfidential($employee->employeeCI, $request);
 
             isset($request['pendidikan_terakhir']) ??
                 $this->addEducation($employee->id, $request);
@@ -106,31 +105,30 @@ class EmployeeService
             $data = collect($request)->merge([
                 'slug' => Str::slug($request["nama"], '_'),
                 'id' => Uuid::uuid4()->getHex(),
-                'nip' => Carbon::now()->format('ym')
+                'nip' => now()->format('ym')
                         . ($request['jenis_kelamin'] == 'Laki-Laki' ? '1' : '0')
                         . count($this->getAllEmployeePersonal(true)),
                 'foto_profil' => 'test dulu',
             ]);
 
-            // $data->put('foto_profil', $request['foto_profil']->storeAs('employee/'.$data['nip'], $request['nip_id'].'_cv.pdf', 'gcs'));
+            $data->put('foto_profil', uploadToGCS($request['foto_profil'], $request['nip_id'].'_cv.pdf','employee/'.$data['nip']));
 
             $this->employee->create($data->all());
             
             if ($data['role_id'] == 2) {
                 $this->sales->create([
+                    'id' => Uuid::uuid4()->getHex(),
                     'nip_id' => $data['nip'],
                     'slug' => Str::slug($request["nama"], '_'),
-                    'id' => Uuid::uuid4()->getHex(),
                     'no_tlpn' => $data['no_tlpn'],
                     'level_id' => $data['level_sales_id'],
                 ]);
             } else if ($data['role_id'] == 3) {
                 $this->technician->create([
-                    'team_id' => $data['team_id'],
                     'id' => Uuid::uuid4()->getHex(),
-                    'slug' => Str::slug($request["nama"], '_'),
                     'nip_id' => $data['nip'],
-                    'is_katim' => $data['is_katim'],
+                    'slug' => Str::slug($request["nama"], '_'),
+                    'nip_id' => 0,
                 ]);
             }
             return $data;
@@ -165,7 +163,7 @@ class EmployeeService
             $data = $this->findEmployeePersonal($uuid,'id');
             $contract = $data->employeeContract;
             if ($contract != null) {
-                $contract->end_contract > Carbon::now() ??
+                $contract->end_contract > now() ??
                     throw new \Exception('tidak bisa menghapus karena kontrak belum habis',422);
                 
                 $this->deleteEmployeeContract($uuid);
@@ -177,7 +175,7 @@ class EmployeeService
             $data = collect($data->toArray())
                     ->merge($data->employeeCI->toArray())
                     ->merge($request)->merge([
-                        'tanggal_terminate' => Carbon::now(),
+                        'tanggal_terminate' => now(),
                         'divisi_id' => $data->role->divisi_id,
                     ]);
             $this->employeeArchive->create($data->all());
@@ -187,20 +185,19 @@ class EmployeeService
     private function storeEmployeeConfidential($request)
     {
         $data = collect($request)->merge([
+            'id' => Uuid::uuid4()->getHex(),
+            'nip_id' => $request['nip'],
             'foto_ktp' => uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'),
             'foto_kk' => uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'),
             'file_cv' => uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'),
-            'nip_id' => $request['nip'],
-            'id' => Uuid::uuid4()->getHex(),
         ]);
         
         $this->employeeCI->create($data->all());
     }
 
-    public function updateEmployeeConfidential($uuid, $request)
+    public function updateEmployeeConfidential($employeeCI, $request)
     {
-        $old = $this->findEmployeePersonal($uuid)->employeeCI;
-        $data = collect($request)->diffAssoc($old);
+        $data = collect($request)->diffAssoc($employeeCI);
         $data->has('foto_ktp') ??
             $data->put('foto_ktp', uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'));
         
@@ -210,13 +207,13 @@ class EmployeeService
         $data->has('file_cv') ??
             $data->put('file_cv', uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'));
 
-        $this->employeeCI->update($old, $data->all());
+        $this->employeeCI->update($employeeCI, $data->all());
     }
 
     public function findEmployeeContract($uuid)
     {
         $data = $this->findEmployeePersonal($uuid)->employeeContract;
-        $data == null || $data->end_kontrak < Carbon::now() ??
+        $data == null || $data->end_kontrak < now() ??
             throw new ModelNotFoundException('file kontrak tidak ditemukan atau sudah kadaluarsa', 404);
         
         return $data;
@@ -233,8 +230,7 @@ class EmployeeService
     {
         return DB::transaction(function ()  use ($request, $uuid) {
             $employee = $this->findEmployeePersonal($uuid);
-            $employee->employeeContract != null ??
-                $this->deleteEmployeeContract($uuid);
+            $employee->employeeContract != null ?? $this->deleteEmployeeContract($uuid);
             
             $path = uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms');
             

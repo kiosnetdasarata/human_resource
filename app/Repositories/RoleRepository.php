@@ -23,7 +23,7 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function find($kodeJabatan)
     {
-        return $this->role->where('divisi_id', $kodeJabatan)->firstOrFail();
+        return $this->role->where('kode_jabatan', $kodeJabatan)->firstOrFail();
     }
     
     public function create($request)
