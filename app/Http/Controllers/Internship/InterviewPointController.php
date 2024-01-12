@@ -22,14 +22,15 @@ class InterviewPointController extends Controller
     {
         try {
             if ($aplicantType == 'traineeship')
-                $this->internshipService->addInterviewPoint($id,$request->validated());
+                $score = $this->internshipService->addInterviewPoint($id,$request->validated());
             else if ($aplicantType == 'job-aplicant')
-                $this->jobAplicantService->addInterviewPoint($id,$request->validated());
+                $score = $this->jobAplicantService->addInterviewPoint($id,$request->validated());
             else throw new \Exception ('Invalid route parameter');
 
             return response()->json([
                 'status' => 'success',
                 'status_code' => 200,
+                'data'
             ]);
         } catch (\Exception $e) {
             return response()->json([

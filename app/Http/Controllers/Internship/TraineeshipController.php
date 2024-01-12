@@ -63,10 +63,9 @@ class TraineeshipController extends Controller
     public function show($slug)
     {
         try {
-            $traineeship = function () use($slug) {
+            $traineeship = function () use ($slug) {
                 if (((int) $slug) == 0) {
-                    $traneeship = $this->traineeship->findTraineeshipSlug($slug)->firstOrFail();
-                    if ($slug != $traneeship->slug) return null;
+                    $traneeship = $this->traineeship->findTraineeshipSlug($slug);
                     return $traneeship;
                 } else
                     return $traneeship = $this->traineeship->findTraineeship($slug);
@@ -94,18 +93,18 @@ class TraineeshipController extends Controller
     public function update(UpdateTraineeshipRequest $request, string $id)
     {
         try {
-            $this->traineeship->updateTraineeship($id, $request->validated());
+            $traineeship = $this->traineeship->updateTraineeship($id, $request->validated());
 
             return response()->json([
                 'success' => true,
-                'status_code' => 200
+                'status_code' => 200,
+                'data' => $traineeship
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
-                'trace' =>$e->getTrace(),
                 'status_code' => 500,
             ]);
         }
@@ -118,6 +117,4 @@ class TraineeshipController extends Controller
     {
 
     }
-
-    
 }

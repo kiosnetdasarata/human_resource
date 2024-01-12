@@ -60,7 +60,6 @@ class InternshipService
                     count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
         
         $traineeship = collect($request)->merge([
-            'file_cv' => 'filenya ada',
             'tanggal_lamaran' => now(),
             'slug' => $slug
         ]);
@@ -69,7 +68,7 @@ class InternshipService
             throw new \Exception('tahun lulus tidak valid', 422);
         }
         
-        $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'], $traineeship['slug']. '_cv','traineeship/cv'));
+        $traineeship->put('file_cv', uploadToGCS($request['file_cv'], $traineeship['slug']. '_cv','traineeship/cv'));
         return $this->traineeship->create($traineeship->all());
     }
 
@@ -77,10 +76,10 @@ class InternshipService
     {
         return DB::transaction(function() use ($slug, $request) {
             $old = $this->findTraineeship($slug);
+            if ($old == null) throw new ModelNotFoundException('data already deleted');
             $traineeship = collect($request)->diffAssoc($old);
             if (isset($traineeship['file_cv'])) {
-                // $traineeship->put('file_cv', 'test_cv');
-                $traineeship->put('file_cv', uploadToGCS($request->file['file_cv'],$traineeship->id,'traineeship/cv'));
+                $traineeship->put('file_cv', uploadToGCS($request['file_cv'],$old->id,'traineeship/cv'));
             }
             if (isset($traineeship['nama_lengkap'])) {
                 $list = $this->findTraineeshipSlug($request['nama_lengkap']);
@@ -109,6 +108,7 @@ class InternshipService
             if ($data->status_tahap == 'Tolak' || $data->status_tahap == 'Lolos') {
                 $this->traineeship->delete($old);
             }
+            return $this->findTraineeship($old->id);
         });
     }
 
@@ -195,7 +195,7 @@ class InternshipService
                     'tanggal_masuk' => now()->format('Y-m-d'),
                 ])->merge($request);
             
-            $this->internship->create($internship->all());
+            return $this->internship->create($internship->all());
         });
     }
 
@@ -213,7 +213,7 @@ class InternshipService
         }
         
         if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
-            throw new \Exception('supervisor tidak ditemuka atau bukan karyawan aktif', 404);
+            throw new \Exception('supervisor tidak ditemukan atau bukan karyawan aktif', 404);
 
         return $this->internship->update($old, $internship->all());
     }
@@ -222,8 +222,8 @@ class InternshipService
     {
         return DB::transaction(function () use ($uuid) {
             $internship = $this->findInternship($uuid);
-            $this->internship->delete($internship);
             $this->deleteInternshipContract($uuid);
+            $this->internship->delete($internship);
         });
     }
 
