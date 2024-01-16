@@ -24,17 +24,17 @@ class UpdateInterviewPointRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'presentasi' => 'digits_between:1,3',
-            'kualitas_kerja' => 'digits_between:1,3',
-            'etika' => 'digits_between:1,3',
-            'adaptif' => 'digits_between:1,3',
-            'kerja_sama' => 'digits_between:1,3',
-            'disiplin' => 'digits_between:1,3',
-            'tanggung_jawab' => 'digits_between:1,3',
-            'inovatif_kreatif' => 'digits_between:1,3',
-            'problem_solving' => 'digits_between:1,3',
-            'kemampuan_teknis' => 'digits_between:1,3',
-            'tugas' => 'digits_between:1,3',
+            'presentasi' => 'decimal:0,2',
+            'kualitas_kerja' => 'decimal:0,2',
+            'etika' => 'decimal:0,2',
+            'adaptif' => 'decimal:0,2',
+            'kerja_sama' => 'decimal:0,2',
+            'disiplin' => 'decimal:0,2',
+            'tanggung_jawab' => 'decimal:0,2',
+            'inovatif_kreatif' => 'decimal:0,2',
+            'problem_solving' => 'decimal:0,2',
+            'kemampuan_teknis' => 'decimal:0,2',
+            'tugas' => 'decimal:0,2',
             'keterangan_hr' => 'string',
             'keterangan_user' => 'string',
         ];

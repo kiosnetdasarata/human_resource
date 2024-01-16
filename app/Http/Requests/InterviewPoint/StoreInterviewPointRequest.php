@@ -24,17 +24,17 @@ class StoreInterviewPointRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'presentasi' => 'required|digits_between:1,3',
-            'kualitas_kerja' => 'required|digits_between:1,3',
-            'etika' => 'required|digits_between:1,3',
-            'adaptif' => 'required|digits_between:1,3',
-            'kerja_sama' => 'required|digits_between:1,3',
-            'disiplin' => 'required|digits_between:1,3',
-            'tanggung_jawab' => 'required|digits_between:1,3',
-            'inovatif_kreatif' => 'required|digits_between:1,3',
-            'problem_solving' => 'required|digits_between:1,3',
-            'kemampuan_teknis' => 'required|digits_between:1,3',
-            'tugas' => 'required|digits_between:1,3',
+            'presentasi' => 'required|decimal:0,2',
+            'kualitas_kerja' => 'required|decimal:0,2',
+            'etika' => 'required|decimal:0,2',
+            'adaptif' => 'required|decimal:0,2',
+            'kerja_sama' => 'required|decimal:0,2',
+            'disiplin' => 'required|decimal:0,2',
+            'tanggung_jawab' => 'required|decimal:0,2',
+            'inovatif_kreatif' => 'required|decimal:0,2',
+            'problem_solving' => 'required|decimal:0,2',
+            'kemampuan_teknis' => 'required|decimal:0,2',
+            'tugas' => 'required|decimal:0,2',
             'keterangan_hr' => 'required|string',
             'keterangan_user' => 'required|string',
         ];

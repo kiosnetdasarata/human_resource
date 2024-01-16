@@ -180,11 +180,13 @@ class InternshipService
                 if ($file == null || $file->date_expired < now())
                     throw new \Exception('file mitra tidak ditemukan atau kadaluarsa',404);
             }
+            
             $traineeship = $this->findTraineeship($idTraineenship, true);
+            $this->updateTraineeship($traineeship->id, ['status_tahap' => 'Lolos']);
             $list = $this->findInternship($request['nama_lengkap'],'slug');
             $slug = Str::slug($traineeship['nama_lengkap']) .
                         count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
-            $internship = collect($traineeship)->merge([
+            $internship = collect($traineeship)->merge($request)->merge([
                     'id' => Uuid::uuid4()->getHex(),
                     'internship_nip' => $this->generateNip($traineeship->jk),
                     'slug' => $slug,
@@ -193,8 +195,7 @@ class InternshipService
                     'role_id' => $traineeship->jobVacancy->role_id,
                     'file_cv' => $traineeship['file_cv'],
                     'tanggal_masuk' => now()->format('Y-m-d'),
-                ])->merge($request);
-            
+                ]);
             return $this->internship->create($internship->all());
         });
     }
