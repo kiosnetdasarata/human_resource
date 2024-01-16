@@ -19,9 +19,11 @@ use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\PartnershipController;
 use App\Http\Controllers\Internship\TraineeshipController;
 use App\Http\Controllers\Employee\EmployeeContractController;
+use App\Http\Controllers\Employee\EmployeeEducationController;
 use App\Http\Controllers\Internship\InterviewPointController;
 use App\Http\Controllers\Internship\FilePartnershipController;
 use App\Http\Controllers\Internship\InternshipContractController;
+use App\Models\EmployeeEducation;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,9 +68,12 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
+Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
+Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
 Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);
+
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
 

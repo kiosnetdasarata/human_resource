@@ -29,8 +29,7 @@ class InterviewPointController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'status_code' => 200,
-                'data'
+                'status_code' => 200
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -60,6 +59,7 @@ class InterviewPointController extends Controller
             return response()->json([
                 'success' => true,
                 'status_code' => 200,
+                'data' => $data,
             ]);
         } catch (\Exception $e) {
             return response()->json([
