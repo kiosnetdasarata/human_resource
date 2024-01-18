@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Internship;
 
-use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -24,13 +23,10 @@ class StoreInternshipRequest extends FormRequest
      */
     public function rules(): array
     {
-        // dd('aaa');
         return [
             'status_internship' => 'required|in:Internship,Magang',
             'status_phase' => 'required|in:Onboarding,Join,Selesai',
-            'tanggal_masuk' => 'required|date:Y-m-d',
             'mitra_id' => 'int|exists:partnerships,id',
-            // 'supervisor' => 'in:employee,id',
         ];
     }
 

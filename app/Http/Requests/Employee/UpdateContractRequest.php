@@ -7,14 +7,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateEmployeeRequest extends FormRequest
+class UpdateContractRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->method('patch');
+        return true;
     }
 
     /**
@@ -23,21 +23,14 @@ class UpdateEmployeeRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
-    {
+    {        
         return [
-            'alamat' => 'string',
-            'no_tlpn' => 'string|digits_between:10,15',
-            'email' => 'email',
-            'status_perkawinan' => 'in:Belum Menikah,Menikah',
-            'foto_ktp' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
-            'foto_kk' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
-            'alamat_sekarang' => 'string',
-            
-            'nama_bank' => 'string',
-            'nomor_rekening' => 'numeric',
-            'no_tlpn_darurat' => 'string|digits_between:10,15',
-            'nama_kontak_darurat' => 'string',
-            'nama_kontak_darurat' => 'string',
+            'jenis_kontrak' => 'string',
+            'start_kontrak' => 'date_format:Y-m-d',
+            'end_kontrak' => 'date_format:Y-m-d',
+            'work_start' => 'date_format:Y-m-d',
+            'supervisor' => 'exists:employee_personal_informations,nip',
+            'file_terms' => [File::types(['pdf'])->max(5 * 1024),],
         ];
     }
 

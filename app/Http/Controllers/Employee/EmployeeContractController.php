@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\StoreContractRequest;
+use App\Http\Requests\Employee\UpdateContractRequest;
 use App\Services\EmployeeService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -81,7 +82,7 @@ class EmployeeContractController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateContractRequest $request, string $id)
     {
         try {
             $this->employeeService->updateEmployeeContract($id, $request);

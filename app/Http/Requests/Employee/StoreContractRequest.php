@@ -25,7 +25,7 @@ class StoreContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nomor_kontrak' => 'required|numeric|unique:employee_contracts,nomor_kontrak',
+            'nomor_kontrak' => 'required|numeric|unique:employee_contract_histories,nomor_kontrak',
             'jenis_kontrak' => 'required|string',
             'start_kontrak' => 'required|date_format:Y-m-d',
             'end_kontrak' => 'required|date_format:Y-m-d',

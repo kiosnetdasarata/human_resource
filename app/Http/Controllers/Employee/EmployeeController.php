@@ -57,6 +57,7 @@ class EmployeeController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
                 'input' => $request->validated(),
                 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);

@@ -111,7 +111,7 @@ class EmployeeService
                 'foto_profil' => 'test dulu',
             ]);
 
-            $data->put('foto_profil', uploadToGCS($request['foto_profil'], $request['nip_id'].'_cv.pdf','employee/'.$data['nip']));
+            $data->put('foto_profil', uploadToGCS($request['foto_profil'], $data['nip'].'_cv.pdf','employee/'.$data['nip']));
 
             $this->employee->create($data->all());
             
@@ -150,9 +150,9 @@ class EmployeeService
                 $old->technician() != null ??
                     $this->technician->update($old['nip'], ['slug' => $employee['slug']]);
             }
-            $employee->has('foto_profil') ??
+            if ($employee->has('foto_profil')) {
                 $employee->put('foto_profil', uploadToGCS($request['foto_profil'],$request['nip_id'].'_cv','employee/file_cv'));
-
+            }
             $this->employee->update($old, $employee->all());
         });
     }
@@ -163,7 +163,7 @@ class EmployeeService
             $data = $this->findEmployeePersonal($uuid,'id');
             $contract = $data->employeeContract;
             if ($contract != null) {
-                $contract->end_contract > now() ??
+                if ($contract->end_contract > now())
                     throw new \Exception('tidak bisa menghapus karena kontrak belum habis',422);
                 
                 $this->deleteEmployeeContract($uuid);
@@ -198,24 +198,24 @@ class EmployeeService
     public function updateEmployeeConfidential($employeeCI, $request)
     {
         $data = collect($request)->diffAssoc($employeeCI);
-        $data->has('foto_ktp') ??
+        if ($data->has('foto_ktp')) {
             $data->put('foto_ktp', uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'));
-        
-        $data->has('foto_kk') ??
+        }
+        if ($data->has('foto_kk')) {
             $data->put('foto_kk', uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'));
-
-        $data->has('file_cv') ??
+        }
+        if ($data->has('file_cv')) {
             $data->put('file_cv', uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'));
-
+        }
         $this->employeeCI->update($employeeCI, $data->all());
     }
 
     public function findEmployeeContract($uuid)
     {
         $data = $this->findEmployeePersonal($uuid)->employeeContract;
-        $data == null || $data->end_kontrak < now() ??
+        if ($data == null || $data->end_kontrak < now()) {
             throw new ModelNotFoundException('file kontrak tidak ditemukan atau sudah kadaluarsa', 404);
-        
+        }
         return $data;
     }
 
@@ -230,9 +230,10 @@ class EmployeeService
     {
         return DB::transaction(function ()  use ($request, $uuid) {
             $employee = $this->findEmployeePersonal($uuid);
-            $employee->employeeContract != null ?? $this->deleteEmployeeContract($uuid);
-            
-            $path = uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms');
+            if ($employee->employeeContract) {
+                $this->employeeContract->delete($employee->employeeContract);
+            }
+            $path = uploadToGCS($request['file_terms'],$employee->nip.'_file_terms_'.$request['start_kontrak'],'employee/file_terms');
             
             $data = collect($request)->merge([
                 'file_terms' => $path,
@@ -250,9 +251,9 @@ class EmployeeService
     {
         $old = $this->findEmployeeContract($id);
         $data = collect($request)->diffAssoc($old);
-        $data->has('file_terms') ??
+        if ($data->has('file_terms')) {
             $data->put('file_terms', uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
-        
+        }
         return $this->employeeContract->update($old, $data->all());
     }
 
@@ -270,15 +271,16 @@ class EmployeeService
             throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang',422);
         $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
         $edu = $this->findEmployeePersonal($uuid)->employeeEducation;
-        if (count($edu) > 0)
-        foreach ($edu as $data) {
-            if ($request['pendidikan_terakhir'] == 'Sarjana') break;
-            if (array_search($data['pendidikan_terakhir'], $arr) > array_search($request['pendidikan_terakhir'], $arr) && 
-                $data['tahun_lulus'] <= $request['tahun_lulus']) {
+        if (count($edu) > 0) {
+            foreach ($edu as $data) {
+                if ($request['pendidikan_terakhir'] == 'Sarjana') break;
+                if (array_search($data['pendidikan_terakhir'], $arr) > array_search($request['pendidikan_terakhir'], $arr) && 
+                    $data['tahun_lulus'] <= $request['tahun_lulus']) {
                     throw new \Exception ('tahun lulus tidak valid',422);
                 }
-            if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
-                throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada',422);
+                if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
+                    throw new \Exception('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada',422);
+                }
             }
         }
         $this->employeeEducation->create($request->all());
