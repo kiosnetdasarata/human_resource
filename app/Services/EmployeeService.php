@@ -58,7 +58,7 @@ class EmployeeService
     public function secondForm($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $employee = $this->findEmployeePersonal($uuid);
+            $employee = $this->employee->find($uuid);
             
             $employee->employeeContract != null ??
                 throw new \Exception('data is exist',422);
@@ -72,7 +72,7 @@ class EmployeeService
     public function updateEmployee($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $employee = $this->findEmployeePersonal($uuid);
+            $employee = $this->employee->find($uuid);
             $request = collect($request)->put('nip', $employee['nip']);
             $request->put('nip_id', $employee['nip']);
 
@@ -91,7 +91,7 @@ class EmployeeService
 
     public function findEmployeePersonal($uuid)
     {
-        return $this->employee->find($uuid);
+        return $this->employee->show($uuid);
     }
 
     public function findSlugEmployeePersonal($name, $withtrashes = false)
@@ -138,7 +138,7 @@ class EmployeeService
     public function updateEmployeePersonal($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $old = $this->findEmployeePersonal($uuid);
+            $old = $this->employee->find($uuid);
             $employee = collect($request)->diffAssoc($old);
             if (isset($employee['nama'])) {
                 $employee->put(
@@ -160,7 +160,7 @@ class EmployeeService
     public function deleteEmployeePersonal($request, $uuid)
     {
         return DB::transaction(function ()  use ($uuid, $request) {
-            $data = $this->findEmployeePersonal($uuid,'id');
+            $data = $this->employee->find($uuid);
             $contract = $data->employeeContract;
             if ($contract != null) {
                 if ($contract->end_contract > now())
@@ -212,7 +212,7 @@ class EmployeeService
 
     public function findEmployeeContract($uuid)
     {
-        $data = $this->findEmployeePersonal($uuid)->employeeContract;
+        $data = $this->employee->find($uuid)->employeeContract;
         if ($data == null || $data->end_kontrak < now()) {
             throw new ModelNotFoundException('file kontrak tidak ditemukan atau sudah kadaluarsa', 404);
         }
@@ -221,7 +221,7 @@ class EmployeeService
 
     public function getEmployeeContracts($uuid)
     {
-        $data = $this->findEmployeePersonal($uuid)->employeeContractHistory;
+        $data = $this->employee->find($uuid)->employeeContractHistory;
         $data == [] ?? throw new ModelNotFoundException('data tidak ditemukan');
         return $data;
     }
@@ -229,7 +229,7 @@ class EmployeeService
     public function storeEmployeeContract($uuid, $request)
     {
         return DB::transaction(function ()  use ($request, $uuid) {
-            $employee = $this->findEmployeePersonal($uuid);
+            $employee = $this->employee->find($uuid);
             if ($employee->employeeContract) {
                 $this->employeeContract->delete($employee->employeeContract);
             }
@@ -260,7 +260,7 @@ class EmployeeService
     public function deleteEmployeeContract($uuid)
     {
         return DB::transaction(function ()  use ($uuid) {
-            $contract = $this->findEmployeePersonal($uuid)->employeeContract;
+            $contract = $this->employee->find($uuid)->employeeContract;
             $this->employeeContract->delete($contract);
             $this->user->setIsactive($contract->employee->user, false);
         });
@@ -270,7 +270,8 @@ class EmployeeService
         $request['tahun_lulus'] > date('Y') ??
             throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang',422);
         $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-        $edu = $this->findEmployeePersonal($uuid)->employeeEducation;
+        $employee = $this->employee->find($uuid);
+        $edu = $employee->employeeEducation;
         if (count($edu) > 0) {
             foreach ($edu as $data) {
                 if ($request['pendidikan_terakhir'] == 'Sarjana') break;
@@ -283,18 +284,23 @@ class EmployeeService
                 }
             }
         }
-        $this->employeeEducation->create($request->all());
+        return $this->employeeEducation->create(collect($request->all())->put('nip_id',$employee->nip)->all());
+    }
+
+    public function getEducations($uuid)
+    {
+        return $this->employee->find($uuid)->employeeEducation;
     }
     
     public function updateEducation($uuid, $request)
     {
-        $edu = $this->findEmployeePersonal($uuid)->employeeEducation[0];
+        $edu = $this->employee->find($uuid)->employeeEducation[0];
         return $this->employeeEducation->update($edu, $request);
     }
 
     public function deleteEducation($uuid)
     {
-        $edu = $this->findEmployeePersonal($uuid)->employeeEducation[0];
+        $edu = $this->employee->find($uuid)->employeeEducation[0];
         return $this->employeeEducation->delete($edu);
     }
 }

@@ -20,7 +20,7 @@ class EmployeeEducationController extends Controller
         try {
             return response()->json([
                 'success' => true,
-                'data' => $this->employeeService->findEmployeePersonal($id, 'id')->employeeEducation,
+                'data' => $this->employeeService->getEducations($id),
                 'status_code' => 200
             ]);
         } catch (\Exception $e) {
@@ -38,8 +38,7 @@ class EmployeeEducationController extends Controller
     public function store($uuid, StoreEducationRequest $request)
     {
         try {
-            $this->employeeService->addEducation($uuid, $request);
-            
+            $employee = $this->employeeService->addEducation($uuid, $request);
             return response()->json([
                 'success' => true,
                 'status_code' => 200,
@@ -61,7 +60,7 @@ class EmployeeEducationController extends Controller
         try {
             return response()->json([
                 'success' => true,
-                'data' =>$this->employeeService->findEmployeePersonal($id, 'id')->employeeEducation[0],
+                'data' =>$this->employeeService->findEmployeePersonal($id)->employeeEducation[0],
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
