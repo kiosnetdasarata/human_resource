@@ -84,10 +84,10 @@ class JobAplicantController extends Controller
                 } else
                     return $jobApplicant = $this->jobAplicantService->find($slug);
             });
-            $jobAplicant == null ?? throw new ModelNotFoundException('data tidak ditemukan',404);
+            $jobAplicant() ?? throw new ModelNotFoundException('data tidak ditemukan',404);
             return response()->json([
                 'success' => true,
-                'data' => $jobAplicant,
+                'data' => $jobAplicant(),
                 'status_code' => 200
             ]);
         } catch (\Exception $e) {

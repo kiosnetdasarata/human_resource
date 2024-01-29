@@ -29,9 +29,9 @@ class JobAplicantService
         return $this->jobApplicant->find($id);
     }
 
-    public function findSlug($id)
+    public function findSlug($slug)
     {
-        return $this->jobApplicant->findSlug($id);
+        return $this->jobApplicant->findSlug($slug);
     }
 
     public function search($key, $val)
