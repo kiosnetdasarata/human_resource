@@ -36,7 +36,9 @@ class JobAplicantService
 
     public function search($key, $val)
     {
-        return $this->jobApplicant->search($key, $val);
+        $data = $this->jobApplicant->search($key, $val);
+        if (count($data)) return $data;
+        throw new ModelNotFoundException('data tidak ditemukan',404);
     }
 
     public function create($request)
@@ -52,12 +54,10 @@ class JobAplicantService
         $slug = Str::slug($request['nama_lengkap']) .
                     count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
         $aplicant = collect($request)->merge([
-            'file_cv' => 'filenya ada',
+            'file_cv' => uploadToGCS($request['file_cv'],$slug.'_cv','aplicant/file_cv'),
             'date' => now(),
             'slug' => $slug,
         ]);
-        // $traineeship->put('file_cv', $request['file_cv']->storeAs('traineeship/cv', $traineeship['slug'].'_cv.pdf', 'gcs'));
-
         return $this->jobApplicant->create($aplicant->all());
     }
 
@@ -67,13 +67,12 @@ class JobAplicantService
             $old = $this->find($id);
             $jobAplicant = collect($request)->diffAssoc($old);
             if (isset($jobAplicant['file_cv'])) {
-                $jobAplicant->put('file_cv', 'test_cv');
-                // $jobAplicant->put('file_cv', $request->file['file_cv']->storeAs('jobAplicant/cv', $jobAplicant['uuid'].'.pdf', 'gcs'));
+                $jobAplicant->put('file_cv', uploadToGCS($request['file_cv'],$old->slug.'_cv','aplicant/file_cv'),);
             }
             if (isset($jobAplicant['nama_lengkap'])) {
                 $list = $this->findSlug($jobAplicant['nama_lengkap'],'slug');
                 $slug = Str::slug($jobAplicant['nama_lengkap']) .
-                            count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
+                            count($list) > 0 ?? (int) end(explode('_', end($list->slug))) + 1;
                 $jobAplicant->put('slug', $slug);
             }
             if (isset($request['status_tahap'])) {
@@ -84,7 +83,7 @@ class JobAplicantService
                     $newStatus = $request['status_tahap'];
                     if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
                         throw new \Exception ('status jobAplicant tidak valid', 422);
-                    } elseif ($newStatus == 'Lolos' || $old->hr_point_id == null) {
+                    } elseif ($newStatus == 'Lolos' && $old->hr_point_id == null) {
                         throw new \Exception ('hr point dari jobAplicant tidak ditemukan', 404);
                     } elseif ($newStatus == 'Tolak') {
                         $this->jobApplicant->delete($old);

@@ -18,7 +18,7 @@ class JobAplicantRepository implements JobAplicantRepositoryInterface
 
     public function search($key, $value)
     {
-        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])->where($key, $value)->get();
+        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])->where($key, $value)->withTrashed()->get();
     }
 
     public function find($id)
