@@ -23,7 +23,6 @@ use App\Http\Controllers\Employee\EmployeeEducationController;
 use App\Http\Controllers\Internship\InterviewPointController;
 use App\Http\Controllers\Internship\FilePartnershipController;
 use App\Http\Controllers\Internship\InternshipContractController;
-use App\Models\EmployeeEducation;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,7 +92,6 @@ Route::apiSingleton('internship.contract', InternshipContractController::class)-
 Route::apiResource('partnership', PartnershipController::class)->except('destroy');
 Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::class, 'index']);
 Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
-// Route::get('file-partnership/{}/{type}', [FilePartnershipController::class, 'show']);
 
 Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
@@ -103,8 +101,7 @@ Route::middleware(['jwt:api', 'hr:api'
     Route::get('/hae', function() {
         dd('hae');
     });
-    Route::post('logout', LogoutController::class);
-    
+    Route::post('logout', LogoutController::class);    
 });
 
 Route::post('/test-file', function(Request $request) {
@@ -115,5 +112,3 @@ Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);
     Route::post('register', RegisterController::class);
 });
-
-
