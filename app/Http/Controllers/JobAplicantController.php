@@ -79,7 +79,7 @@ class JobAplicantController extends Controller
             $jobAplicant = (function () use($slug) {
                 if (((int) $slug) == 0) {
                     $jobApplicant = $this->jobAplicantService->findSlug($slug)->firstOrFail();
-                    if ($slug != $jobApplicant->slug)
+                    if ($slug != $jobApplicant->slug) throw new ModelNotFoundException('data tidak ditemukan',404);
                     return $jobApplicant;
                 } else
                     return $jobApplicant = $this->jobAplicantService->find($slug);
