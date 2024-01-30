@@ -85,15 +85,19 @@ class JobAplicantService
                         throw new \Exception ('status jobAplicant tidak valid', 422);
                     } elseif ($newStatus == 'Lolos' && $old->hr_point_id == null) {
                         throw new \Exception ('hr point dari jobAplicant tidak ditemukan', 404);
-                    } 
+                    }             
+                    if ($newStatus == 'Tolak') {
+                        if ($old->interviewPoint != null)
+                            $this->interviewPoint->delete($old->interviewPoint);
+                        
+                        $this->jobApplicant->update($old, $jobAplicant->all());
+                        $this->jobApplicant->delete($old);
+                        return true;
+                    }
                 }
             }
             $this->jobApplicant->update($old, $jobAplicant->all());
-            if ($newStatus == 'Tolak') {
-                if ($old->interviewPoint != null)
-                    $this->interviewPoint->delete($old->interviewPoint);
-                $this->jobApplicant->delete($old);
-            }
+
         });
     }
 
