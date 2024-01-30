@@ -71,8 +71,8 @@ class JobAplicantService
             }
             if (isset($jobAplicant['nama_lengkap'])) {
                 $list = $this->findSlug($jobAplicant['nama_lengkap']);
-                $slug = Str::slug($jobAplicant['nama_lengkap']) .
-                            (count($list) > 0 ?? (int) end(explode('_', end($list->slug))) + 1);
+                $slug = Str::slug($jobAplicant['nama_lengkap'], '_') .
+                            (count($list) > 0 ?? '_' . (int) end(explode('_', end($list->slug))) + 1);
                 $jobAplicant->put('slug', $slug);
             }
             if (isset($request['status_tahap'])) {
