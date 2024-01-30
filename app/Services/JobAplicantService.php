@@ -70,9 +70,9 @@ class JobAplicantService
                 $jobAplicant->put('file_cv', uploadToGCS($request['file_cv'],$old->slug.'_cv','aplicant/file_cv'),);
             }
             if (isset($jobAplicant['nama_lengkap'])) {
-                $list = $this->findSlug($jobAplicant['nama_lengkap'],'slug');
+                $list = $this->findSlug($jobAplicant['nama_lengkap']);
                 $slug = Str::slug($jobAplicant['nama_lengkap']) .
-                            count($list) > 0 ?? (int) end(explode('_', end($list->slug))) + 1;
+                            (count($list) > 0 ?? (int) end(explode('_', end($list->slug))) + 1);
                 $jobAplicant->put('slug', $slug);
             }
             if (isset($request['status_tahap'])) {
