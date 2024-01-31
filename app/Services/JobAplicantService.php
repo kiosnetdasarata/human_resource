@@ -47,14 +47,16 @@ class JobAplicantService
         $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
         if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date'])
             throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
-        if ($age > $jobVacancy->max_umur || $age < $jobVacancy->min_umur)
+        if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur'])
             return true;
         
         $list = $this->findSlug($request['nama_lengkap'],'slug');
-        $slug = Str::slug($request['nama_lengkap']) .
-                    count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
+        $slug = Str::slug($request['nama_lengkap'], '_') .
+                    count($list) > 0 ?? (int) end(explode('_', end($list->slug))) + 1;
         $aplicant = collect($request)->merge([
-            'file_cv' => uploadToGCS($request['file_cv'],$slug.'_cv','aplicant/file_cv'),
+            'file_cv' => uploadToGCS($request['file_cv'],
+                                    $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv',
+                                    'aplicant/file_cv'),
             'date' => now(),
             'slug' => $slug,
         ]);
@@ -66,10 +68,22 @@ class JobAplicantService
         return DB::transaction(function() use ($id, $request){  
             $old = $this->find($id);
             $jobAplicant = collect($request)->diffAssoc($old);
+            if (isset($jobAplicant['nama_lengkap'])) {
+                $jobAplicant->put('nama_lengkap', Str::title($jobAplicant['nama_lengkap']));
+                $list = $this->findSlug($jobAplicant['nama_lengkap']);
+                $sluga = $list->isEmpty() ? '' : $list->sortBy('slug')->last()->slug;
+                $last = explode('_', $sluga);
+                $slug = Str::slug($jobAplicant['nama_lengkap'], '_').
+                        (empty($last) ? '' : ('_' . (int) end($last) + 1));
+                $jobAplicant->put('slug', $slug);
+            }
             if (isset($jobAplicant['file_cv'])) {
-                $jobAplicant->put('file_cv', uploadToGCS($request['file_cv'],$old->slug.'_cv','aplicant/file_cv'),);
+                $jobAplicant->put('file_cv', uploadToGCS($request['file_cv'],
+                    $old->slug .'_'. $old->role->nama_jabatan . '_cv',
+                    'aplicant/file_cv'));
             }
             if (isset($jobAplicant['nama_lengkap'])) {
+                $jobAplicant->put('nama_lengkap', Str::title($jobAplicant['nama_lengkap']));
                 $list = $this->findSlug($jobAplicant['nama_lengkap']);
                 $sluga = $list->isEmpty() ? '' : $list->sortBy('slug')->last()->slug;
                 $last = explode('_', $sluga);
