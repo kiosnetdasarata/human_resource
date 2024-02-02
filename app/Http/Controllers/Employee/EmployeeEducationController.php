@@ -78,7 +78,7 @@ class EmployeeEducationController extends Controller
     public function update(UpdateEducationRequest $request, string $id)
     {
         try {
-            $this->employeeService->updateEducation($id, $request);
+            $this->employeeService->updateEducation($id, $request->all());
             return response()->json([
                 'success' => true,
                 'status_code' => 200,
