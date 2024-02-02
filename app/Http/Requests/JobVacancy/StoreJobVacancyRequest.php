@@ -28,7 +28,7 @@ class StoreJobVacancyRequest extends FormRequest
             'min_umur' => 'required|digits_between:1,2',
             'max_umur' => 'required|digits_between:1,2',
             'branch_company_id' => 'required|int',
-            'role_id' => 'required|exists:roles,id|unique:job_vacancies,role_id',
+            'role_id' => 'required|exists:roles,id',
             'open_date' => 'required|date:Y-m-d',
             'close_date' => 'required|date:Y-m-d',
             'is_active' => 'required|in:0,1',

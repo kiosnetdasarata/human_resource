@@ -3,11 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\Role;
+use Nette\Utils\Arrays;
 use App\Models\JobVacancy;
 use Illuminate\Support\Str;
-use App\Interfaces\JobVacancyRepositoryInterface;
-use Nette\Utils\Arrays;
+use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Expr\Cast\Array_;
+use App\Interfaces\JobVacancyRepositoryInterface;
+use App\Models\ArchiveJobApplicant;
 
 class JobVacancyRepository implements JobVacancyRepositoryInterface
 {
@@ -51,11 +53,14 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function findByRole($id)
     {
-        return $this->jobVacancy->where('role_id', $id)->firstOrFail();
+        return $this->jobVacancy->where('role_id', $id)->get();
     }
     
     public function create($request)
     {
+        $jobVacancy = $this->jobVacancy->where('role_id', $request['role_id'])->where('branch_company_id', $request['branch_company_id'])->first();
+        if ($jobVacancy) throw new \Exception('duplikat role');
+
         $request = collect($request)->put('slug', Str::slug($request['title'], '_'));
         if ($request['close_date'] <= $request['open_date']) {
             throw new \Exception('close date tidak sesuai dengan open date');
@@ -65,14 +70,34 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     
     public function update($id, $request)
     {
+        $jobVacancy = $this->jobVacancy->find($id);
+        $request = collect($request)->diffAssoc($jobVacancy);
+        if (isset($request['title'])) {
+            $request->put('slug', Str::slug($request['title'], '_'));
+        }
+        if (isset($request['role_id'])) {
+            $jobVacancy = $this->jobVacancy->where('role_id', $request['role_id'])->where('branch_company_id', $request['branch_company_id'])->first();
+            if ($jobVacancy) throw new \Exception('duplikat role');
+        }
+        if ($request['close_date'] <= $request['open_date']) {
+            throw new \Exception('close date tidak sesuai dengan open date');
+        }
         return $this->jobVacancy->find($id)->update($request);
     }
     
     public function delete($id)
     {
-        return $this->jobVacancy->find($id)->delete();
-    }
-    
+        $jobVacancy = $this->jobVacancy->findOrFail($id);
+        if ($jobVacancy->jobapplicant->isNotEmpty()) {
+            DB::transaction(function() use ($jobVacancy) {
+                foreach ($jobVacancy->jobapplicant as $aplicant) {
+                    ArchiveJobApplicant::create($aplicant);
+                    $aplicant->delete();
+                }
+            });
+        }
+        return $jobVacancy->delete();
+    }    
 }
 
 ?>
