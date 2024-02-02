@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\JobVacancy\StoreJobVacancyRequest;
+use App\Http\Requests\JobVacancy\UpdateJobVacancyRequest;
 use Illuminate\Http\Request;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use Illuminate\Support\Facades\Validator;
@@ -89,16 +90,10 @@ class JobVacancyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateJobVacancyRequest $request, string $id)
     {
-        try {
-            $validator = Validator::make($request->all(), ['is_active' => 'required|in:0,1']);
-
-            if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first());
-            }
-            
-            $this->jobVacancy->update($id, $validator->validated());
+        try {            
+            $this->jobVacancy->update($id, $request->validated());
             return response()->json([
                 'success' => true,
                 'status_code' => 200,

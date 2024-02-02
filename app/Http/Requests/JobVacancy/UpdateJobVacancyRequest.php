@@ -24,7 +24,6 @@ class UpdateJobVacancyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'close_date' => 'date:Y-m-d',
             'is_active' => 'in:0,1',
             'branch_company_id' => 'int',
             'role_id' => 'exists:roles,id',
@@ -32,7 +31,8 @@ class UpdateJobVacancyRequest extends FormRequest
             'min_umur' => 'digits_between:1,2',
             'max_umur' => 'digits_between:1,2',
             'keterangan' => 'string',
-            'open_date' => 'date:Y-m-d',
+            'open_date' => 'date:Y-m-d',            
+            'close_date' => 'date:Y-m-d',
             'is_intern' => 'in:0,1'
         ];
     }

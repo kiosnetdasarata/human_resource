@@ -61,7 +61,10 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
         $jobVacancy = $this->jobVacancy->where('role_id', $request['role_id'])->where('branch_company_id', $request['branch_company_id'])->first();
         if ($jobVacancy) throw new \Exception('duplikat role');
 
-        $request = collect($request)->put('slug', Str::slug($request['title'], '_'));
+        $request = collect($request)->merge([
+            'title' => Str::title($request['title']),
+            'slug' => Str::slug($request['title'], '_'),
+        ]);
         if ($request['close_date'] <= $request['open_date']) {
             throw new \Exception('close date tidak sesuai dengan open date');
         }
@@ -73,16 +76,22 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
         $jobVacancy = $this->jobVacancy->find($id);
         $request = collect($request)->diffAssoc($jobVacancy);
         if (isset($request['title'])) {
-            $request->put('slug', Str::slug($request['title'], '_'));
+            $request = $request->merge([
+                'title' => Str::title($request['title']),
+                'slug' => Str::slug($request['title'], '_'),
+            ]);
         }
         if (isset($request['role_id'])) {
             $jobVacancy = $this->jobVacancy->where('role_id', $request['role_id'])->where('branch_company_id', $request['branch_company_id'])->first();
             if ($jobVacancy) throw new \Exception('duplikat role');
         }
-        if ($request['close_date'] <= $request['open_date']) {
-            throw new \Exception('close date tidak sesuai dengan open date');
-        }
-        return $this->jobVacancy->find($id)->update($request);
+        return DB::transaction(function () use ($id,$request) {
+            $this->jobVacancy->find($id)->update($request->all());
+            $vacancy = $this->jobVacancy->find($id);
+            if ($vacancy->close_date <= $vacancy->open_date) {
+                throw new \Exception('close date tidak sesuai dengan open date');
+            }
+        });
     }
     
     public function delete($id)
