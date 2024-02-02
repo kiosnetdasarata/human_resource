@@ -34,7 +34,7 @@ class SecondFormEmployeeRequest extends FormRequest
             'start_kontrak' => 'required|date_format:Y-m-d',
             'end_kontrak' => 'required|date_format:Y-m-d',
             'work_start' => 'required|date_format:Y-m-d',
-            'supervisor' => 'exists:employee_personal_informations,nip',
+            'supervisior' => 'exists:employee_personal_informations,nip',
             'file_terms' => ['required', File::types(['pdf'])->max(5 * 1024),],
         ];
     }

@@ -62,7 +62,7 @@ class EmployeeService
             
             $employee->employeeContract != null ??
                 throw new \Exception('data is exist',422);
-            
+                
             $this->updateEmployeeConfidential($employee->employeeCI, $request);
             $this->storeEmployeeContract($uuid, collect($request)->merge(['nip_id' => $employee->nip])->all());
             $this->user->setIsactive($employee->user(), true);
@@ -249,12 +249,14 @@ class EmployeeService
 
     public function updateEmployeeContract($id, $request)
     {
-        $old = $this->findEmployeeContract($id);
-        $data = collect($request)->diffAssoc($old);
-        if ($data->has('file_terms')) {
-            $data->put('file_terms', uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
-        }
-        return $this->employeeContract->update($old, $data->all());
+        return DB::transaction(function () use ($id, $request) {
+            $old = $this->findEmployeeContract($id);
+            $data = collect($request)->diffAssoc($old);
+            if ($data->has('file_terms')) {
+                $data->put('file_terms', uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
+            }
+            $this->employeeContract->update($old, $data->all());
+        });
     }
 
     public function deleteEmployeeContract($uuid)
@@ -294,7 +296,7 @@ class EmployeeService
     
     public function updateEducation($uuid, $request)
     {
-        $edu = $this->employee->find($uuid)->employeeEducation[0];
+        $edu = $this->employee->find($uuid)->employeeEducation->last();
         return $this->employeeEducation->update($edu, $request);
     }
 

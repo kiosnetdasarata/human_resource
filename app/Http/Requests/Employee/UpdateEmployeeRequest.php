@@ -37,7 +37,7 @@ class UpdateEmployeeRequest extends FormRequest
             'nomor_rekening' => 'numeric',
             'no_tlpn_darurat' => 'string|digits_between:10,15',
             'nama_kontak_darurat' => 'string',
-            'nama_kontak_darurat' => 'string',
+            'status_kontak_darurat' => 'string',
         ];
     }
 
