@@ -29,7 +29,7 @@ class UpdateContractRequest extends FormRequest
             'start_kontrak' => 'date_format:Y-m-d',
             'end_kontrak' => 'date_format:Y-m-d',
             'work_start' => 'date_format:Y-m-d',
-            'supervisor' => 'exists:employee_personal_informations,nip',
+            'supervisior' => 'exists:employee_personal_informations,nip',
             'file_terms' => [File::types(['pdf'])->max(5 * 1024),],
         ];
     }

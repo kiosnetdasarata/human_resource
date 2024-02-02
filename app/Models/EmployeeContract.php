@@ -23,7 +23,7 @@ class EmployeeContract extends Model
         'start_kontrak',
         'end_kontrak',
         'work_start',
-        'supervisor',
+        'supervisior',
         'file_terms',
     ];
 

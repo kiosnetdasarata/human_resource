@@ -21,7 +21,7 @@ class EmployeeContractController extends Controller
     {
         try {
             $data = $this->employeeService->getEmployeeContracts($id);
-            if (count($data) <= 0) {
+            if ($data->isEmpty()) {
                 throw new ModelNotFoundException('data tidak ditemukan', 404);
             }
             return response()->json([
@@ -33,7 +33,7 @@ class EmployeeContractController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'status_code' => 500
+                'status_code' => $e->getCode() == null ? 500 : $e->getCode()
             ]);
         }
     }
