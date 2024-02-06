@@ -36,12 +36,25 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function create($request)
     {
-        return $this->division->create(collect($request)->put('slug', Str::slug($request['nama_divisi'], '_'))->all());
+        $division = collect($request)->merge([
+            'nama_divisi' => Str::title($request['nama_divisi']),
+            'slug' => Str::slug($request['nama_divisi'], '_')
+        ])->all();
+        return $this->division->create($division);
     }
     
-    public function update($division, $request)
+    public function update($id, $request)
     {
-        return $division->update($request);
+        $old = $this->find($id);
+        $division = collect($request)->diffAssoc($old);
+        if (isset($division['nama_divisi'])) {
+            $division = $division->merge([
+                'nama_divisi' => Str::title($request['nama_divisi']),
+                'slug' => Str::slug($request['nama_divisi'], '_')
+            ]);
+        }
+        
+        return $old->update($division->all());
     }
     
     public function delete($division)

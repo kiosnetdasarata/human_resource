@@ -86,7 +86,7 @@ class DivisionController extends Controller
     public function update(UpdateDivisionRequest $request, string $division)
     {
         try {
-            $this->divisionRepositoryInterface->update($this->divisionRepositoryInterface->find($division), $request->validated());
+            $this->divisionRepositoryInterface->update($division, $request->validated());
 
             return response()->json([
                 'status' => 'success',

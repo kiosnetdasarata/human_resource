@@ -18,7 +18,7 @@ class RoleRepository implements RoleRepositoryInterface
         if ($division != null) {
             $query = $query->where('divisi_id', $division);
         }
-        return $query->with('division')->get();
+        return $query->with(['division', 'level'])->get();
     }
 
     public function find($kodeJabatan)
