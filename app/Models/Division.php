@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Division extends Model
 {
@@ -26,6 +27,11 @@ class Division extends Model
         'no_tlpn',
         'status',
     ];
+
+    public function employee(): HasManyThrough
+    {
+        return $this->hasManyThrough(Employee::class, Role::class, 'divisi_id', 'role_id', 'id', 'id');
+    }
 
     public function manager(): BelongsTo
     {

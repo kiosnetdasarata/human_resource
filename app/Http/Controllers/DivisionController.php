@@ -80,6 +80,24 @@ class DivisionController extends Controller
         }
     }
 
+    public function getEmployee($division)
+    {
+        try {
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->divisionRepositoryInterface->getEmployee($division),
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+                'status_code' => 500,
+            ]);
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      */

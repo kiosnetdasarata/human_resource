@@ -42,6 +42,11 @@ class DivisionRepository implements DivisionRepositoryInterface
         ])->all();
         return $this->division->create($division);
     }
+
+    public function getEmployee($id)
+    {
+        return $this->division->with('employee')->where('id', $id)->get();
+    }
     
     public function update($id, $request)
     {

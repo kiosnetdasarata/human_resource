@@ -68,6 +68,7 @@ Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
+Route::get('/divisions/{division}/employee', [DivisionController::class, 'getEmployee']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
 Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
