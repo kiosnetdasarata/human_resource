@@ -57,9 +57,28 @@ class EmployeeController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
                 'input' => $request->validated(),
                 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
+            ]);
+        }
+    }
+
+    public function findByDivision($division)
+    {
+        try {
+            $data = $this->employeeService->getEmployeeByDivision($division);
+            if ($data == []) throw new ModelNotFoundException('No employee found', 404);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => 404,
             ]);
         }
     }

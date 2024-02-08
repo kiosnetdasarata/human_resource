@@ -34,11 +34,21 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function show($uuid)
     {
-        return $this->employee->with(['employeeCI', 'employeeContract', 'role','employeeContractHistory'
-                , 'employeeEducation' => function ($query) {
-                    $query->latest()->first();
+        return $this->employee->with(['employeeCI',
+                'role',
+                'employeeContractHistory',
+                'employeeEducation' => function ($query) {
+                    $query->orderBy('pendidikan_terakhir')
+                        ->orderBy('created_at')
+                        ->first();
                 },])
-        ->where('id', $uuid)->firstOrFail();
+                ->where('id', $uuid)
+                ->firstOrFail();
+    }
+
+    public function findByDivision($division) 
+    {
+        return $this->employee->where('division_id', $division)->get();
     }
 
     public function findBySlug($slug)
