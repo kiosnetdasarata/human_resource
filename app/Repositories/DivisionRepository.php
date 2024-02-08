@@ -45,7 +45,7 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getEmployee($id)
     {
-        return $this->division->with('employee')->where('id', $id)->get();
+        return $this->division->with('employee')->where('id', $id)->firstOrFail();
     }
     
     public function update($id, $request)

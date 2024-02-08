@@ -85,7 +85,7 @@ class DivisionController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->getEmployee($division),
+                'data' => $this->divisionRepositoryInterface->getEmployee($division)->employee,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {

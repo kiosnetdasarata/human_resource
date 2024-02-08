@@ -52,6 +52,7 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 });
 // Route get job title by division
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
+Route::get('/division/{division}/employee', [DivisionController::class, 'getEmployee']);
 Route::apiResource('division', DivisionController::class);
 // Route get Job Title
 Route::apiresource('role', RoleController::class);
@@ -68,7 +69,6 @@ Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
-Route::get('/division/{division}/employee', [DivisionController::class, 'getEmployee']);
 Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
 Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
 Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
