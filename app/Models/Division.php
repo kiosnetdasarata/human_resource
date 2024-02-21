@@ -33,6 +33,11 @@ class Division extends Model
         return $this->hasManyThrough(Employee::class, Role::class, 'divisi_id', 'role_id', 'id', 'id');
     }
 
+    public function employeeArchive(): HasManyThrough
+    {
+        return $this->hasManyThrough(EmployeeArchive::class, Role::class, 'divisi_id', 'role_id', 'id', 'id');
+    }
+
     public function manager(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'manager_divisi', 'nip');

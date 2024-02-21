@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Division;
 use Illuminate\Support\Str;
 use App\Interfaces\DivisionRepositoryInterface;
+use Exception;
 
 class DivisionRepository implements DivisionRepositoryInterface
 {
@@ -29,9 +30,14 @@ class DivisionRepository implements DivisionRepositoryInterface
         });
     }
 
-    public function find($slug)
+    public function find($id)
     {
-        return $this->division->where('slug', $slug)->with('role')->firstOrFail();
+        return $this->division->with(['role', 'manager'])->where('id', $id)->firstOrFail();
+    }
+
+    public function findSlug($slug)
+    {
+        return $this->division->with(['role', 'manager'])->where('kode_divisi', $slug)->firstOrFail();
     }
 
     public function create($request)
@@ -45,7 +51,12 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getEmployee($id)
     {
-        return $this->division->with('manager')->where('id', $id)->firstOrFail();
+        return $this->division->with('employee')->where('id', $id)->firstOrFail();
+    }
+
+    public function getEmployeeArchive($id)
+    {
+        return $this->division->with('employeeArchive')->where('id', $id)->firstOrFail();
     }
     
     public function update($id, $request)
@@ -66,7 +77,6 @@ class DivisionRepository implements DivisionRepositoryInterface
     {
         return $division->delete();
     }
-    
 }
 
 ?>

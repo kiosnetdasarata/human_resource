@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\ItemNotFoundException;
 use App\Interfaces\DivisionRepositoryInterface;
 use App\Http\Requests\Division\StoreDivisionRequest;
 use App\Http\Requests\Division\UpdateDivisionRequest;
-use Illuminate\Support\ItemNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DivisionController extends Controller
 {
@@ -20,14 +21,13 @@ class DivisionController extends Controller
     {
         try {
             $data = $this->divisionRepositoryInterface->getAll();
-            if (count($data) <= 0) {
-                throw new ItemNotFoundException('data tidak ditemukan');
-            }
-            return response()->json([
-                'status' => 'success',
-                'data' => $data,
-                'status_code' => 200,
-            ]);
+            if (count($data)) {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $data,
+                    'status_code' => 200,
+                ]);
+            } else throw new ModelNotFoundException('data tidak ditemukan');
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -63,12 +63,17 @@ class DivisionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $slug)
+    public function show(string $id)
     {
         try {
+            if ((int) $id) {
+                $data = $this->divisionRepositoryInterface->find($id);
+            } else {
+                $data = $this->divisionRepositoryInterface->findSlug($id);
+            }
             return response()->json([
                 'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->find($slug),
+                'data' => $data,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
@@ -80,12 +85,12 @@ class DivisionController extends Controller
         }
     }
 
-    public function getEmployee($division)
+    public function getEmployee($id)
     {
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->getEmployee($division),
+                'data' => $this->divisionRepositoryInterface->getEmployee($id),
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
@@ -94,6 +99,23 @@ class DivisionController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
                 'status_code' => 500,
+            ]);
+        }
+    }
+
+    public function getEmployeeArchive($id)
+    {
+        try {
+            return response()->json([
+                'status' => 'success',
+                'data' => $this->divisionRepositoryInterface->getEmployeeArchive($id),
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'status_code' => $e->getCode() ?? 404,
             ]);
         }
     }

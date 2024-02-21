@@ -6,11 +6,13 @@ namespace App\Interfaces;
 interface DivisionRepositoryInterface
 {
     public function getAll();
-    public function find($uuid);
+    public function find($ID);
+    public function findSlug($slug);
     public function getEmployee($id);
+    public function getEmployeeArchive($id);
     public function create($request);
     public function update($division, $request);
-    public function delete($id);
+    public function delete($division);
 }
 
 ?>
