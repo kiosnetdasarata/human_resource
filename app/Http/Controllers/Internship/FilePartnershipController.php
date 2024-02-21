@@ -29,7 +29,8 @@ class FilePartnershipController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+                'trace' => $e->getTrace(),
+                'status_code' => 500,
             ]);
         }
     }
@@ -72,7 +73,8 @@ class FilePartnershipController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage(),                
+                'trace' => $e->getTrace(),
                 'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
             ]);
         }

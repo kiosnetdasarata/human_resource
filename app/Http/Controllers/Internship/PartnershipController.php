@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Partnership\StorePartnershipRequest;
 use App\Http\Requests\Partnership\UpdatePartnershipRequest;
 use App\Services\PartnershipService;
+use InvalidArgumentException;
 
 class PartnershipController extends Controller
 {
@@ -54,6 +55,43 @@ class PartnershipController extends Controller
         }
     }
 
+    public function findInternship($id, $status)
+    {
+        try {
+            if($status != 'magang' && $status != 'internship') throw new InvalidArgumentException('status tidak valid', 422);
+            $partnership = $this->partnership->getInternship($id, $status);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $partnership,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function findInternshipArchive($id, $status)
+    {
+        try {
+            if($status != 'magang' && $status != 'internship') throw new InvalidArgumentException('status tidak valid', 422);
+            $partnership = $this->partnership->getInternshipArchive($id, $status);
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $partnership,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Display the specified resource.
      */

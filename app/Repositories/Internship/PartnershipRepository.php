@@ -23,6 +23,23 @@ class PartnershipRepository implements PartnershipRepositoryInterface
         }])->where('id', $id)->firstOrFail();
     }
 
+    public function getInternship($id, $status)
+    {
+        $partnership =  $this->partnership->with(['internship' => function($query) use ($status){
+            $query->where('status_internship', $status);
+        }])->where('id', $id)->firstOrFail();
+        
+        return $partnership->internship;
+    }
+
+    public function getInternshipArchive($id, $status)
+    {
+        $partnership = $this->partnership->with(['internship' => function($query) use ($status){
+            $query->where('status_internship', $status)->withTrashed();
+        }])->where('id', $id)->firstOrFail();
+        return $partnership->internship;
+    }
+
     public function create($request)
     {
         return $this->partnership->create($request);
@@ -39,5 +56,3 @@ class PartnershipRepository implements PartnershipRepositoryInterface
     }
 
 }
-
-?>

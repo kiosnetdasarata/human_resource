@@ -4,22 +4,29 @@ namespace App\Repositories\Internship;
 
 use App\Models\FilePartnership;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
-
+use App\Models\Partnership;
 
 class FilePartnershipRepository implements FilePartnershipRepositoryInterface
 {
-    public function __construct(private FilePartnership $filePartnership)
-    {
-    }
+    public function __construct(
+        private FilePartnership $filePartnership,
+        private Partnership $partnership
+    ) { }
 
-    public function getAll()
+    public function getAll($idPartnership)
     {
-        return $this->filePartnership->get();
+        $partnership = $this->partnership->with(['file' => function($query) {
+            $query->sortBy('created_at');
+        }])->firstOrFail();
+        return $partnership->file;
     }
 
     public function find($id)
     {
-        return $this->filePartnership->find($id);
+        $partnership = $this->partnership->with(['file' => function($query) {
+            $query->sortBy('created_at')->last();
+        }])->firstOrFail();
+        return $partnership->file;
     }
 
     public function findByMitra($mitraid)
@@ -43,5 +50,3 @@ class FilePartnershipRepository implements FilePartnershipRepositoryInterface
     }
 
 }
-
-?>
