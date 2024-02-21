@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Interfaces\JobAplicantRepositoryInterface;
+use App\Interfaces\JobApplicantRepositoryInterface;
 use App\Models\JobApplicant;
 
-class JobAplicantRepository implements JobAplicantRepositoryInterface
+class JobApplicantRepository implements JobApplicantRepositoryInterface
 {
     public function __construct(private JobApplicant $jobApplicant) 
     {
@@ -28,11 +28,18 @@ class JobAplicantRepository implements JobAplicantRepositoryInterface
 
     public function findSlug($slug)
     {
-        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])
-                    ->where(function ($query) use ($slug) {
-                        $query->where('slug', $slug)
-                            ->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
-                    })->withTrashed()->get();
+        return $this->jobApplicant->where(function ($query) use ($slug) {
+            $query->orWhere('slug', $slug);
+            $query->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
+        })->get();
+    }
+    
+    public function countSlug($slug)
+    {
+        return $this->jobApplicant->where(function ($query) use ($slug) {
+            $query->orWhere('slug', $slug);
+            $query->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
+        })->get();
     }
 
     public function findWithTrashes($id)

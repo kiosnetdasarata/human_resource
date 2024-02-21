@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\JobAplicant;
+namespace App\Http\Requests\JobApplicant;
 
 use App\Rules\SocialMediaLink;
 use Illuminate\Validation\Rules\File;
@@ -8,14 +8,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreJobAplicantRequest extends FormRequest
+class UpdateJobApplicantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->method('patch');
     }
 
     /**
@@ -26,23 +26,25 @@ class StoreJobAplicantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vacancy_id' => 'required|exists:job_vacancies,id,is_active,1,is_intern,0',
-            'nama_lengkap' => 'required|string',
-            'tanggal_lahir' => 'required|date:Y-m-d',
-            'jk' => 'required|in:Laki-Laki,Perempuan',
-            'alamat' => 'required|string',
-            'email' => 'required|email|unique:internships,email|unique:employee_personal_informations,email',
-            'no_tlpn' => 'required|numeric|digits_between:10,15',
+            'vacancy_id' => 'in:job_vacancies,id,is_active,1',
+            'nama_lengkap' => 'string',
+            'tanggal_lahir' => 'date:Y-m-d',
+            'jk' => 'in:Laki-Laki,Perempuan',
+            'alamat' => 'string',
+            'email' => 'email|unique:internships,email|unique:employee_personal_informations,email',
+            'no_tlpn' => 'numeric|digits_between:10,15',
             'pendidikan_terakhir' => 'required|string',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required_if:digits,4',
-            'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
-            'pengalaman' => 'required|string',
-            'ekspetasi_gaji' => 'required|string',
-            'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
-            'link_portofolio' => 'required|url',
-            'sumber_info' => 'required|string',
+            'link_sosmed' => ['url', new SocialMediaLink], //wajib pake https://www.
+            'role_id' => 'exists:job_vacancies,role_id,is_active,1',
+            'pengalaman' => 'string',
+            'ekspetasi_gaji' => 'string',
+            'file_cv' => [File::types(['pdf'])->max(5 * 1024),],
+            'link_portofolio' => 'url',
+            'sumber_info' => 'string',
         ];
+        
     }
 
     protected function failedValidation(Validator $validator)

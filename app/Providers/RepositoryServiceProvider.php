@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\ZoneRepository;
@@ -13,16 +14,14 @@ use App\Repositories\TechnicianRepository;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ZoneRepositoryInterface;
-use App\Repositories\JobAplicantRepository;
-use App\Repositories\StatusLevelRepository;
+use App\Repositories\JobApplicantRepository;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Repositories\BranchCompanyRepository;
 use App\Interfaces\DivisionRepositoryInterface;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
 use App\Repositories\Employee\EmployeeRepository;
-use App\Interfaces\JobAplicantRepositoryInterface;
-use App\Interfaces\StatusLevelRepositoryInterface;
+use App\Interfaces\JobApplicantRepositoryInterface;
 use App\Repositories\Employee\EmployeeCIRepository;
 use App\Interfaces\BranchCompanyRepositoryInterface;
 use App\Repositories\Internship\InternshipRepository;
@@ -45,13 +44,12 @@ use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
 use App\Interfaces\Employee\EmployeeHistoryRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 use App\Interfaces\Internship\InterviewPointRepositoryInterface;
-use App\Repositories\Employee\EmployeeContractHistoryRepository;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
 use App\Interfaces\Employee\EmployeeTrainingsRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
-use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
 use App\Interfaces\LevelRepositoryInterface;
+use App\Repositories\ArchiveJobApplicantRepository;
 use App\Repositories\LevelRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -65,7 +63,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(EmployeeCIRepositoryInterface::class, EmployeeCIRepository::class);
         $this->app->bind(EmployeeArchiveRepositoryInterface::class, EmployeeArchiveRepository::class);
         $this->app->bind(EmployeeContractRepositoryInterface::class, EmployeeContractRepository::class);
-        $this->app->bind(EmployeeContractHistoryRepositoryInterface::class, EmployeeContractHistoryRepository::class);
         $this->app->bind(EmployeeEducationRepositoryInterface::class, EmployeeEducationRepository::class);
         $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);
         $this->app->bind(EmployeeTrainingsRepositoryInterface::class, EmployeeTrainingsRepository::class);
@@ -73,7 +70,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(DivisionRepositoryInterface::class, DivisionRepository::class);
         $this->app->bind(EmployeeHistoryRepositoryInterface::class, EmployeeHistoryRepository::class);
         $this->app->bind(SalesRepositoryInterface::class, SalesRepository::class);
-        $this->app->bind(StatusLevelRepositoryInterface::class, StatusLevelRepository::class);
         $this->app->bind(TechnicianRepositoryInterface::class, TechnicianRepository::class);
         $this->app->bind(ZoneRepositoryInterface::class, ZoneRepository::class);
         $this->app->bind(BranchCompanyRepositoryInterface::class, BranchCompanyRepository::class);
@@ -85,8 +81,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(FilePartnershipRepositoryInterface::class, FilePartnershipRepository::class);
         $this->app->bind(PartnershipRepositoryInterface::class, PartnershipRepository::class);
         $this->app->bind(InterviewPointRepositoryInterface::class, InterviewPointRepository::class);
-        $this->app->bind(JobAplicantRepositoryInterface::class, JobAplicantRepository::class);
+        $this->app->bind(JobApplicantRepositoryInterface::class, JobApplicantRepository::class);
         $this->app->bind(LevelRepositoryInterface::class, LevelRepository::class);
+        $this->app->bind(ArchiveJobApplicantRepositoryInterface::class, ArchiveJobApplicantRepository::class);
     }
 
     /**

@@ -45,7 +45,7 @@ class JobVacancy extends Model
         return $this->hasMany(JobVacancy::class, 'vacancy_id');
     }
 
-    public function jobapplicant(): HasMany
+    public function jobApplicant(): HasMany
     {
         return $this->hasMany(JobApplicant::class, 'vacancy_id');
     }

@@ -36,12 +36,12 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function find($id)
     {
-        return $this->traineeship->with('interviewPoint')->where('id', $id)->first();
+        return $this->traineeship->with('interviewPoint')->where('id', $id)->firstOrFail();
     }
 
     public function findWithTrashes($id)
     {
-        return $this->traineeship->withTrashed()->findOrFail($id);
+        return $this->traineeship->with('interviewPoint')->where('id', $id)->withTrashed()->firstOrFail();
     }
 
     public function create($request)
@@ -51,8 +51,7 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
 
     public function update($traineeship, $request)
     {
-        $traineeship->update($request);
-        return $this->find($traineeship->id);
+        return $traineeship->update($request);
     }
 
     public function delete($traineeship)
@@ -61,5 +60,3 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
     }
 
 }
-
-?>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchiveApplicantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
@@ -12,7 +13,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\JobAplicantController;
+use App\Http\Controllers\JobApplicantController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Internship\InternshipController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Employee\EmployeeEducationController;
 use App\Http\Controllers\Internship\InterviewPointController;
 use App\Http\Controllers\Internship\FilePartnershipController;
 use App\Http\Controllers\Internship\InternshipContractController;
+use App\Models\Partnership;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +55,7 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 // Route get job title by division
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
 Route::get('/division/{division}/employee', [DivisionController::class, 'getEmployee']);
+Route::get('/division/{division}/employee/archive', [DivisionController::class, 'getEmployeeArchive']);
 Route::apiResource('division', DivisionController::class);
 // Route get Job Title
 Route::apiresource('role', RoleController::class);
@@ -77,12 +80,14 @@ Route::apiResource('employee', EmployeeController::class)->except(['store','dest
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
 
-// Route::get('/job-aplicant/search', [JobAplicantController::class, 'find']);
-Route::get('/job-aplicant/status/{status}', [JobAplicantController::class, 'find']);
-Route::apiResource('job-aplicant', JobAplicantController::class);
-Route::patch('job-aplicant/{id}/update-status', [JobAplicantController::class, 'changeStatus']);
+Route::get('/aplicant/archive/{id}', [ArchiveApplicantController::class, 'find']);
+Route::get('/job-aplicant/status/{status}', [JobApplicantController::class, 'find']);
+Route::get('/job-aplicant/archive', [ArchiveApplicantController::class, 'getApplicant']);
+Route::apiResource('job-aplicant', JobApplicantController::class);
+Route::patch('job-aplicant/{id}/update-status', [JobApplicantController::class, 'changeStatus']);
 
 //Punya Aul
+Route::get('/traineeship/archive', [ArchiveApplicantController::class, 'getTraineeship']);
 Route::apiResource('traineeship', TraineeshipController::class)->except(['destroy']);
 
 Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
@@ -90,11 +95,13 @@ Route::apiResource('internship', InternshipController::class)->except(['store'])
 Route::get('/internship/{idInternship}/contract/history', [InternshipContractController::class, 'index']);
 Route::apiSingleton('internship.contract', InternshipContractController::class)->creatable()->except('destroy');
 
-Route::apiResource('partnership', PartnershipController::class)->except('destroy');
+Route::get('/partnership/{id}/{status}', [PartnershipController::class, 'findInternship']);
+Route::get('/partnership/{id}/{status}/archive', [PartnershipController::class, 'findInternshipArchive']);
 Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::class, 'index']);
 Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
+Route::apiResource('partnership', PartnershipController::class)->except('destroy');
 
-Route::apiSingleton('{aplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
+Route::apiSingleton('{ApplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
 
 Route::middleware(['jwt:api', 'hr:api'

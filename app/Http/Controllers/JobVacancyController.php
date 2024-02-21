@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\JobVacancy\StoreJobVacancyRequest;
 use App\Http\Requests\JobVacancy\UpdateJobVacancyRequest;
-use Illuminate\Http\Request;
-use App\Interfaces\JobVacancyRepositoryInterface;
-use Illuminate\Support\Facades\Validator;
+use App\Models\JobVacancy;
+use App\Services\JobVacancyService;
 
 class JobVacancyController extends Controller
 {
-    public function __construct(private JobVacancyRepositoryInterface $jobVacancy) 
+    public function __construct(private JobVacancyService $jobVacancy) 
     {
     }
     /**

@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 use App\Models\JobApplicant;
 
-interface JobAplicantRepositoryInterface
+interface JobApplicantRepositoryInterface
 {
     public function getAll();
     public function find($id);

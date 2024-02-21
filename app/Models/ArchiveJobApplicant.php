@@ -12,15 +12,22 @@ class ArchiveJobApplicant extends Model
 
     protected $fillable = [
         'vacancy_id',
-        'nama',
-        'no_telp',
+        'hr_point_id',
+        'nama_lengkap',
+        'slug',
+        'jk',
+        'no_tlpn',
+        'email',
         'alamat',
+        'role_id',
+        'tanggal_lamaran',
+        'status_lamaran',
         'link_sosmed',
         'file_cv',
         'keterangan',
-        'status',
-        'pic',
+        'is_intern',        
     ];
+    protected $guard = ['id'];
 
     public function jobVacancy(): BelongsTo
     {

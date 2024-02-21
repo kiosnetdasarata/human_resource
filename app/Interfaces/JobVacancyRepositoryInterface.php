@@ -6,11 +6,12 @@ interface JobVacancyRepositoryInterface
 {
     public function getAll();
     public function getRole();
-    public function find($uuid);
-    public function findByRole($uuid);
+    public function find($id);
+    public function findSameRoleOnBranch($roleId, $branchId);
+    public function findByRole($roleId);
     public function create($request);
-    public function update($employee, $request);
-    public function delete($id);
+    public function update($jobVacancy, $request);
+    public function delete($jobVacancy);
 
 }
 
