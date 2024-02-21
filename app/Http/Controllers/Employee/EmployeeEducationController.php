@@ -6,6 +6,7 @@ use App\Services\EmployeeService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\StoreEducationRequest;
 use App\Http\Requests\Employee\UpdateEducationRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeEducationController extends Controller
 {
@@ -58,9 +59,10 @@ class EmployeeEducationController extends Controller
     public function show(string $id)
     {
         try {
+            $edu = $this->employeeService->findEducation($id);
+            if (!$edu) throw new ModelNotFoundException('Education not found',404);
             return response()->json([
                 'success' => true,
-                'data' =>$this->employeeService->findEmployeePersonal($id)->employeeEducation[0],
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
@@ -87,6 +89,7 @@ class EmployeeEducationController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTrace(),
                 'status_code' => $e->getCode(),
             ]);
         }

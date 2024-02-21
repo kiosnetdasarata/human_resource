@@ -26,7 +26,7 @@ class EmployeeController extends Controller
         try {
             $data = $this->employeeService->getAllEmployeePersonal();
             if (count($data) <= 0) {
-                throw new ItemNotFoundException('data tidak ditemukan');
+                throw new ModelNotFoundException('data tidak ditemukan', 404);
             }
             return response()->json([
                 'status' => 'success',
@@ -59,26 +59,6 @@ class EmployeeController extends Controller
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
                 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
-        }
-    }
-
-    public function findByDivision($division)
-    {
-        try {
-            $data = $this->employeeService->getEmployeeByDivision($division);
-            if ($data == []) throw new ModelNotFoundException('No employee found', 404);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $data,
-                'status_code' => 200,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 404,
             ]);
         }
     }

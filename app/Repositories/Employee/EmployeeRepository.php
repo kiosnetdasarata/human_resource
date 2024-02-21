@@ -27,9 +27,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         });
     }
 
-    public function find($uuid)
+    public function find($uuid, $var = 'id')
     {
-        return $this->employee->where('id', $uuid)->firstOrFail();
+        return $this->employee->where($var, $uuid)->firstOrFail();
     }
 
     public function show($uuid)
@@ -44,11 +44,6 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 },])
                 ->where('id', $uuid)
                 ->firstOrFail();
-    }
-
-    public function findByDivision($division) 
-    {
-        return $this->employee->where('division_id', $division)->get();
     }
 
     public function findBySlug($slug)
@@ -81,5 +76,3 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         return $employee->delete();
     }
 }
-
-?>

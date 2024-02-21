@@ -57,18 +57,13 @@ class EmployeeService
         return DB::transaction(function () use ($uuid, $request) {
             $employee = $this->employee->find($uuid);
             
-            if ($employee->employeeContract != null)
+            if ($employee->employeeContract)
                 throw new \Exception('data is exist',422);
                 
             $this->updateEmployeeConfidential($employee->employeeCI, $request);
             $this->storeEmployeeContract($uuid, collect($request)->merge(['nip_id' => $employee->nip])->all());
             $this->user->setIsactive($employee->user(), true);
         });
-    }
-    
-    public function getEmployeeByDivision($division)
-    {
-        return $this->employee->findByDivision($division);
     }
 
     public function updateEmployee($uuid, $request)
@@ -119,8 +114,7 @@ class EmployeeService
                 $this->technician->create([
                     'id'        => Uuid::uuid4()->getHex(),
                     'nip_id'    => $data['nip'],
-                    'slug'      => Str::slug($request['nama'], '_'),
-                    'nip_id'    => $data['nip'],
+                    'slug'      => Str::slug($request['nama'], '_')
                 ]);
             }
         });
@@ -272,7 +266,7 @@ class EmployeeService
             throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang',422);
         
         $history = $this->employeeEducation->getAll($uuid);
-        if (count($history) > 0) {
+        if (count($history)) {
             foreach ($history as $data) {
                 if ($request['pendidikan_terakhir'] == 'Sarjana') break;
 
@@ -305,7 +299,7 @@ class EmployeeService
             throw new \Exception('tahun lulus tidak boleh lebih besar dibanding tahun sekarang',422);
         
         $history = $this->employeeEducation->getAll($uuid);
-        if (isset($request['pendidikan_terakhir']) && count($history) > 0) {
+        if (isset($request['pendidikan_terakhir']) && count($history)) {
             foreach ($history as $data) {
                 if ($request['pendidikan_terakhir'] == 'Sarjana') break;
                 
@@ -314,8 +308,7 @@ class EmployeeService
                 }
 
                 $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-                if (array_search($data['pendidikan_terakhir'], $arr) < array_search($request['pendidikan_terakhir'], $arr) && 
-                    $data['tahun_lulus'] <= $request['tahun_lulus']) {
+                if (array_search($data['pendidikan_terakhir'], $arr) < array_search($request['pendidikan_terakhir'], $arr) && $data['tahun_lulus'] <= $request['tahun_lulus']) {
                     throw new \Exception ('tahun lulus tidak valid',422);
                 }
             }
@@ -328,4 +321,3 @@ class EmployeeService
         return $this->employeeEducation->delete($id);
     }
 }
-?>

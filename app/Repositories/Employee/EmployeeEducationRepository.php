@@ -2,24 +2,34 @@
 
 namespace App\Repositories\Employee;
 
+use App\Models\Employee;
 use App\Models\EmployeeEducation;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
 
 class EmployeeEducationRepository implements EmployeeEducationRepositoryInterface
 {
 
-    public function __construct(private EmployeeEducation $employeeEducation)
+    public function __construct(
+        private EmployeeEducation $employeeEducation,
+        private Employee $employee
+    )
     {
     }
 
-    public function getAll()
+    public function getAll($id)
     {
-        return $this->employeeEducation->with('employee')->get();
+        $employee = $this->employee->with('employeeEducation')->find($id);
+        return $employee->employeeEducation;
     }
 
     public function find($id)
     {
-        return $this->employeeEducation->with('employee')->find($id);
+        $employee =  $this->employee->with(['employeeEducation' => function ($query) {
+                    $query->orderBy('pendidikan_terakhir')
+                        ->orderBy('created_at')
+                        ->first();
+                }])->find($id);
+        return $employee->employeeEducation->first();
     }
     
     public function create($request)
@@ -27,14 +37,14 @@ class EmployeeEducationRepository implements EmployeeEducationRepositoryInterfac
         return $this->employeeEducation->create($request);
     }
     
-    public function update($employeeEducation, $request)
+    public function update($id, $request)
     {
-        return $employeeEducation->update($request);
+        return $this->find($id)->update($request);
     }
     
-    public function delete($employeeEducation)
+    public function delete($id)
     {
-        return $employeeEducation->delete();
+        return $this->find($id)->delete();
     }
 }
 

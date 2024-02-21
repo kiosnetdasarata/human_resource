@@ -2,39 +2,54 @@
 
 namespace App\Repositories\Employee;
 
+use App\Models\Employee;
 use App\Models\EmployeeContract;
+use Illuminate\Support\Facades\DB;
+use App\Models\EmployeeContractHistory;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 
 class EmployeeContractRepository implements EmployeeContractRepositoryInterface
 {
 
-    public function __construct(private EmployeeContract $employeeContract)
-    {
-    }
+    public function __construct(
+        private EmployeeContract $employeeContract,
+        private EmployeeContractHistory $employeeContractHistory,
+        private Employee $employee
+    )
+    {}
 
-    public function getAll()
+    public function getAll($id)
     {
-        return $this->employeeContract->with('employee')->get();
+        $employee = $this->employee->with('employeeContractHistory')->find($id);
+        return $employee->employeeContractHistory;
     }
 
     public function find($id)
     {
-        return $this->employeeContract->with('employee')->where('id', $id)->firstOrFail();;
+        $employee = $this->employee->with('employeeContract')->find($id);
+        return $employee->employeeContract;
     }
     
     public function create($request)
     {
-        return $this->employeeContract->create($request);
+        return DB::transaction(function () use ($request) {            
+            $this->employeeContract->create($request);        
+            $this->employeeContractHistory->create($request);
+        });
     }
     
-    public function update($employeeContract, $request)
+    public function update($id, $request)
     {
-        return $employeeContract->update($request);
+        return DB::transaction(function () use ($id, $request) {            
+            $this->getAll($id)->last()->update($request);
+            $this->find($id)->update($request);
+        });
     }
     
     public function delete($employeeContract)
-    {
-        return $employeeContract->delete();
+    {        
+        if ($employeeContract->end_contract > now()) return $employeeContract->delete();
+        else throw new \Exception('tidak bisa menghapus karena kontrak belum habis',422);
     }
 }
 
