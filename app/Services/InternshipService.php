@@ -48,76 +48,61 @@ class InternshipService
     public function createTraineeship($request)
     {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
-        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(Carbon::now());
+        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
         
-        if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date'])
-            throw new \Exception('vacancy belum dibuka / sudah ditutup', 403);
-        if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur'])
-            throw new \Exception('umur tidak valid', 422);
+        if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date']) throw new \Exception('vacancy belum dibuka / sudah ditutup', 403);
+        if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) throw new \Exception('umur tidak valid', 422);
         
-        $list = $this->findTraineeshipSlug($request['nama_lengkap']);
-        $slug = Str::slug($request['nama_lengkap']) .
-                    count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
-        
+        $slug = $this->generateTraineeshipSlug($request['nama_lengkap']);        
         $traineeship = collect($request)->merge([
-            'tanggal_lamaran' => now(),
-            'slug' => $slug
+            'nama_lengkap'      => Str::title($request['nama_lengkap']),
+            'slug'              => $slug,
+            'tanggal_lamaran'   => now(),
+            'file_cv'           => uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv','traineeship/cv')
         ]);
 
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
             throw new \Exception('tahun lulus tidak valid', 422);
         }
         
-        $traineeship->put('file_cv', uploadToGCS($request['file_cv'], $traineeship['slug']. '_cv','traineeship/cv'));
         return $this->traineeship->create($traineeship->all());
     }
 
-    public function updateTraineeship($slug, $request) 
+    public function updateStatus($id, $status)
     {
-        return DB::transaction(function() use ($slug, $request) {
-            $old = $this->findTraineeship($slug);
-            if ($old == null) throw new ModelNotFoundException('data already deleted');
-            $traineeship = collect($request)->diffAssoc($old);
-            if (isset($traineeship['file_cv'])) {
-                $traineeship->put('file_cv', uploadToGCS($request['file_cv'],$old->id,'traineeship/cv'));
+        $old = $this->traineeship->find($id);
+        if ($old)
+        return DB::transaction(function () use ($old, $status) {
+            $oldStatus = $old->status_tahap;
+            if ($status == 'Assesment' && $oldStatus != 'FU') {
+                throw new \Exception ('status jobApplicant tidak valid', 422);
+            } else if ($status == 'Lolos') {
+                if (!$old->hr_point_id) throw new \Exception ('hr point dari traineeship tidak ditemukan', 404);
+                $this->createInternship($old);
             }
-            if (isset($traineeship['nama_lengkap'])) {
-                $list = $this->findTraineeshipSlug($request['nama_lengkap']);
-                $additionalSlug = '';
-                if (count($list) > 0) {
-                    $explodedSlug = explode('_', $list->last()->slug);
-                    $counter = (int) end($explodedSlug);
-                    $additionalSlug = '_' . ($counter + 1);
-                }
-                $slug = Str::slug($traineeship['nama_lengkap'],'_') . $additionalSlug;
-                
-                $traineeship->put('slug', $slug);
-            }
-            if (isset($request['status_tahap'])) {
-                $oldStatus = $old->status_tahap;
-                $newStatus = $request['status_tahap'];
-                if ($newStatus == 'Assesment' && $oldStatus != 'FU') {
-                    throw new \Exception ('status traineeship tidak valid', 422);
-                } elseif ($newStatus == 'Lolos') {
-                    if ($old->hr_point_id == null)
-                        throw new \Exception ('hr point dari traineeship tidak ditemukan', 404);
-                    $this->createInternship($old->id, $old);
-                }
-            }
-            $data = $this->traineeship->update($old, $traineeship->all());
-            if ($data->status_tahap == 'Tolak' || $data->status_tahap == 'Lolos') {
+            $this->traineeship->update($old, ['status_tahap' => $status]);
+
+            if ($status == 'Lolos' || $status == 'Tolak') {
+                if ($old->interviewPoint) $this->interviewPoint->delete($old->interviewPoint);
                 $this->traineeship->delete($old);
             }
-            return $this->findTraineeship($old->id);
-        });
+        });            
     }
 
-    public function deleteTraineeship($slug)
+    public function updateTraineeship($id, $request) 
     {
-        return DB::transaction(function () use ($slug) {
-            $traineeship = $this->traineeship->find($slug);
-            $this->interviewPoint->delete($traineeship->interviewPoint);
-            $this->traineeship->delete($traineeship);
+        $old = $this->traineeship->find($id);
+        return DB::transaction(function() use ($old, $request){            
+            $jobApplicant = collect($request)->diffAssoc($old);
+            if (isset($jobApplicant['nama_lengkap'])) {
+                $jobApplicant->put('nama_lengkap', Str::title($jobApplicant['nama_lengkap']))->put('slug', $this->generateTraineeshipSlug($jobApplicant['nama_lengkap']));
+            }
+            if (isset($jobApplicant['file_cv'])) {
+                $link = uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'traineeship/file_cv');
+                $jobApplicant->put('file_cv', $link);
+            }
+            
+            $this->traineeship->update($old, $jobApplicant->all());
         });
     }
 
@@ -125,10 +110,10 @@ class InternshipService
     {
         return DB::transaction(function ()  use ($id, $request) {
             $traineeship = $this->traineeship->find($id);
-            if ($traineeship->hr_point_id != null) {
-                throw new \Exception('job aplicant ini sudah memiliki interview point dengan id '. $traineeship->hr_point_id,422);
+            if ($traineeship->hr_point_id) {
+                throw new \Exception('job Applicant ini sudah memiliki interview point dengan id '. $traineeship->hr_point_id,422);
             } elseif ($traineeship->status_tahap != 'Assesment') {
-                throw new \Exception('job aplicant harus pada tahap Assesment',422);
+                throw new \Exception('job Applicant harus pada tahap Assesment',422);
             }
             $poin = $this->interviewPoint->create($request);
             $this->traineeship->update($traineeship, ['hr_point_id' => $poin->id]);
@@ -143,7 +128,7 @@ class InternshipService
     public function updateInterviewPoint($idTraineenship, $request) 
     {
         $poin = $this->traineeship->find($idTraineenship)->interviewPoint;
-        if ($poin == null) {
+        if (!$poin) {
             throw new ModelNotFoundException('Traineeship ini belum memiliki interview point',404);
         }
         return $this->interviewPoint->update($poin, $request);
@@ -153,7 +138,7 @@ class InternshipService
     {
         return DB::transaction(function () use ($idTraineenship) {
             $traineeship = $this->traineeship->find($idTraineenship);
-            if ($traineeship->interviewPoint == null) {
+            if (!$traineeship->interviewPoint) {
                 throw new ModelNotFoundException('Traineeship ini belum memiliki interview point',404);
             }
             $this->interviewPoint->delete($traineeship->interviewPoint);
@@ -172,29 +157,19 @@ class InternshipService
             $this->internship->findBySlug(Str::slug($item,'_')) : $this->internship->find($item);
     }
 
-    public function createInternship($idTraineenship, $request)
+    public function createInternship($traineeship)
     {
-        return DB::Transaction(function() use ($idTraineenship, $request) {
-            if (isset($internship['mitra_id'])) {
-                $file = $this->partnership->find($internship['mitra_id'])->filePartnership[0];
-                if ($file == null || $file->date_expired < now())
-                    throw new \Exception('file mitra tidak ditemukan atau kadaluarsa',404);
-            }
-            
-            $traineeship = $this->findTraineeship($idTraineenship, true);
-            $this->updateTraineeship($traineeship->id, ['status_tahap' => 'Lolos']);
-            $list = $this->findInternship($request['nama_lengkap'],'slug');
-            $slug = Str::slug($traineeship['nama_lengkap']) .
-                        count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
-            $internship = collect($traineeship)->merge($request)->merge([
-                    'id' => Uuid::uuid4()->getHex(),
-                    'internship_nip' => $this->generateNip($traineeship->jk),
-                    'slug' => $slug,
-                    'file_cv' => $traineeship->file_cv,
-                    'no_tlpn' => $traineeship->nomor_telepone,
-                    'role_id' => $traineeship->jobVacancy->role_id,
-                    'file_cv' => $traineeship['file_cv'],
-                    'tanggal_masuk' => now()->format('Y-m-d'),
+        return DB::Transaction(function() use ($traineeship) {
+            $this->updateStatus($traineeship, ['status_tahap' => 'Lolos']);
+
+            $internship = collect($traineeship)->merge([
+                    'id'                => Uuid::uuid4()->getHex(),
+                    'internship_nip'    => $this->generateNip($traineeship->jk),
+                    'slug'              => $this->generateInternshipSlug($traineeship->nama_lengkap),
+                    'file_cv'           => $traineeship->file_cv,
+                    'no_tlpn'           => $traineeship->nomor_telepone,
+                    'role_id'           => $traineeship->jobVacancy->role_id,
+                    'tanggal_masuk'     => now()->format('Y-m-d'),
                 ]);
             return $this->internship->create($internship->all());
         });
@@ -206,11 +181,10 @@ class InternshipService
         $internship = collect($request)->diffAssoc($old);
 
         if (isset($internship["nama_lengkap"])) {
-            $list = $this->findInternship($request['nama_lengkap'],'slug');
-            $slug = Str::slug($internship['nama_lengkap']) .
-                        count($list) > 0 ?? (int) end(explode('_', end($list->slug))) +1;
-            
-            $internship->put('slug', $slug);
+            $internship = $internship->merge([
+                'nama_lengkap' => Str::title($internship['nama_lengkap']),
+                'slug' => $this->generateInternshipSlug($internship['nama_lengkap']),
+            ]);
         }
         
         if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
@@ -236,7 +210,7 @@ class InternshipService
     public function getInternshipContract($id)
     {
         $data = $this->findInternship($id)->internshipContract[0];
-        if ($data == null || $data->date_expired < now()) {
+        if (!$data || $data->date_expired < now()) {
             throw new ModelNotFoundException('file mitra tidak ditemukan atau kadaluarsa', 404);
         }
         return $data;
@@ -246,14 +220,14 @@ class InternshipService
     {
         return DB::transaction(function () use ($id, $request) {
             $internship = $this->findInternship($id);
-            if ($internship == null) {
+            if (!$internship) {
                 throw new \Exception('internship tidak ditemukan',404);
             }
             $contract = collect($request)->merge([
-                'id' => Uuid::uuid4()->getHex(),
+                'id'                => Uuid::uuid4()->getHex(),
                 'internship_nip_id' => $internship->internship_nip,
-                'role_internship' => $internship->role_id,
-                'date_expired' => Carbon::parse($request['date_start'])->addMonth($request['durasi_kontrak']),
+                'role_internship'   => $internship->role_id,
+                'date_expired'      => Carbon::parse($request['date_start'])->addMonths($request['durasi_kontrak']),
             ]);
 
             $this->internshipContract->create($contract->all());
@@ -267,16 +241,17 @@ class InternshipService
             $contract = $this->getInternshipContract($id);
             $data = collect($request)->diffAssoc($contract);
             if (isset($data['durasi_kontrak'])){
+                $durasi = $data['durasi_kontrak'];
                 $this->internshipContract->update($contract, [
-                    'durasi_kontrak' => $data['durasi_kontrak'],
-                    'date_expired' => Carbon::parse($data['date_start'])->addMonth($data['durasi_kontrak'])
+                    'durasi_kontrak'    => $durasi,
+                    'date_expired'      => Carbon::parse($data['date_start'])->addMonths($data['durasi_kontrak']),
                 ]);
             }
             if (isset($data['date_start'])){
                 $contract = $this->getInternshipContract($id);
                 $this->internshipContract->update($contract, [
-                    'date_start' => $data['date_start'],
-                    'date_expired' => Carbon::parse($data['date_start'])->addMonth($contract['durasi_kontrak'])
+                    'date_start'    => $data['date_start'],
+                    'date_expired'  => Carbon::parse($data['date_start'])->addMonths($contract['durasi_kontrak'])
                 ]);
             }
         });
@@ -285,7 +260,7 @@ class InternshipService
     public function deleteInternshipContract($uuid)
     {
         $contract = $this->getInternshipContract($uuid);
-        if ($contract != null) 
+        if ($contract) 
             return $this->internshipContract->delete($contract);
         throw new \Exception('Data kontrak tidak ditemukan', 404);
     }
@@ -303,6 +278,29 @@ class InternshipService
             . $ke
         );
     }
-}
 
-?>
+    private function generateTraineeshipSlug($name)
+    {
+        $list = $this->findTraineeshipSlug($name);
+        
+        $slug = Str::slug($name,'_');
+        if (count($list)) {
+            $int = $list->sortBy('slug')->last()->slug;
+            $int = explode('_', $int);
+            $slug = $slug . '_' . (int) end($int) + 1;
+        }
+        return $slug;
+    }
+
+    private function generateInternshipSlug($name)
+    {
+        $list = $this->findInternship($name);
+        
+        $slug = Str::slug($name,'_');
+        if (count($list)) {
+            $int = $list->sortBy('slug')->last()->slug;
+            $int = explode('_', $int);
+            $slug = $slug . '_' . (int) end($int) + 1;
+        }
+    }
+}

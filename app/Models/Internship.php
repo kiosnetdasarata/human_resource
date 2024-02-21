@@ -47,7 +47,7 @@ class Internship extends Model
 
     public function role(): BelongsTo
     {
-        return $this->belongsTo(Roles::class);
+        return $this->belongsTo(Role::class);
     }
 
     public function supervisor(): BelongsTo

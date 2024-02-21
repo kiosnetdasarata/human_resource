@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Internship;
 
-use Ramsey\Uuid\Type\Integer;
 use App\Services\InternshipService;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\Traineeship\StoreTraineeshipRequest;
 use App\Http\Requests\Traineeship\UpdateTraineeshipRequest;
+use App\Models\Traineeship;
 
 class TraineeshipController extends Controller
 {
@@ -63,26 +65,22 @@ class TraineeshipController extends Controller
     public function show($slug)
     {
         try {
-            $traineeship = function () use ($slug) {
-                if (((int) $slug) == 0) {
-                    $traneeship = $this->traineeship->findTraineeshipSlug($slug);
-                    return $traneeship;
-                } else
-                    return $traneeship = $this->traineeship->findTraineeship($slug);
-            };
-            $traineeship() == null ?? throw new ModelNotFoundException('data tidak ditemukan',404);
-
+            if ((int) $slug) {
+                $traineeship = $this->traineeship->findTraineeship($slug, true);
+            } else {
+                $traineeship = $this->traineeship->findTraineeshipSlug($slug);
+            }
+            if (!$traineeship) throw new ModelNotFoundException('Data tidak ditemukan',404);
             return response()->json([
                 'success' => true,
-                'data' => $traineeship(),
+                'data' => $traineeship,
                 'status_code' => 200
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage() == '' ? 'Data tidak ditemukan' : $e->getMessage(),
-                'status_code' => 500
+                'message' => $e->getMessage() == '' ? 'Unknown Error' : $e->getMessage(),
+                'status_code' => 500,
             ]);
         }
     }
@@ -93,12 +91,13 @@ class TraineeshipController extends Controller
     public function update(UpdateTraineeshipRequest $request, string $id)
     {
         try {
-            $traineeship = $this->traineeship->updateTraineeship($id, $request->validated());
+            $data = $request->validated();
+            if ($data['status_tahap']) $this->traineeship->updateStatus($id, $data['status_tahap']);
+            else $this->traineeship->updateTraineeship($id, $request->validated());
 
             return response()->json([
                 'success' => true,
                 'status_code' => 200,
-                'data' => $traineeship
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -108,13 +107,5 @@ class TraineeshipController extends Controller
                 'status_code' => 500,
             ]);
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $uuid)
-    {
-
     }
 }
