@@ -90,7 +90,7 @@ class DivisionController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->getEmployee($id),
+                'data' => $this->divisionRepositoryInterface->getEmployee($id)->employee,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
@@ -108,7 +108,7 @@ class DivisionController extends Controller
         try {
             return response()->json([
                 'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->getEmployeeArchive($id),
+                'data' => $this->divisionRepositoryInterface->getEmployeeArchive($id)->employeeArchive,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
