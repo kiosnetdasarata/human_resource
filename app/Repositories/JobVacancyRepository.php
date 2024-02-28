@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Role;
 use App\Models\JobVacancy;
 use App\Interfaces\JobVacancyRepositoryInterface;
+use InvalidArgumentException;
 
 class JobVacancyRepository implements JobVacancyRepositoryInterface
 {
@@ -41,8 +42,18 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function find($id)
     {
-        $data = collect($this->jobVacancy->with(['role', 'jobApplicant', 'traineeship'])->where('id', $id)->firstOrFail());
-        return $data['is_intern'] ? $data->all() : $data->except('traineeship')->all();
+        return $this->jobVacancy->with('role')->where('id', $id)->firstOrFail();
+    }
+
+    public function getTraineeships($id) 
+    {
+        return $this->find($id)->traineeship;
+    }
+
+    public function getJobApplicants($id)
+    {
+
+        return $this->find($id)->jobApplicant;
     }
 
     public function findByRole($roleId)

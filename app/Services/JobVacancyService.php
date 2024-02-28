@@ -32,6 +32,16 @@ class JobVacancyService
         return $this->jobVacancy->find($id);
     }
 
+    public function getApplicant($id)
+    {
+        return $this->jobVacancy->getJobApplicants($id);
+    }
+
+    public function getTraineeships($id) 
+    {
+        return $this->jobVacancy->getTraineeships($id);
+    }
+
     public function findByRole($id)
     {
         return $this->jobVacancy->findByRole($id);
@@ -111,8 +121,4 @@ class JobVacancyService
         });
     }
 
-    private function generateDeleteData($jobVacancy, $applicant) 
-    {
-
-    }
 }
