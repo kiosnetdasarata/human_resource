@@ -79,6 +79,11 @@ class EmployeeService
         return $withtrashes ? $this->employee->findWithTrashes() : $this->employee->getAll();
     }
 
+    public function getEmployeeArchive()
+    {
+        return $this->employeeArchive->getAll();
+    }
+
     public function findEmployeePersonal($uuid)
     {
         return $this->employee->show($uuid);
@@ -282,7 +287,7 @@ class EmployeeService
             }
         }
         $nip = $this->employee->find($uuid)->nip;
-        $this->employeeEducation->create(collect($request->all())->put('nip_id',$nip)->all());
+        return $this->employeeEducation->create(collect($request->all())->put('nip_id',$nip)->all());
     }
 
     public function findEducation($uuid)

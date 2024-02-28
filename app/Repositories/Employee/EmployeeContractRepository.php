@@ -52,5 +52,3 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
         else throw new \Exception('tidak bisa menghapus karena kontrak belum habis',422);
     }
 }
-
-?>

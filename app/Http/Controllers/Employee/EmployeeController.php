@@ -14,7 +14,8 @@ use App\Http\Requests\Employee\SecondFormEmployeeRequest;
 
 class EmployeeController extends Controller
 {
-    public function __construct(private EmployeeService $employeeService)
+    public function __construct(
+        private EmployeeService $employeeService)
     {
     }
     
@@ -41,6 +42,30 @@ class EmployeeController extends Controller
             ]);
         }
     }
+    public function getArchive()
+    {
+        try {
+            $data = $this->employeeService->getEmployeeArchive();
+            if (!count($data)) throw new ModelNotFoundException('job applicant tidak ditemukan');
+            else return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'status_code' => 200,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'status_code' => 404,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => 404,
+            ]);
+        }
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -53,11 +78,17 @@ class EmployeeController extends Controller
                 'status' => 'success',
                 'status_code' => 200,
             ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'input' => $request->validated(),
+                'status_code' => 404,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-                'input' => $request->validated(),
                 'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
             ]);
         }
@@ -87,7 +118,7 @@ class EmployeeController extends Controller
     public function show($id)
     {
         try {
-            $employee = $this->employeeService->findEmployeePersonal($id, 'id');
+            $employee = $this->employeeService->findEmployeePersonal($id);
             if ($employee == null) {
                 throw new ModelNotFoundException('data tidak ditemukan', 404);
             }
@@ -132,7 +163,7 @@ class EmployeeController extends Controller
         try {           
             return response()->json([
                 'status' => 'success',
-                'data' => $this->employeeService->findEmployeePersonal($uuid, 'id')->employeeCI,
+                'data' => $this->employeeService->findEmployeePersonal($uuid)->employeeCI,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {

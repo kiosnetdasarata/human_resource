@@ -18,10 +18,12 @@ class EmployeeEducationController extends Controller
      */
     public function index($id)
     {
-        try {
+        try {            
+            $data = $this->employeeService->getEducations($id);
+            if (!count($data)) throw new ModelNotFoundException('data tidak ditemukan', 404);
             return response()->json([
                 'success' => true,
-                'data' => $this->employeeService->getEducations($id),
+                'data' => $data,
                 'status_code' => 200
             ]);
         } catch (\Exception $e) {
@@ -63,6 +65,7 @@ class EmployeeEducationController extends Controller
             if (!$edu) throw new ModelNotFoundException('Education not found',404);
             return response()->json([
                 'success' => true,
+                'data' => $edu,
                 'status_code' => 200,
             ]);
         } catch (\Exception $e) {
