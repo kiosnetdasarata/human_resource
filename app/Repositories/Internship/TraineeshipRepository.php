@@ -34,6 +34,7 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
                     })->withTrashed()->get();        
     }
 
+
     public function find($id)
     {
         return $this->traineeship->with('interviewPoint')->where('id', $id)->firstOrFail();
@@ -42,6 +43,11 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
     public function findWithTrashes($id)
     {
         return $this->traineeship->with('interviewPoint')->where('id', $id)->withTrashed()->firstOrFail();
+    }
+
+    public function findByJobVacancy($vacancyId)
+    {
+        return $this->traineeship->where('vacancy_id', $vacancyId)->get();
     }
 
     public function create($request)

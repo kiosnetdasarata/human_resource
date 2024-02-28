@@ -34,7 +34,25 @@ class TraineeshipController extends Controller
                 'status_code' => 500,
             ]);
         }
+    }
 
+    public function getByJobVacancy($jobVacancyId)
+    {
+        try {
+            $data = $this->traineeship->findByVacancy($jobVacancyId);
+            if (!count($data)) throw new ModelNotFoundException('data tidak ditemukan', 404);
+            else return response()->json([
+                'status' => 'success',
+                'data' => $data,
+                'status_code' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+                'status_code' => 500,
+            ]);
+        }
     }
 
     /**
@@ -92,7 +110,7 @@ class TraineeshipController extends Controller
     {
         try {
             $data = $request->validated();
-            if ($data['status_tahap']) $this->traineeship->updateStatus($id, $data['status_tahap']);
+            if (isset($data['status_tahap'])) $this->traineeship->updateStatus($id, $data['status_tahap']);
             else $this->traineeship->updateTraineeship($id, $request->validated());
 
             return response()->json([
