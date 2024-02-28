@@ -14,5 +14,3 @@ interface DivisionRepositoryInterface
     public function update($division, $request);
     public function delete($division);
 }
-
-?>

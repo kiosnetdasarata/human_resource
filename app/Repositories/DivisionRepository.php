@@ -78,5 +78,3 @@ class DivisionRepository implements DivisionRepositoryInterface
         return $division->delete();
     }
 }
-
-?>
