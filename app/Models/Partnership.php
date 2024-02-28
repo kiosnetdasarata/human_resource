@@ -15,7 +15,8 @@ class Partnership extends Model
         'alamat',
         'perwakilan_mitra',
         'no_tlpn',
-        'kategori_mitra'
+        'kategori_mitra',
+        'email',
     ];
 
     public function internship(): HasMany
@@ -25,6 +26,6 @@ class Partnership extends Model
 
     public function filePartnership(): HasMany
     {
-        return $this->hasMany(FilePartnership::class, 'mitra_id');
+        return $this->hasMany(FilePartnership::class, 'mitra_id')->orderBy('created_at');
     }
 }

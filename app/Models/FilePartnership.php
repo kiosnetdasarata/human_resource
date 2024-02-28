@@ -17,6 +17,7 @@ class FilePartnership extends Model
         'date_start',
         'date_expired',
         'durasi',
+        'is_expired',
     ];
 
     public function mitra(): BelongsTo

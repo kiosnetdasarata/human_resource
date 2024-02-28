@@ -3,7 +3,6 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
@@ -23,7 +22,7 @@ class PartnershipService
         return $this->partnership->getAll();
     }
 
-    public function getPartnership($id)
+    public function findPartnership($id)
     {
         return $this->partnership->find($id);
     }
@@ -41,12 +40,16 @@ class PartnershipService
 
     public function createPartnership($request)
     {
-        return $this->partnership->create($request);
+        $data = collect($request)->put('nama_mitra', Str::title($request['nama_mitra']))->all();
+        return $this->partnership->create($data);
     }
 
-    public function updatePartnership($partnership, $request)
+    public function updatePartnership($id, $request)
     {
-        return $this->partnership->update($partnership, $request);
+        $old = $this->findPartnership($id);
+        $data = collect($request)->diffAssoc($old)
+                ->put('nama_mitra', Str::title($request['nama_mitra']))->all();
+        return $this->partnership->update($old, $data);
     }
 
     public function deletePartnership($partnership)
@@ -56,54 +59,67 @@ class PartnershipService
 
     public function getFilePartnership($idParnership)
     {
-        $idParnership = $this->partnership->find($idParnership);
-        $data = $idParnership->filePartnership[0];
-        if(!$data || $data->date_expired < now()) {
-            throw new ModelNotFoundException('file mitra tidak ditemukan atau kadaluarsa', 404);
-        }
-        return $data;
+        return $this->filePartnership->find($idParnership);
     }
 
     public function getFilePartnerships($id)
     {
-        return $this->getPartnership($id)->filePartnership;
+        return $this->filePartnership->getAll($id);
     }
 
-    public function createFilePartnership($partnership, $request)
+    public function createFilePartnership($idPartnership, $request)
     {
-        $nama = $partnership->mitra;
-        $filePartnership = collect($request)->merge([
-            'mitra_id' => $partnership->id,
-            'date_expired' => Carbon::parse($request['date_start'])->addMonths($request['durasi']),
-            'file_mou' => uploadToGCS($request['file_cv'],$nama.'file_mou','partnership/'. $nama),
-            'file_moa' => uploadToGCS($request['file_cv'],$nama.'file_mou','partnership/'. $nama),
-        ]);
+        return DB::transaction(function () use ($idPartnership, $request) {
+            if ($request['date_start'] > now()) { 
+                throw new \Exception('date_start tidak boleh tanggal yang akan datang');
+            }
+            
+            $filePartnership = $this->filePartnership->find($idPartnership);
+            if ($filePartnership && $filePartnership->date_expired > now()) {
+                $this->filePartnership->update($filePartnership, ['is_expired' => 1]);
+            }
 
-        return $this->filePartnership->create($filePartnership->all());
-    }
+            $partnership = $this->partnership->find($idPartnership);
+            $nama = $partnership->nama_mitra;
+            $dateExpired = Carbon::parse($request['date_start'])->addMonths($request['durasi']);
+            $filePartnership = collect($request)->merge([
+                'mitra_id'      => $partnership->id,
+                'date_expired'  => $dateExpired,
+                'file_mou'      => uploadToGCS($request['file_mou'],$nama.'file_mou','partnership/'. $nama),
+                'file_moa'      => uploadToGCS($request['file_moa'],$nama.'file_moa','partnership/'. $nama),
+                'is_expired'    => $dateExpired < now() ? 1 : 0,
+            ]);
 
-    public function updateFilePartnership($mitraId, $request)
-    {
-        return DB::transaction(function () use ($mitraId, $request) {
-            $fileParnership = $this->getFilePartnership($mitraId);
-            $data = collect($request)->diffAssoc($fileParnership);
-            if (isset($data['durasi']))
-                $this->filePartnership->update($fileParnership, [
-                    'durasi' => $data['durasi'],
-                    'date_expired' => Carbon::parse($data['date_start'])->addMonths($data['durasi'])
-                ]);
-            if (isset($data['date_start']))
-                $fileParnership = $this->getFilePartnership($mitraId);
-                $this->filePartnership->update($fileParnership, [
-                    'date_start' => $data['date_start'],
-                    'date_expired' => Carbon::parse($data['date_start'])->addMonths($fileParnership['durasi'])
-                ]);     
+            return $this->filePartnership->create($filePartnership->all());
         });
+        
     }
 
-    public function deleteFilePartnership($mitraId)
+    public function updateFilePartnership($idPartnership, $request)
     {
-        $fileParnership = $this->getFilePartnership($mitraId);
-        return $this->filePartnership->delete($fileParnership);
+        return DB::transaction(function () use ($idPartnership, $request) {
+            $old = $this->filePartnership->find($idPartnership);
+            $data = collect($request)->diffAssoc($old);
+            if (isset($data['durasi'])) {
+                $dateExpired = Carbon::parse($data['date_start'])->addMonths($data['durasi']);
+                $this->filePartnership->update($old, [
+                    'durasi'        => $data['durasi'],
+                    'date_expired'  => $dateExpired,                    
+                    'is_expired'    => $dateExpired < now() ? 1 : 0,
+                ]);
+            }
+            if (isset($data['date_start'])) {
+                if ($request['date_start'] > now()) { 
+                    throw new \Exception('date_start tidak boleh tanggal yang akan datang');
+                }
+                
+                $dateExpired = Carbon::parse($data['date_start'])->addMonths($old['durasi']);
+                $this->filePartnership->update($old, [
+                    'date_start'    => $data['date_start'],
+                    'date_expired'  => $dateExpired,                    
+                    'is_expired'    => $dateExpired < now() ? 1 : 0,
+                ]);
+            }
+        });
     }
 }

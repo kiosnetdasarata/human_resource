@@ -28,6 +28,7 @@ class StorePartnershipRequest extends FormRequest
             'alamat' => 'required|string',
             'perwakilan_mitra' => 'required|string',
             'no_tlpn' => 'required|numeric|digits_between:10,15|unique:partnerships,no_tlpn',
+            'email' => 'required|email|unique:partnerships,email',
             'kategori_mitra' => 'required|in:Universitas,SMK,Bootcamp',
         ];
     }

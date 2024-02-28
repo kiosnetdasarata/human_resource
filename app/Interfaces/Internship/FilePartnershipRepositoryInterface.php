@@ -11,7 +11,4 @@ interface FilePartnershipRepositoryInterface
     public function find($idParnership);
     public function create($request);
     public function update(FilePartnership $filePartnership, $request);
-    public function delete(FilePartnership $filePartnership);
 }
-
-?>

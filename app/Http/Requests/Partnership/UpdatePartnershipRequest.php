@@ -13,7 +13,7 @@ class UpdatePartnershipRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->method('patch');
+        return true;
     }
 
     /**
@@ -29,6 +29,7 @@ class UpdatePartnershipRequest extends FormRequest
             'alamat' => 'string',
             'perwakilan_mitra' => 'string',
             'no_tlpn' => 'numeric|digits_between:10,15|unique:partnerships,no_tlpn,'.$partnership.',id',
+            'email' => 'email|unique:partnerships,email,'.$partnership.',id',
             'kategori_mitra' => 'in:Universitas,SMK,Bootcamp',
         ];
     }

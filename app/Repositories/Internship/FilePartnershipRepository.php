@@ -5,6 +5,7 @@ namespace App\Repositories\Internship;
 use App\Models\FilePartnership;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 use App\Models\Partnership;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class FilePartnershipRepository implements FilePartnershipRepositoryInterface
 {
@@ -15,23 +16,23 @@ class FilePartnershipRepository implements FilePartnershipRepositoryInterface
 
     public function getAll($idPartnership)
     {
-        $partnership = $this->partnership->with(['file' => function($query) {
-            $query->sortBy('created_at');
-        }])->firstOrFail();
-        return $partnership->file;
+        $partnership = $this->partnership
+                        ->with('filePartnership')
+                        ->where('id', $idPartnership)
+                        ->firstOrFail();
+        return $partnership->filePartnership;
     }
 
     public function find($id)
     {
-        $partnership = $this->partnership->with(['file' => function($query) {
-            $query->sortBy('created_at')->last();
-        }])->firstOrFail();
-        return $partnership->file;
-    }
-
-    public function findByMitra($mitraid)
-    {
-        return $this->filePartnership->where('mitra_id', $mitraid);
+        $partnership = $this->partnership
+                        ->with(['filePartnership' => fn($query) =>
+                            $query->where('is_expired', 0)
+                                  ->where('date_expired', '>', now()
+                        )])
+                        ->where('id', $id)
+                        ->firstOrFail();
+        return $partnership->filePartnership->first();
     }
 
     public function create($request)
@@ -43,10 +44,4 @@ class FilePartnershipRepository implements FilePartnershipRepositoryInterface
     {
         return $filePartnership->update($request);
     }
-
-    public function delete($filePartnership)
-    {
-        return $filePartnership->delete();
-    }
-
 }

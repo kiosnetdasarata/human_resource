@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Partnership\StorePartnershipRequest;
 use App\Http\Requests\Partnership\UpdatePartnershipRequest;
 use App\Services\PartnershipService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
 
 class PartnershipController extends Controller
@@ -64,13 +65,15 @@ class PartnershipController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $partnership,
-            ], 200);
+                'status_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500
+            ]);
         }
     }
 
@@ -79,17 +82,19 @@ class PartnershipController extends Controller
         try {
             if($status != 'magang' && $status != 'internship') throw new InvalidArgumentException('status tidak valid', 422);
             $partnership = $this->partnership->getInternshipArchive($id, $status);
-            
+            if(!count($partnership)) throw new ModelNotFoundException();
             return response()->json([
                 'status' => 'success',
                 'data' => $partnership,
-            ], 200);
+                'status_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500
+            ]);
         }
     }
     /**
@@ -98,18 +103,19 @@ class PartnershipController extends Controller
     public function show(string $slug)
     {
         try {
-            $partnership = $this->partnership->getPartnership($slug);
-
+            $partnership = $this->partnership->findPartnership($slug);
             return response()->json([
                 'status' => 'success',
                 'data' => $partnership,
-            ], 200);
+                'status_us_code' => 200
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage(),
+                'status_code' => 500
+            ]);
         }
     }
 

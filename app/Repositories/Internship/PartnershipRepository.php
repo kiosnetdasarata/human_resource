@@ -18,9 +18,11 @@ class PartnershipRepository implements PartnershipRepositoryInterface
 
     public function find($id)
     {
-        return $this->partnership->with(['filePartnership' => function ($query) {
-            $query->latest();
-        }])->where('id', $id)->firstOrFail();
+        return $this->partnership->with(['filePartnership' => fn ($query) =>
+            $query->where('is_expired', 0)
+                  ->where('date_expired', '>', now())
+                  ->first()
+        ])->where('id', $id)->firstOrFail();
     }
 
     public function getInternship($id, $status)
