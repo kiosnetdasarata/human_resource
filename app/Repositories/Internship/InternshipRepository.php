@@ -28,9 +28,7 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->internship->with(['internshipContract' => function ($query) {
-            $query->latest();
-        }])->where('id', $uuid)->first();
+        return $this->internship->with('internshipContract')->where('id', $uuid)->first();
     }
 
     public function create($request)
@@ -49,5 +47,3 @@ class InternshipRepository implements InternshipRepositoryInterface
     }
 
 }
-
-?>

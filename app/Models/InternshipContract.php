@@ -20,6 +20,7 @@ class InternshipContract extends Model
         'divisi_internship',
         'role_internship',
         'durasi_kontrak',
+        'is_expired',
         'date_start',
         'date_expired',
     ];

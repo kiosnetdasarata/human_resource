@@ -27,7 +27,7 @@ class UpdateInternshipRequest extends FormRequest
         $internship = $this->route('internship');
         return [
             'nama_lengkap' => 'string',
-            'no_tlpn' => 'min:10|max:15|unique:internships,no_telp,'.$internship.',id',
+            'no_tlpn' => 'min:10|max:15|unique:internships,no_tlpn,'.$internship.',id',
             'email' => 'email|unique:internships,email,'.$internship.',id',
             'alamat' => 'string',
             'link_sosmed' => ['url', new SocialMediaLink],

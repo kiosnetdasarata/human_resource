@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Internship;
 use Illuminate\Http\Request;
 use App\Services\InternshipService;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\InternshipContract\StoreIntershipContractRequest;
 use App\Http\Requests\InternshipContract\UpdateIntershipContractRequest;
 
@@ -61,11 +62,11 @@ class InternshipContractController extends Controller
     public function show($id)
     {
         try {
-            $internshipContract = $this->internshipService->getinternshipContract($id);
-
+            $data = $this->internshipService->getinternshipContract($id);
+            if (!$data) throw new ModelNotFoundException('kontrak tidak ditemukan atau kadaluarsa', 404);
             return response()->json([
                 'status' => 'success',
-                'data' => $internshipContract,
+                'data' => $data,
             ], 200);
 
         } catch (\Exception $e) {

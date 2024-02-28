@@ -42,6 +42,7 @@ class InternshipController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'input' => $request->validated(),
+                'trace' => $e->getTrace(),
                 'status_code' => 500,
             ]);
         }

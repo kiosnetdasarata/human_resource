@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\PartnershipService;
 use App\Http\Requests\Partnership\StoreFilePartnershipRequest;
 use App\Http\Requests\Partnership\UpdateFilePartnershipRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class FilePartnershipController extends Controller
 {
@@ -19,17 +20,22 @@ class FilePartnershipController extends Controller
     {
         try {
             $data = $this->filePartnership->getFilePartnerships($IdMitra);
-            
+            if(!count($data)) throw new ModelNotFoundException();
             return response()->json([
                 'status' => 'success',
                 'data' => $data,
                 'status_code' => 200,
             ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'status_code' => 404,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
                 'status_code' => 500,
             ]);
         }
@@ -47,12 +53,20 @@ class FilePartnershipController extends Controller
                 'status' => 'success',
                 'status_code' => 200,
             ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'input' => $request->validated(),
+                'status_code' => 404,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
                 'input' => $request->validated(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+                'status_code' => 500,
             ]);
         }
     }
@@ -64,18 +78,22 @@ class FilePartnershipController extends Controller
     {
         try {
             $data = $this->filePartnership->getFilePartnership($mitraId);
-            
             return response()->json([
                 'status' => 'success',
                 'data' => $data,
                 'status_code' => 200,
             ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'status_code' => 404,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),                
-                'trace' => $e->getTrace(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
+                'message' => $e->getMessage(),
+                'status_code' => 500,
             ]);
         }
     }
@@ -91,6 +109,13 @@ class FilePartnershipController extends Controller
             return response()->json([
                 'status' => 'success',
                 'status_code' => 200
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'input' => $request->validated(),
+                'status_code' => 404,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -115,6 +140,12 @@ class FilePartnershipController extends Controller
             //     'status_code' => 200,
             // ]);
 
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage() ?? 'data not found',
+                'status_code' => 404,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

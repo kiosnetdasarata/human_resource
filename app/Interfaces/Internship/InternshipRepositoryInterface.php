@@ -14,5 +14,3 @@ interface InternshipRepositoryInterface
     public function update(Internship $internship, $request);
     public function delete(Internship $internship);
 }
-
-?>
