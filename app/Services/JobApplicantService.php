@@ -38,7 +38,14 @@ class JobApplicantService
     {
         $data = $this->jobApplicant->search($key, $val);
         if (count($data)) return $data;
-        throw new ModelNotFoundException('data tidak ditemukan',404);
+        else throw new ModelNotFoundException('data tidak ditemukan',404);
+    }
+
+    public function getByVacancy($id)
+    {
+        $data = $this->jobVacancy->getJobApplicants($id);
+        if (count($data)) return $data;
+        else throw new ModelNotFoundException('data tidak ditemukan',404);
     }
 
     public function create($request)
@@ -101,9 +108,6 @@ class JobApplicantService
                 throw new \Exception ('status jobApplicant tidak valid', 422);
             } elseif ($status == 'Lolos' && $jobApplicant->hr_point_id == null) {
                 throw new \Exception ('hr point dari jobApplicant tidak ditemukan', 404);
-            }             
-            if ($status == 'Keluar') {
-                if ($jobApplicant->interviewPoint != null) $this->interviewPoint->delete($jobApplicant->interviewPoint);
             }
             
             $this->update($jobApplicant, ['status' => $status]);

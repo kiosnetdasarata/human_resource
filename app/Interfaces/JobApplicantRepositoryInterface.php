@@ -15,5 +15,3 @@ interface JobApplicantRepositoryInterface
     public function update(JobApplicant $traineeship, $request);
     public function delete(JobApplicant $traineeship);
 }
-
-?>

@@ -15,7 +15,7 @@ class UpdateJobApplicantRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->method('patch');
+        return true;
     }
 
     /**

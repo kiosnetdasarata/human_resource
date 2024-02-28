@@ -11,17 +11,35 @@ class ArchiveJobApplicantRepository implements ArchiveJobApplicantRepositoryInte
     
     public function getAllJobApplicant()
     {
-        return $this->archiveJobApplicant->where('is_intern', 0)->get();
+        return $this->archiveJobApplicant->get();
     }
 
     public function getAllTranieeship()
     {
-        return $this->archiveJobApplicant->where('is_intern', 1)->get();
+        return $this->archiveJobApplicant->get();
     }
+
+    public function getTraineeshipByJobVacancy($vacancyId)
+    {
+        return $this->archiveJobApplicant
+                    ->where('is_intern', 1)
+                    ->where('vacancy_id', $vacancyId)
+                    ->get();
+    }
+
+    public function getJobApplicantByJobVacancy($vacancyId)
+    {
+        return $this->archiveJobApplicant
+                    ->where('is_intern', 0)
+                    ->where('vacancy_id', $vacancyId)
+                    ->get();
+    }
+
     public function find($id)
     {
         return $this->archiveJobApplicant->where('id', $id)->firstOrFail();
     }
+
     public function create($request)
     {
         return $this->archiveJobApplicant->create($request);

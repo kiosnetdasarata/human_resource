@@ -29,8 +29,13 @@ class ArchiveJobApplicant extends Model
     ];
     protected $guard = ['id'];
 
-    public function jobVacancy(): BelongsTo
+    public function jobApplicant()
     {
-        return $this->belongsTo(JobVacancy::class, 'vacancy_id');
+        return $this->where('is_intern', 0);
+    }
+
+    public function traineeship()
+    {
+        return $this->where('is_intern', 0);
     }
 }
