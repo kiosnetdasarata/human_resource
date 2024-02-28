@@ -43,7 +43,12 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 // Route get branch
 Route::get('/branchs', BranchController::class);
 //Route JobVacancy
-Route::get('job-vacancy/role', [JobVacancyController::class, 'role']);
+Route::get('/job-vacancy/{id}/job-aplicant', [JobApplicantController::class, 'getByJobVacancy']);
+Route::get('/job-vacancy/{id}/job-aplicant/archive', [ArchiveApplicantController::class, 'getJobApplicant']);
+Route::get('/job-vacancy/{id}/traineeship', [TraineeshipController::class, 'getByJobVacancy']);
+Route::get('/job-vacancy/{id}/traineeship/archive', [ArchiveApplicantController::class, 'getTraineeship']);
+
+Route::get('/job-vacancy/role', [JobVacancyController::class, 'role']);
 Route::apiResource('job-vacancy', JobVacancyController::class);
 //Route Zone
 Route::controller(ZoneController::class)->prefix('zone')->group(function() {
@@ -69,6 +74,7 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 
 //Punya Al, form 3 pake updatenya employee resource ln.61
 Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
+Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
 Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
 Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
 Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
@@ -82,9 +88,9 @@ Route::apiResource('technician', TechnicianController::class)->except(['store', 
 
 Route::get('/aplicant/archive/{id}', [ArchiveApplicantController::class, 'find']);
 Route::get('/job-aplicant/status/{status}', [JobApplicantController::class, 'find']);
-Route::get('/job-aplicant/archive', [ArchiveApplicantController::class, 'getApplicant']);
-Route::apiResource('job-aplicant', JobApplicantController::class);
+Route::get('/job-aplicant/archive', [ArchiveApplicantController::class, 'getJobApplicant']);
 Route::patch('job-aplicant/{id}/update-status', [JobApplicantController::class, 'changeStatus']);
+Route::apiResource('job-aplicant', JobApplicantController::class);
 
 //Punya Aul
 Route::get('/traineeship/archive', [ArchiveApplicantController::class, 'getTraineeship']);
@@ -95,9 +101,11 @@ Route::apiResource('internship', InternshipController::class)->except(['store'])
 Route::get('/internship/{idInternship}/contract/history', [InternshipContractController::class, 'index']);
 Route::apiSingleton('internship.contract', InternshipContractController::class)->creatable()->except('destroy');
 
+
+Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::class, 'index']);
+Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
 Route::get('/partnership/{id}/{status}', [PartnershipController::class, 'findInternship']);
 Route::get('/partnership/{id}/{status}/archive', [PartnershipController::class, 'findInternshipArchive']);
-Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::class, 'index']);
 Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
 Route::apiResource('partnership', PartnershipController::class)->except('destroy');
 
