@@ -206,7 +206,10 @@ class InternshipService
         
         if (isset($internship['supervisor']) && $this->employee->find($internship['supervisor'], 'nip') == null)
             throw new \Exception('supervisor tidak ditemukan atau bukan karyawan aktif', 404);
-        else return $this->internship->update($old, $internship->all());
+        else {
+            $this->internship->update($old, $internship->all());
+            return $this->findInternship($uuid);
+        }
     }
 
     public function deleteInternship($uuid)

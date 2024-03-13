@@ -28,7 +28,7 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->internship->with('internshipContract')->where('id', $uuid)->first();
+        return $this->internship->with(['role', 'partnership', 'internshipContract'])->where('id', $uuid)->first();
     }
 
     public function create($request)

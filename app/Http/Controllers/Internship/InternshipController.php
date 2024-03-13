@@ -75,11 +75,12 @@ class InternshipController extends Controller
     public function update(UpdateInternshipRequest $request, string $uuid)
     {
         try {
-            $this->internshipService->updateInternship($uuid, $request->validated());
+            $data = $this->internshipService->updateInternship($uuid, $request->validated());
 
             return response()->json([
                 'status' => 'success',
-                'status_code' => 200
+                'data' => $data,
+                'status_code' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
