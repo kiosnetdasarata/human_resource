@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\FileHelper;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,8 @@ class EmployeeService
         private UserRepositoryInterface $user,
         private EmployeeArchiveRepositoryInterface $employeeArchive,
         private EmployeeContractRepositoryInterface $employeeContract,
-        private EmployeeEducationRepositoryInterface $employeeEducation
+        private EmployeeEducationRepositoryInterface $employeeEducation,
+        private FileHelper $file,
     )
     {}
 
@@ -100,7 +102,7 @@ class EmployeeService
                 'id'            => Uuid::uuid4()->getHex(),
                 'nip'           => $nip,
                 'slug'          => Str::slug($request['nama'], '_'),
-                'foto_profil'   => uploadToGCS($request['foto_profil'], $nip.'_cv.pdf','employee/'.$nip),
+                'foto_profil'   => $this->file->uploadToGCS($request['foto_profil'], $nip.'_cv.pdf','employee/'.$nip),
             ]);
 
             $this->employee->create($data->all());
@@ -144,7 +146,7 @@ class EmployeeService
                 }
             }
             if ($employee->has('foto_profil')) {
-                $employee->put('foto_profil', uploadToGCS($employee['foto_profil'], $old['nip'].'_cv','employee/file_cv'));
+                $employee->put('foto_profil', $this->file->uploadToGCS($employee['foto_profil'], $old['nip'].'_cv','employee/file_cv'));
             }
 
             $this->employee->update($old, $employee->all());
@@ -183,9 +185,9 @@ class EmployeeService
             collect($request)->merge([
                 'id'        => Uuid::uuid4()->getHex(),
                 'nip_id'    => $request['nip'],
-                'foto_ktp'  => uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'),
-                'foto_kk'   => uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'),
-                'file_cv'   => uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'),
+                'foto_ktp'  => $this->file->uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'),
+                'foto_kk'   => $this->file->uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'),
+                'file_cv'   => $this->file->uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'),
             ])->all()
         );
     }
@@ -195,13 +197,13 @@ class EmployeeService
         $old = $this->findEmployeePersonal($id)->employeeCI;
         $employee = collect($request)->diffAssoc($old);
         if ($employee->has('foto_ktp')) {
-            $employee->put('foto_ktp', uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'));
+            $employee->put('foto_ktp', $this->file->uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'));
         }
         if ($employee->has('foto_kk')) {
-            $employee->put('foto_kk', uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'));
+            $employee->put('foto_kk', $this->file->uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'));
         }
         if ($employee->has('file_cv')) {
-            $employee->put('file_cv', uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'));
+            $employee->put('file_cv', $this->file->uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'));
         }
         $this->employeeCI->update($old, $employee->all());
     }
@@ -227,7 +229,7 @@ class EmployeeService
             $data = collect($request)->merge([
                 'id'            => Uuid::uuid4()->getHex(),
                 'nip_id'        => $employee->nip,
-                'file_terms'    => uploadToGCS($request['file_terms'],$employee->nip.'_file_terms_'.$request['start_kontrak'],'employee/file_terms'),
+                'file_terms'    => $this->file->uploadToGCS($request['file_terms'],$employee->nip.'_file_terms_'.$request['start_kontrak'],'employee/file_terms'),
                 'kontrak_ke'    => (count($this->employeeContract->getAll($employee->nip)) + 1),
             ]);
             
@@ -241,7 +243,7 @@ class EmployeeService
         return DB::transaction(function () use ($id, $request) {
             $data = collect($request)->diffAssoc($this->findEmployeeContract($id));
             if ($data->has('file_terms')) {
-                $data->put('file_terms', uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
+                $data->put('file_terms', $this->file->uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
             }
             $this->employeeContract->update($id, $data->all());
         });

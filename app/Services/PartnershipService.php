@@ -2,9 +2,9 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 
@@ -13,6 +13,7 @@ class PartnershipService
     public function __construct(
         private FilePartnershipRepositoryInterface $filePartnership,
         private PartnershipRepositoryInterface $partnership,
+        private FileHelper $file,
         )
     {
     }
@@ -85,8 +86,8 @@ class PartnershipService
             $filePartnership = collect($request)->merge([
                 'mitra_id'      => $partnership->id,
                 'date_expired'  => $dateExpired,
-                'file_mou'      => uploadToGCS($request['file_mou'],$nama.'file_mou','partnership/'. $nama),
-                'file_moa'      => uploadToGCS($request['file_moa'],$nama.'file_moa','partnership/'. $nama),
+                'file_mou'      => $this->file->uploadToGCS($request['file_mou'],$nama.'file_mou','partnership/'. $nama),
+                'file_moa'      => $this->file->uploadToGCS($request['file_moa'],$nama.'file_moa','partnership/'. $nama),
                 'is_expired'    => $dateExpired < now() ? 1 : 0,
             ]);
 

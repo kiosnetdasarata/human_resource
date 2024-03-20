@@ -3,19 +3,22 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\JobApplicantRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 
 class JobApplicantService
 {
     public function __construct(
         private JobApplicantRepositoryInterface $jobApplicant,
         private InterviewPointRepositoryInterface $interviewPoint,
-        private JobVacancyRepositoryInterface $jobVacancy) 
+        private JobVacancyRepositoryInterface $jobVacancy,
+        private FileHelper $file,
+        )
     {
     }
 
@@ -60,7 +63,7 @@ class JobApplicantService
         $slug = $this->generateSlug($request['nama_lengkap']);
         $Applicant = collect($request)->merge([
             'nama_lengkap' => Str::title($request['nama_lengkap']),
-            'file_cv' => uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv' , 'Applicant/file_cv'),
+            'file_cv' => $this->file->uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv' , 'Applicant/file_cv'),
             'date' => now(),
             'slug' => $slug,
             'role_id' => $jobVacancy['role_id']
@@ -91,7 +94,7 @@ class JobApplicantService
                 $jobApplicant->put('slug', $this->generateSlug($request['nama_lengkap']));
             }
             if (isset($jobApplicant['file_cv'])) {
-                $jobApplicant->put('file_cv', uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'Applicant/file_cv'));
+                $jobApplicant->put('file_cv', $this->file->uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'Applicant/file_cv'));
             }
             $this->jobApplicant->update($old, $jobApplicant->all());
         });

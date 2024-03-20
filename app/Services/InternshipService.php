@@ -3,8 +3,10 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
+use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Models\ArchiveJobApplicant;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
@@ -14,7 +16,6 @@ use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
-use App\Models\ArchiveJobApplicant;
 
 class InternshipService
 {
@@ -27,7 +28,8 @@ class InternshipService
         private PartnershipRepositoryInterface $partnership,
         private InterviewPointRepositoryInterface $interviewPoint,
         private EmployeeRepositoryInterface $employee,
-        private JobVacancyRepositoryInterface $jobVacancy
+        private JobVacancyRepositoryInterface $jobVacancy,
+        private FileHelper $file,
         )
     {
     }
@@ -65,7 +67,7 @@ class InternshipService
             'nama_lengkap'      => Str::title($request['nama_lengkap']),
             'slug'              => $slug,
             'tanggal_lamaran'   => now()->format('Y-m-d'),
-            'file_cv'           => uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv','traineeship/cv')
+            'file_cv'           => $this->file->uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv','traineeship/cv')
         ]);
 
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
@@ -116,7 +118,7 @@ class InternshipService
                 $jobApplicant->put('nama_lengkap', Str::title($jobApplicant['nama_lengkap']))->put('slug', $this->generateTraineeshipSlug($jobApplicant['nama_lengkap']));
             }
             if (isset($jobApplicant['file_cv'])) {
-                $link = uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'traineeship/file_cv');
+                $link = $this->file->uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'traineeship/file_cv');
                 $jobApplicant->put('file_cv', $link);
             }
             

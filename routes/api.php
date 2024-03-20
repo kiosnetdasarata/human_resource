@@ -122,10 +122,6 @@ Route::middleware(['jwt:api'
     Route::post('logout', LogoutController::class);    
 });
 
-Route::post('/test-file', function(Request $request) {
-    dd(uploadToGCS($request->file,null, '/test'));
-});
-
 Route::middleware('guest:api')->group(function() {
     Route::post('login', LoginController::class);
     Route::post('register', RegisterController::class);
