@@ -7,6 +7,7 @@ interface JobVacancyRepositoryInterface
     public function getAll();
     public function getRole();
     public function find($id);
+    public function findMap($id);
     public function getTraineeships($id);
     public function getJobApplicants($id);
     public function findSameRoleOnBranch($roleId, $branchId);

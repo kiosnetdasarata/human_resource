@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Dotenv\Exception\ValidationException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,11 +58,9 @@ class JobVacancy extends Model
         return $this->hasMany(JobApplicant::class, 'vacancy_id');
     }
 
-    public function traineeship(): HasMany
+    public function traineeship() : ?HasMany
     {
-        if ($this->is_intern)
-            return $this->hasMany(Traineeship::class, 'vacancy_id');
-        else throw new \Exception('vacancy ini bukan untuk traineeship');
+        return $this->hasMany(Traineeship::class, 'vacancy_id');
     }
 }
 

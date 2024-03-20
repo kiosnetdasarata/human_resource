@@ -29,7 +29,7 @@ class JobVacancyService
 
     public function find($id)
     {
-        return $this->jobVacancy->find($id);
+        return $this->jobVacancy->findMap($id);
     }
 
     public function getApplicant($id)
@@ -103,7 +103,7 @@ class JobVacancyService
                     $this->jobApplicant->delete($applicant);
                 }
             }
-            if ($jobVacancy->traineeship->isNotEmpty()) {
+            if ($jobVacancy->is_intern) {
                 foreach ($jobVacancy->traineeship as $applicant) {                    
                     $data = collect($applicant)->merge([
                         'tanggal_lamaran' => $applicant->created_at,
