@@ -73,15 +73,17 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
 
 //Punya Al, form 3 pake updatenya employee resource ln.61
-Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
-Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
-Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
-Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
-Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
-Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
-Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
-Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
-Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);
+Route::middleware(['jwt:api'])->group(function() {
+    Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
+    Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
+    Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
+    Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
+    Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
+    Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
+    Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
+    Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
+    Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);
+});
 
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
@@ -112,10 +114,10 @@ Route::apiResource('partnership', PartnershipController::class)->except('destroy
 Route::apiSingleton('{ApplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
 
-Route::middleware(['jwt:api', 'hr:api'
+Route::middleware(['jwt:api'
         ])->group(function() {
-    Route::get('/hae', function() {
-        dd('hae');
+    Route::get('/get-current-user', function() {
+        return response()->json(['user' => auth()->user()->employee]);
     });
     Route::post('logout', LogoutController::class);    
 });

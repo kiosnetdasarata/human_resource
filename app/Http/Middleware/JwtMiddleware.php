@@ -3,16 +3,16 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Models\User;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use Illuminate\Http\Request;
+use App\Helpers\ResponseHelper;
 use Carbon\Exceptions\Exception;
-use Firebase\JWT\ExpiredException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpFoundation\Response;
 
 class JwtMiddleware
 {
+    public function __construct(private ResponseHelper $response) { }
     /**
      * Handle an incoming request.
      *
@@ -20,28 +20,11 @@ class JwtMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->header('token') ?? $request->query('token');
-        if (!$token) {
-            return response()->json([
-                'error' => 'Token not provded.'
-            ], 401);
-        }
-
         try {
-            $credentials = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-        } catch (ExpiredException $e) {
-            return response()->json([
-                'error' => 'Provided token is expired.'
-            ], 400);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'An error while decoding token.'
-            ], 400);
+            $token = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            return $this->response->error($e, $request->input());
         }
-
-        $user = User::find($credentials->sub);
-        $request->user = $user;
-        
         return $next($request);
     }
 }
