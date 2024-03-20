@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employee;
 
+use App\Models\Employee;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -14,7 +15,8 @@ class UpdateEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->method('patch');
+        $employee = Employee::find($this->route('employee'));
+        return $this->method() == 'PATCH' && $employee && $this->user()->can('update', $employee);
     }
 
     /**
@@ -43,13 +45,13 @@ class UpdateEmployeeRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(
-            response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors(),
-                'input' => $this->input(),
-                'status_code' => 422,
-            ])
-        );
+        // throw new HttpResponseException(
+        //     response()->json([
+        //         'status' => 'error',
+        //         'errors' => $validator->errors(),
+        //         'input' => $this->input(),
+        //         'status_code' => 422,
+        //     ])
+        // );
     }
 }

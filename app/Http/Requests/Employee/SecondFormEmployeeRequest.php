@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employee;
 
+use App\Models\Employee;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -14,7 +15,8 @@ class SecondFormEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $employee = Employee::find($this->route('employee'));
+        return $this->isMethod('PATCH') && $employee && $this->user()->can('update', $employee);
     }
 
     /**

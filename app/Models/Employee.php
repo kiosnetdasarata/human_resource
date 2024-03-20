@@ -69,19 +69,19 @@ class Employee extends Model
         return $this->belongsTo(Village::class, 'dusun_id');
     }
 
-    public function regency(): BelongsTo
+    public function district()
     {
-        return $this->village()->regency();
+        return $this->village->district();
     }
 
-    public function district(): BelongsTo
+    public function regency(): BelongsTo
     {
-        return $this->regency()->district();
+        return $this->district->regency();
     }
 
     public function province(): BelongsTo
     {
-        return $this->district()->province();
+        return $this->regency->province();
     }
     
     public function contractHistory(): HasMany

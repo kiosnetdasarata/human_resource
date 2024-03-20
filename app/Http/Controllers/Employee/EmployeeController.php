@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Employee;
 
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Helpers\ResponseHelper;
 use App\Services\EmployeeService;
-use Illuminate\Routing\Controller;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
+use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\ItemNotFoundException;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Requests\Employee\FirstFormEmployeeRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -15,9 +18,9 @@ use App\Http\Requests\Employee\SecondFormEmployeeRequest;
 class EmployeeController extends Controller
 {
     public function __construct(
-        private EmployeeService $employeeService)
-    {
-    }
+        private EmployeeService $employeeService,
+        private ResponseHelper $response)
+    { }
     
     /**
      * Display a listing of the resource.
@@ -25,45 +28,28 @@ class EmployeeController extends Controller
     public function index()
     { 
         try {
+            $this->authorize('view-any', Employee::class);
             $data = $this->employeeService->getAllEmployeePersonal();
-            if (count($data) <= 0) {
-                throw new ModelNotFoundException('data tidak ditemukan', 404);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
             }
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->employeeService->getAllEmployeePersonal(),
-                'status_code' => 200,
-            ]);
+
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
     public function getArchive()
     {
         try {
             $data = $this->employeeService->getEmployeeArchive();
-            if (!count($data)) throw new ModelNotFoundException('job applicant tidak ditemukan');
-            else return response()->json([
-                'status' => 'success',
-                'data' => $data,
-                'status_code' => 200,
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage() ?? 'data not found',
-                'status_code' => 404,
-            ]);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
+            }
+            
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => 404,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -72,25 +58,11 @@ class EmployeeController extends Controller
      */
     public function storeFormOne(FirstFormEmployeeRequest $request)
     {
-        try {
+        try {            
             $this->employeeService->firstForm($request->validated());
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage() ?? 'data not found',
-                'input' => $request->validated(),
-                'status_code' => 404,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -98,17 +70,9 @@ class EmployeeController extends Controller
     {
         try {
             $this->employeeService->secondForm($uuid, $request->validated());
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -118,21 +82,14 @@ class EmployeeController extends Controller
     public function show($id)
     {
         try {
-            $employee = $this->employeeService->findEmployeePersonal($id);
-            if ($employee == null) {
-                throw new ModelNotFoundException('data tidak ditemukan', 404);
-            }
-            return response()->json([
-                'status' => 'success',
-                'data' => $employee,
-                'status_code' => 200,
-            ]);
+            $data = $this->employeeService->findEmployeePersonal($id);
+            if (!$data) { 
+                throw new ModelNotFoundException('Data not found');
+            } else $this->authorize('view', $data);
+
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -143,37 +100,10 @@ class EmployeeController extends Controller
     {
         try {
             $this->employeeService->updateEmployee($uuid, $request->validated());
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'trace' => $e->getTrace(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
-    }
-
-    public function showEmployeeDetails($uuid)
-    {
-        try {           
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->employeeService->findEmployeePersonal($uuid)->employeeCI,
-                'status_code' => 200,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
-            ]);
-        }
-
     }
 
     /**
@@ -181,21 +111,15 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request, $uuid)
     {
-        try {
+        try {            
             $data = Validator::make($request->all(), ['status_terminate' => 'required']);
-            if ($data->fails()) throw new \Exception($data->errors()->first());
-            
+            if ($data->fails()) throw new ValidationException($data->errors()->first());
+
+            $this->authorize('delete', Employee::class);
             $this->employeeService->deleteEmployeePersonal($data->validated(), $uuid);
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $data->validated());
         }
     }
 }

@@ -21,8 +21,8 @@ class EmployeeContractController extends Controller
     {
         try {
             $data = $this->employeeService->getEmployeeContracts($id);
-            if ($data->isEmpty()) {
-                throw new ModelNotFoundException('data tidak ditemukan', 404);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
             }
             return response()->json([
                 'success' => true,

@@ -47,8 +47,7 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
     }
     
     public function delete($employeeContract)
-    {        
-        if ($employeeContract->end_contract > now()) return $employeeContract->delete();
-        else throw new \Exception('tidak bisa menghapus karena kontrak belum habis',422);
+    {
+        return $employeeContract->delete();
     }
 }
