@@ -14,7 +14,7 @@ class UpdateDivisionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->isMethod('patch');;
+        return $this->isMethod('PATCH');
     }
 
     /**
@@ -26,11 +26,11 @@ class UpdateDivisionRequest extends FormRequest
     {
         $division = $this->route('division');
         return [
-            'nama_divisi' => 'unique:divisions,nama_divisi,'.$division.',slug',
-            'kode_divisi' => 'string|unique:divisions,kode_divisi,'.$division.',slug',
+            'nama_divisi' => 'unique:divisions,nama_divisi,'.$division.',id',
+            'kode_divisi' => 'string|unique:divisions,kode_divisi,'.$division.',id',
             'manager_divisi' => 'exists:employee_personal_informations,nip',
-            'email' => 'email|unique:divisions,email,'.$division.',slug',
-            'no_tlpn' => 'numeric|digits_between:10,15|unique:divisions,no_tlpn,'.$division.',slug',
+            'email' => 'email|unique:divisions,email,'.$division.',id',
+            'no_tlpn' => 'numeric|digits_between:10,15|unique:divisions,no_tlpn,'.$division.',id',
             'status' => 'string',
         ];
     }

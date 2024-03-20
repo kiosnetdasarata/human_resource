@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\ItemNotFoundException;
 use App\Interfaces\DivisionRepositoryInterface;
 use App\Http\Requests\Division\StoreDivisionRequest;
 use App\Http\Requests\Division\UpdateDivisionRequest;
