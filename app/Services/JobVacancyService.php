@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
-use App\Interfaces\Internship\TraineeshipRepositoryInterface;
-use App\Interfaces\JobApplicantRepositoryInterface;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Dotenv\Exception\ValidationException;
 use App\Interfaces\JobVacancyRepositoryInterface;
+use App\Interfaces\JobApplicantRepositoryInterface;
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
+use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 
 class JobVacancyService
 {
@@ -72,9 +73,17 @@ class JobVacancyService
                 'slug' => Str::slug($request['title'], '_'),
             ]);
         }
+        if (isset($request['branch_company_id'])) {
+            if (!isset($request['role_id'])) {
+                $same = $this->jobVacancy->findSameRoleOnBranch($jobVacancy->role_id, $request['branch_company_id']);
+                if ($same) throw new ValidationException('Duplikat role');
+            }
+        }
+
         if (isset($request['role_id'])) {
-            $same = $this->jobVacancy->findSameRoleOnBranch($request['role_id'], $request['branch_company_id']);
-            if ($same) throw new \Exception('duplikat role');
+            $branchId = $request['branch_company_id'] ?? $jobVacancy->branch_company_id;
+            $same = $this->jobVacancy->findSameRoleOnBranch($request['role_id'], $branchId);
+            if ($same) throw new ValidationException('Duplikat role');
         }
         return DB::transaction(function () use ($jobVacancy,$request) {
             $this->jobVacancy->update($jobVacancy,$request->all());
