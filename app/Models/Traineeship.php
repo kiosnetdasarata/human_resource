@@ -6,9 +6,10 @@ use App\Models\Role;
 use App\Models\Division;
 use App\Models\InterviewPoint;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Traineeship extends Model
 {
@@ -51,5 +52,10 @@ class Traineeship extends Model
     public function interviewPoint(): BelongsTo
     {
         return $this->belongsTo(InterviewPoint::class, 'hr_point_id');
+    }
+
+    protected function getRoleIdAttribute()
+    {
+        return $this->jobVacancy->role_id;
     }
 }

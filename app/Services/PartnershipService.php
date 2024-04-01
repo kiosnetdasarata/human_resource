@@ -5,6 +5,8 @@ use Carbon\Carbon;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Dotenv\Exception\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 
@@ -14,75 +16,92 @@ class PartnershipService
         private FilePartnershipRepositoryInterface $filePartnership,
         private PartnershipRepositoryInterface $partnership,
         private FileHelper $file,
-        )
+    )
     {
+        //
     }
 
-    public function getAllPartnership()
+    public function get()
     {
         return $this->partnership->getAll();
     }
 
-    public function findPartnership($id)
+    public function find($id)
     {
         return $this->partnership->find($id);
     }
 
-    public function getInternship($id,$status)
+    public function getInternship($id, $status)
     {
+        if ($status != 'magang' && $status != 'internship') {
+            throw new ModelNotFoundException();
+        }
+        
         $status = Str::title($status);
         return $this->partnership->getInternship($id,$status);
     }
 
     public function getInternshipArchive($id,$status)
     {
-        return $this->partnership->getInternshipArchive($id,$status);
+        if ($status != 'magang' && $status != 'internship') {
+            throw new ModelNotFoundException();
+        }
+        
+        $data =  $this->partnership->getInternshipArchive($id,$status);
+        if (!$data) throw new ModelNotFoundException();
+        return $data;
     }
 
-    public function createPartnership($request)
+    public function create($request)
     {
         $data = collect($request)->put('nama_mitra', Str::title($request['nama_mitra']))->all();
         return $this->partnership->create($data);
     }
 
-    public function updatePartnership($id, $request)
+    public function update($id, $request)
     {
-        $old = $this->findPartnership($id);
+        $old = $this->find($id);
         $data = collect($request)->diffAssoc($old)
                 ->put('nama_mitra', Str::title($request['nama_mitra']))->all();
         return $this->partnership->update($old, $data);
     }
 
-    public function deletePartnership($partnership)
+    public function delete($partnership)
     {
         return $this->partnership->delete($partnership);
     }
 
-    public function getFilePartnership($idParnership)
+    public function findFile($idParnership)
     {
-        return $this->filePartnership->find($idParnership);
+        $data = $this->filePartnership->find($idParnership);
+        
+        if (!$data) throw new ModelNotFoundException();
+        return $data;
     }
 
-    public function getFilePartnerships($id)
+    public function getFile($id)
     {
-        return $this->filePartnership->getAll($id);
+        $data = $this->filePartnership->getAll($id);
+        if (!$data) throw new ModelNotFoundException();
+        return $data;
     }
 
-    public function createFilePartnership($idPartnership, $request)
+    public function createFile($idPartnership, $request)
     {
         return DB::transaction(function () use ($idPartnership, $request) {
             if ($request['date_start'] > now()) { 
-                throw new \Exception('date_start tidak boleh tanggal yang akan datang');
+                throw new ValidationException('date_start tidak boleh tanggal yang akan datang');
             }
             
-            $filePartnership = $this->filePartnership->find($idPartnership);
-            if ($filePartnership && $filePartnership->date_expired > now()) {
-                $this->filePartnership->update($filePartnership, ['is_expired' => 1]);
+            $old = $this->filePartnership->find($idPartnership);
+            if ($old && $old->date_expired > now()) {
+                $this->filePartnership->update($old, ['is_expired' => 1]);
             }
 
             $partnership = $this->partnership->find($idPartnership);
             $nama = $partnership->nama_mitra;
             $dateExpired = Carbon::parse($request['date_start'])->addMonths($request['durasi']);
+
             $filePartnership = collect($request)->merge([
                 'mitra_id'      => $partnership->id,
                 'date_expired'  => $dateExpired,
@@ -93,34 +112,23 @@ class PartnershipService
 
             return $this->filePartnership->create($filePartnership->all());
         });
-        
     }
 
-    public function updateFilePartnership($idPartnership, $request)
+    public function updateFile($idPartnership, $request)
     {
         return DB::transaction(function () use ($idPartnership, $request) {
             $old = $this->filePartnership->find($idPartnership);
             $data = collect($request)->diffAssoc($old);
-            if (isset($data['durasi'])) {
-                $dateExpired = Carbon::parse($data['date_start'])->addMonths($data['durasi']);
-                $this->filePartnership->update($old, [
-                    'durasi'        => $data['durasi'],
-                    'date_expired'  => $dateExpired,                    
-                    'is_expired'    => $dateExpired < now() ? 1 : 0,
-                ]);
-            }
-            if (isset($data['date_start'])) {
-                if ($request['date_start'] > now()) { 
-                    throw new \Exception('date_start tidak boleh tanggal yang akan datang');
-                }
-                
-                $dateExpired = Carbon::parse($data['date_start'])->addMonths($old['durasi']);
-                $this->filePartnership->update($old, [
-                    'date_start'    => $data['date_start'],
-                    'date_expired'  => $dateExpired,                    
-                    'is_expired'    => $dateExpired < now() ? 1 : 0,
-                ]);
-            }
+
+            $date_start = isset($data['date_start']) ? $data['date_start'] : $old['date_start'];
+            $durasi_kontrak = isset($data['durasi_kontrak']) ? $data['durasi_kontrak'] : $old['durasi_kontrak'];
+            
+            $date_expired = Carbon::parse($date_start)->addMonths($durasi_kontrak);
+
+            $data->put('date_expired', $date_expired)
+                 ->put('is_expired', $date_expired < now() ? 1 : 0);
+
+            $this->filePartnership->update($old, $data);
         });
     }
 }

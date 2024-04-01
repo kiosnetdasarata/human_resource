@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Requests\JobVacancy\StoreJobVacancyRequest;
 use App\Http\Requests\JobVacancy\UpdateJobVacancyRequest;
-use App\Models\JobVacancy;
 use App\Services\JobVacancyService;
 
 class JobVacancyController extends Controller
 {
-    public function __construct(private JobVacancyService $jobVacancy) 
+    public function __construct(
+        private JobVacancyService $jobVacancy,
+        private ResponseHelper $response
+    ) 
     {
+        //
     }
     /**
      * Display a listing of the resource.
@@ -18,30 +22,18 @@ class JobVacancyController extends Controller
     public function index()
     {
         try{
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->jobVacancy->getAll(),
-            ]);
+            $data = $this->jobVacancy->getAll();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
     public function role() {
         try{
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->jobVacancy->getRole(),
-            ]);
+            $data = $this->jobVacancy->getRole();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -52,17 +44,9 @@ class JobVacancyController extends Controller
     {
         try {
             $this->jobVacancy->create($request->validated());
-
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -72,17 +56,10 @@ class JobVacancyController extends Controller
     public function show(string $id)
     {
         try{
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->jobVacancy->find($id),
-                'status_code' => 200,
-            ]);
+            $data = $this->jobVacancy->find($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -93,16 +70,9 @@ class JobVacancyController extends Controller
     {
         try {            
             $this->jobVacancy->update($id, $request->validated());
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -113,16 +83,9 @@ class JobVacancyController extends Controller
     {
         try {
             $this->jobVacancy->delete($id);
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 }

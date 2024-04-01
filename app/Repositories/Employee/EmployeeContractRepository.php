@@ -20,30 +20,27 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
 
     public function getAll($id)
     {
-        $employee = $this->employee->with('employeeContractHistory')->find($id);
-        return $employee->employeeContractHistory;
+        $employee = $this->employee->findOrFail($id);
+        return $employee->contractHistory;
     }
 
     public function find($id)
     {
-        $employee = $this->employee->with('employeeContract')->find($id);
+        $employee = $this->employee->findOrFail($id);
+        dd($employee->employeeContract);
         return $employee->employeeContract;
     }
     
     public function create($request)
-    {
-        return DB::transaction(function () use ($request) {            
-            $this->employeeContract->create($request);        
-            $this->employeeContractHistory->create($request);
-        });
+    {       
+        $this->employeeContract->create($request);        
+        $this->employeeContractHistory->create($request);
     }
     
     public function update($id, $request)
-    {
-        return DB::transaction(function () use ($id, $request) {            
-            $this->getAll($id)->last()->update($request);
-            $this->find($id)->update($request);
-        });
+    {          
+        $this->getAll($id)->last()->update($request);
+        $this->find($id)->update($request);
     }
     
     public function delete($employeeContract)

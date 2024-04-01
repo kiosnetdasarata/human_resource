@@ -12,5 +12,3 @@ interface EmployeeContractRepositoryInterface
     public function update(EmployeeContract $employeeContract, $request);
     public function delete(EmployeeContract $employeeContract);
 }
-
-?>

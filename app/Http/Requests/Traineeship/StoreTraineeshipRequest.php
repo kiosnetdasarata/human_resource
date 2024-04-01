@@ -33,7 +33,7 @@ class StoreTraineeshipRequest extends FormRequest
             'tanggal_lahir' => 'required|date:Y-m-d',
             'email' => 'required|email|unique:internships,email|unique:employee_personal_informations,email',
             'alamat' => 'required|string',
-            'link_sosmed' => ['required', 'url', new SocialMediaLink], //wajib pake https://www.
+            'link_sosmed' => ['required', 'url', 'regex:/^(https?:\/\/)?(www\.)?(instagram\.com|linkedin\.com)'], //wajib pake https://www.
             'is_kuliah' => 'required|in:0,1',
             'nama_instansi' => 'required|string',
             'semester' => 'required_if:is_kuliah,1|numeric|max:20',

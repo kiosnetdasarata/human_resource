@@ -2,81 +2,34 @@
 
 namespace App\Services;
 
-use App\Helpers\FileHelper;
 use Ramsey\Uuid\Uuid;
+use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
+use Google\Cloud\Core\Exception\ConflictException;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
-use App\Interfaces\Employee\EmployeeContractHistoryRepositoryInterface;
-use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
-use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
-use Dotenv\Exception\ValidationException;
-use Google\Cloud\Core\Exception\ConflictException;
 
 class EmployeeService
 {
     public function __construct(
         private EmployeeRepositoryInterface $employee,
-        private EmployeeCIRepositoryInterface $employeeCI,   
-        private RoleRepositoryInterface $role,
+        private EmployeeCIRepositoryInterface $employeeCI,
         private SalesRepositoryInterface $sales,
         private TechnicianRepositoryInterface $technician,
         private UserRepositoryInterface $user,
         private EmployeeArchiveRepositoryInterface $employeeArchive,
-        private EmployeeContractRepositoryInterface $employeeContract,
-        private EmployeeEducationRepositoryInterface $employeeEducation,
         private FileHelper $file,
+        private EmployeeEducationService $education,
+        private EmployeeContractService $contract,
     )
-    {}
-
-    public function firstForm($request)
-    {
-        return DB::transaction(function ()  use ($request) {
-            $employeePersonal = $this->storeEmployeePersonal($request);
-            
-            $employeePersonal->put('nip_id', $employeePersonal['nip']);
-            $this->storeEmployeeConfidential($employeePersonal->all());
-            
-            $this->employeeEducation->create($employeePersonal->all());
-            
-            $this->user->create([
-                'nip_id'    => $employeePersonal['nip'],
-                'slug'      => $employeePersonal['slug'],
-                'id'        => Uuid::uuid4()->getHex(),
-                'is_active' => 0,
-                'password'  => 'Password1',
-            ]);
-        });
-    }
-
-    public function secondForm($uuid, $request)
-    {
-        return DB::transaction(function () use ($uuid, $request) {
-            $employee = $this->employee->find($uuid);
-            
-            if ($employee->employeeContract) {
-                throw new ConflictException('Data contract is exist. You have already filled out this form');
-            }
-                
-            $this->updateEmployeeConfidential($employee->employeeCI, $request);
-            $this->storeEmployeeContract($uuid, collect($request)->merge(['nip_id' => $employee->nip])->all());
-            $this->user->setIsactive($employee->user(), true);
-        });
-    }
-
-    public function updateEmployee($uuid, $request)
-    {
-        return DB::transaction(function () use ($uuid, $request) {
-            $this->updateEmployeePersonal($uuid, $request);
-            $this->updateEmployeeConfidential($uuid, $request);
-        });
+    { 
+        //
     }
 
     public function getAllEmployeePersonal($withtrashes = false)
@@ -86,239 +39,205 @@ class EmployeeService
 
     public function getEmployeeArchive()
     {
-        return $this->employeeArchive->getAll();
+        $data = $this->employeeArchive->getAll();
+        
+        if (!count($data)) { 
+            throw new ModelNotFoundException('Data not found');
+        } else return $data;
     }
 
     public function findEmployeePersonal($uuid)
     {
-        return $this->employee->show($uuid);
+        $data = $this->employee->show($uuid);
+        
+        if (!$data) { 
+            throw new ModelNotFoundException('Data not found');
+        } else return $data;
     }
 
-    private function storeEmployeePersonal($request)
+    public function firstForm($request)
     {
         return DB::transaction(function ()  use ($request) {
-            $nip = now()->format('ym') . ($request['jenis_kelamin'] == 'Laki-Laki' ? '1' : '0') . count($this->getAllEmployeePersonal(true));
-            $data = collect($request)->merge([                
-                'id'            => Uuid::uuid4()->getHex(),
-                'nip'           => $nip,
-                'slug'          => Str::slug($request['nama'], '_'),
-                'foto_profil'   => $this->file->uploadToGCS($request['foto_profil'], $nip.'_cv.pdf','employee/'.$nip),
-            ]);
+            $employeePersonal = $this->storePersonal($request);
 
-            $this->employee->create($data->all());
-            
-            if ($data['role_id'] == 2) {
-                $this->sales->create([
-                    'id'        => Uuid::uuid4()->getHex(),
-                    'nip_id'    => $data['nip'],
-                    'slug'      => Str::slug($request['nama'], '_'),
-                    'no_tlpn'   => $data['no_tlpn'],
-                    'level_id'  => $data['level_sales_id'],
-                ]);
-            } else if ($data['role_id'] == 3) {
-                $this->technician->create([
-                    'id'        => Uuid::uuid4()->getHex(),
-                    'nip_id'    => $data['nip'],
-                    'slug'      => Str::slug($request['nama'], '_')
-                ]);
-            }
+            $employeePersonal = collect($request)->merge($employeePersonal)->all();
+
+            $this->storeConfidential($employeePersonal);
+            $this->education->store($employeePersonal['id'], $employeePersonal);
+            $this->createUser($employeePersonal);
         });
     }
 
-    public function updateEmployeePersonal($uuid, $request)
+    public function secondForm($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $old = $this->employee->find($uuid);
-            $employee = collect($request)->diffAssoc($old);
-
-            if (isset($employee['nama'])) {
-                $employee = $employee->merge([
-                                'nama'  => Str::title($employee['nama']),
-                                'slug'  => Str::slug($employee['nama']),
-                            ]);
-
-                $this->user->update($old->user, $employee['slug']);
-
-                if (!$old->sales()) {
-                    $this->sales->update($old['nip'], ['slug' => $employee['slug']]);
-                } else if (!$old->technician()) {
-                    $this->technician->update($old['nip'], ['slug' => $employee['slug']]);            
-                }
-            }
-            if ($employee->has('foto_profil')) {
-                $employee->put('foto_profil', $this->file->uploadToGCS($employee['foto_profil'], $old['nip'].'_cv','employee/file_cv'));
-            }
-
-            $this->employee->update($old, $employee->all());
-        });
-    }
-
-    public function deleteEmployeePersonal($request, $uuid)
-    {
-        return DB::transaction(function ()  use ($uuid, $request) {
             $employee = $this->employee->find($uuid);
 
-            $contract = $employee->employeeContract;
-            if (!$contract) {                
-                $this->deleteEmployeeContract($uuid);
+            if ($employee->employeeContract) {
+                throw new ConflictException('Data contract is exist. You have already filled out this form');
             }
-
-            $this->employeeCI->delete($employee->employeeCI);
-            $this->employee->delete($employee);
-            $this->user->setIsactive($employee->user, false);
-
-            $this->employeeArchive->create(
-                collect($employee->toArray())
-                    ->merge($employee->employeeCI->toArray())
-                    ->merge($request)
-                    ->merge([
-                        'divisi_id' => $employee->role->divisi_id,
-                        'tanggal_terminate' => now(),
-                    ])->all()
-            );
-        });
-    }
-
-    private function storeEmployeeConfidential($request)
-    {        
-        $this->employeeCI->create(
-            collect($request)->merge([
-                'id'        => Uuid::uuid4()->getHex(),
-                'nip_id'    => $request['nip'],
-                'foto_ktp'  => $this->file->uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'),
-                'foto_kk'   => $this->file->uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'),
-                'file_cv'   => $this->file->uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'),
-            ])->all()
-        );
-    }
-
-    private function updateEmployeeConfidential($id, $request)
-    {
-        $old = $this->findEmployeePersonal($id)->employeeCI;
-        $employee = collect($request)->diffAssoc($old);
-        if ($employee->has('foto_ktp')) {
-            $employee->put('foto_ktp', $this->file->uploadToGCS($request['foto_ktp'],$request['nip_id'].'_ktp','employee/foto_ktp'));
-        }
-        if ($employee->has('foto_kk')) {
-            $employee->put('foto_kk', $this->file->uploadToGCS($request['foto_kk'],$request['nip_id'].'_kk','employee/foto_kk'));
-        }
-        if ($employee->has('file_cv')) {
-            $employee->put('file_cv', $this->file->uploadToGCS($request['file_cv'],$request['nip_id'].'_cv','employee/file_cv'));
-        }
-        $this->employeeCI->update($old, $employee->all());
-    }
-
-    public function getEmployeeContracts($uuid)
-    {
-        return $this->employeeContract->getAll($uuid);
-    }
-
-    public function findEmployeeContract($uuid)
-    {
-        return $this->employeeContract->find($uuid);
-    }
-
-    public function storeEmployeeContract($uuid, $request)
-    {
-        return DB::transaction(function () use ($request, $uuid) {
-            if ($this->findEmployeeContract($uuid)) {
-                $this->deleteEmployeeContract($uuid);
-            }
-
-            $employee = $this->findEmployeePersonal($uuid);            
-            $data = collect($request)->merge([
-                'id'            => Uuid::uuid4()->getHex(),
-                'nip_id'        => $employee->nip,
-                'file_terms'    => $this->file->uploadToGCS($request['file_terms'],$employee->nip.'_file_terms_'.$request['start_kontrak'],'employee/file_terms'),
-                'kontrak_ke'    => (count($this->employeeContract->getAll($employee->nip)) + 1),
-            ]);
             
-            $this->employeeContract->create($data->all());
+            $this->updateConfidential($employee->employeeCI, $request);
+            $this->contract->storeContract($uuid, $request);            
             $this->user->setIsactive($employee->user, true);
         });
     }
 
-    public function updateEmployeeContract($id, $request)
+    public function update($uuid, $request)
     {
-        return DB::transaction(function () use ($id, $request) {
-            $data = collect($request)->diffAssoc($this->findEmployeeContract($id));
-            if ($data->has('file_terms')) {
-                $data->put('file_terms', $this->file->uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
-            }
-            $this->employeeContract->update($id, $data->all());
+        return DB::transaction(function () use ($uuid, $request) {
+            $employee = $this->employee->find($uuid);
+
+            $this->updatePersonal($employee, $request);
+            $this->updateConfidential($employee->employeeCI, $request);
         });
     }
 
-    public function deleteEmployeeContract($uuid)
+    public function delete($request, $uuid)
     {
-        return DB::transaction(function ()  use ($uuid) {  
-            $contract = $this->findEmployeeContract($uuid);
-            if ($contract->end_contract < now()) {
-                throw new ValidationException('tidak bisa menghapus karena kontrak belum habis');
-            }
-            $this->user->setIsactive($contract->employee->user, false);
-            $this->employeeContract->delete($uuid);
+        return DB::transaction(function ()  use ($uuid, $request) {
+            $employee = $this->employee->find($uuid);
+
+            $this->contract->delete($uuid);
+            $this->employeeCI->delete($employee->employeeCI);
+            $this->employee->delete($employee);            
+            $this->user->setIsactive($employee->user, false);
+            $this->storeArchive($employee, $request);
         });
     }
-    
-    public function getEducations($uuid)
+
+    private function generateNip($jenisKelamin)
     {
-        return $this->employeeEducation->getAll($uuid);
+        $prefix = now()->format('ym') . ($jenisKelamin == 'Laki-Laki' ? '1' : '0');
+        return $prefix . count($this->getAllEmployeePersonal(true));
     }
 
-    public function addEducation($uuid, $request) {
-        if ($request['tahun_lulus'] > date('Y')) {
-            throw new ValidationException('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
-        }
-
-        $history = $this->employeeEducation->getAll($uuid);
-        if (count($history)) {
-            $this->validateEducation($history, $request);
-        }
-        $nip = $this->employee->find($uuid)->nip;
-        return $this->employeeEducation->create(collect($request->all())->put('nip_id',$nip)->all());
+    private function createUser($request)
+    {
+        $data = [
+            'id'        => Uuid::uuid4()->getHex(),
+            'nip_id'    => $request['nip'],
+            'slug'      => $request['slug'],
+            'is_active' => 0,
+            'password'  => 'Password1',
+        ];
+        $this->user->create($data);
     }
 
-    public function findEducation($uuid)
+    private function createSales($employee)
     {
-        return $this->employeeEducation->find($uuid);
-    }
-    
-    public function updateEducation($uuid, $request)
-    {
-        $last = $this->employeeEducation->find($uuid);
-        $request = collect($request)->diffAssoc($last);
-
-        if (isset($request['tahun_lulus']) && $request['tahun_lulus'] > date('Y')) {
-            throw new ValidationException ('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
-        }
-
-        $history = $this->employeeEducation->getAll($uuid);
-        if (isset($request['pendidikan_terakhir']) && count($history)) {
-            $this->validateEducation($history, $request);
-        }
-        $this->employeeEducation->update($uuid, $request->all());
+        $data = [
+            'id'        => Uuid::uuid4()->getHex(),
+            'nip_id'    => $employee['nip'],
+            'slug'      => $employee['slug'],
+            'no_tlpn'   => $employee['no_tlpn'],
+            'level_id'  => $employee['level_sales_id'],
+        ];
+        return $this->sales->create($data);
     }
 
-    private function validateEducation($history, $request)
+    private function createTechnician($employee)
     {
-        foreach ($history as $data) {
-            if ($request['pendidikan_terakhir'] == 'Sarjana') break;
+        $data = [
+            'id'        => Uuid::uuid4()->getHex(),
+            'nip_id'    => $employee['nip'],
+            'slug'      => $employee['slug']
+        ];
+        return $this->technician->create($data);
+    }
 
-            if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
-                throw new ValidationException('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada');
+    private function storePersonal($request)
+    {
+        $nip = $this->generateNip($request['jenis_kelamin']);
+        $slug = Str::slug($request['nama'], '_');
+
+        $data = collect($request)->merge([                
+            'id'            => Uuid::uuid4()->getHex(),
+            'nip'           => $nip,
+            'slug'          => $slug,
+            'foto_profil'   => $this->file->uploadToGCS($request['foto_profil'], $nip.'_cv.pdf','employee/'.$nip),
+        ])->all();
+
+        $data = $this->employee->create($data);
+        
+        if ($data['role_id'] == 2) {
+            $this->createSales($data);
+        } elseif ($data['role_id'] == 3) {
+            $this->createTechnician($data);
+        }
+
+        return $data;
+    }
+
+    private function updatePersonal($old, $request)
+    {
+        return DB::transaction(function () use ($old, $request) {
+            $data = collect($request)->diffAssoc($old);
+
+            if (isset($data['nama'])) {
+                $data->put('nama', Str::title($data['nama']))
+                     ->put('slug', Str::slug($data['nama']));
+
+                $this->user->update($old->user, $data['slug']);
+
+                if ($old->sales) {
+                    $this->sales->update($old['nip'], ['slug' => $data['slug']]);
+                } elseif ($old->technician) {
+                    $this->technician->update($old['nip'], ['slug' => $data['slug']]);            
+                }
             }
 
-            $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-            if (array_search($data['pendidikan_terakhir'], $arr) < array_search($request['pendidikan_terakhir'], $arr) && 
-                $data['tahun_lulus'] <= $request['tahun_lulus']) {
-                throw new ValidationException ('tahun lulus tidak valid');
+            if ($data->has('foto_profil')) {
+                $data->put('foto_profil', $this->file->uploadToGCS($data['foto_profil'], $old['nip'].'_cv','employee/file_cv'));
             }
-        }
+
+            $this->employee->update($old, $data->all());
+        });
     }
 
-    public function deleteEducation($id)
+    private function storeArchive($employee, $request)
     {
-        return $this->employeeEducation->delete($id);
+        $data = collect($employee->toArray())
+        ->merge($employee->employeeCI->toArray())
+        ->merge([
+            'divisi_id'         => $employee->role->divisi_id,
+            'tanggal_terminate' => now(),
+            'status_terminate'  => $request
+        ])->all();
+
+        $this->employeeArchive->create($data);
+    }
+
+    private function storeConfidential($request)
+    {
+        $nip = $request['nip'];
+        $data = collect($request)->merge([
+            'id'        => Uuid::uuid4()->getHex(),
+            'nip_id'    => $nip,
+            'foto_ktp'  => $this->file->uploadToGCS($request['foto_ktp'], $nip.'_ktp', 'employee/foto_ktp'),
+            'foto_kk'   => $this->file->uploadToGCS($request['foto_kk'], $nip.'_kk', 'employee/foto_kk'),
+            'file_cv'   => $this->file->uploadToGCS($request['file_cv'], $nip.'_cv', 'employee/file_cv'),
+        ])->all();
+        
+        $this->employeeCI->create($data);
+    }
+
+    private function updateConfidential($old, $request)
+    {
+        $employee = collect($request)->diffAssoc($old);
+
+        if ($employee->has('foto_ktp')) {
+            $employee->put('foto_ktp', $this->file->uploadToGCS($request['foto_ktp'],$old['nip_id'].'_ktp','employee/foto_ktp'));
+        }
+
+        if ($employee->has('foto_kk')) {
+            $employee->put('foto_kk', $this->file->uploadToGCS($request['foto_kk'],$old['nip_id'].'_kk','employee/foto_kk'));
+        }
+
+        if ($employee->has('file_cv')) {
+            $employee->put('file_cv', $this->file->uploadToGCS($request['file_cv'],$old['nip_id'].'_cv','employee/file_cv'));
+        }
+
+        $this->employeeCI->update($old, $employee->all());
     }
 }

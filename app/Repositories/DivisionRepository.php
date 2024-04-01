@@ -51,12 +51,12 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getEmployee($id)
     {
-        return $this->division->with('employee')->where('id', $id)->firstOrFail();
+        return $this->division->with('employee')->where('id', $id)->firstOrFail()->employee;
     }
 
     public function getEmployeeArchive($id)
     {
-        return $this->division->with('employeeArchive')->where('id', $id)->firstOrFail();
+        return $this->division->with('employeeArchive')->where('id', $id)->firstOrFail()->employeeArchive;
     }
     
     public function update($id, $request)

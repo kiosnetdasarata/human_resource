@@ -14,7 +14,9 @@ class BranchCompanyRepository implements BranchCompanyRepositoryInterface
 
     public function getAll()
     {
-        return $this->branch->get();
+        return $this->branch->get()->map(function ($item) {
+            return $item->only(['id','kode_branch','nama_branch']);
+        });
     }
     
     public function find($slug)

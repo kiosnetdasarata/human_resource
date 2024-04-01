@@ -16,7 +16,11 @@ class JobVacancyService
         private JobVacancyRepositoryInterface $jobVacancy,
         private ArchiveJobApplicantRepositoryInterface $archiveJobApplicant,
         private JobApplicantRepositoryInterface $jobApplicant,
-        private TraineeshipRepositoryInterface $traineeship) { }
+        private TraineeshipRepositoryInterface $traineeship
+    ) 
+    { 
+        //
+    }
 
     public function getAll()
     {
@@ -50,84 +54,80 @@ class JobVacancyService
 
     public function create($request)
     {
-        $jobVacancy = $this->jobVacancy->findSameRoleOnBranch($request['role_id'], $request['branch_company_id']);
-        if ($jobVacancy) throw new \Exception('duplikat role');
+        $this->validateData($request);
 
         $request = collect($request)->merge([
             'title' => Str::title($request['title']),
-            'slug' => Str::slug($request['title'], '_'),
+            'slug'  => Str::slug($request['title'], '_'),
         ]);
-        if ($request['close_date'] <= $request['open_date']) {
-            throw new \Exception('close date tidak sesuai dengan open date');
-        }
+
         return $this->jobVacancy->create($request);
     }
 
     public function update($id, $request)
     {
         $jobVacancy = $this->jobVacancy->find($id);
-        $request = collect($request)->diffAssoc($jobVacancy);
-        if (isset($request['title'])) {
-            $request = $request->merge([
-                'title' => Str::title($request['title']),
-                'slug' => Str::slug($request['title'], '_'),
-            ]);
-        }
-        if (isset($request['branch_company_id'])) {
-            if (!isset($request['role_id'])) {
-                $same = $this->jobVacancy->findSameRoleOnBranch($jobVacancy->role_id, $request['branch_company_id']);
-                if ($same) throw new ValidationException('Duplikat role');
-            }
+        $data = collect($request)->diffAssoc($jobVacancy);
+
+        $this->validateData($data, $jobVacancy);
+
+        if (isset($data['title'])) {
+            $data->put('title', Str::title($data['title']))
+                 ->put('slug', Str::slug($data['title'], '_'));
         }
 
-        if (isset($request['role_id'])) {
-            $branchId = $request['branch_company_id'] ?? $jobVacancy->branch_company_id;
-            $same = $this->jobVacancy->findSameRoleOnBranch($request['role_id'], $branchId);
-            if ($same) throw new ValidationException('Duplikat role');
+        $this->jobVacancy->update($jobVacancy,$data->all());
+    }
+    
+    private function validateData($request, $jobVacancy = null)
+    {
+        $roleId = $request['role_id'] ?: $jobVacancy->role_Id;
+        $branchId = $request['branch_company_id'] ?: $jobVacancy->branch_company_id;
+
+        if ($this->jobVacancy->findSameRoleOnBranch($roleId, $branchId)) {
+            throw new ValidationException('Duplikat role');
         }
-        return DB::transaction(function () use ($jobVacancy,$request) {
-            $this->jobVacancy->update($jobVacancy,$request->all());
-            $vacancy = $this->jobVacancy->find($jobVacancy->id);
-            if ($vacancy['close_date'] <= $vacancy['open_date']) {
-                throw new \Exception('close date tidak sesuai dengan open date');
-            }
-        });
+        
+        $closeDate = $request['close_data'] ?: $jobVacancy->close_date;
+        $openDate = $request['open_data'] ?: $jobVacancy->open_date;
+
+        if ($closeDate <= $openDate) {
+            throw new ValidationException('close date tidak sesuai dengan open date');
+        }
     }
 
     public function delete($id)
     {
         $jobVacancy = $this->jobVacancy->find($id);
+
         return DB::transaction(function() use ($jobVacancy) {
-            if ($jobVacancy->jobapplicant->isNotEmpty()) {
-                foreach ($jobVacancy->jobapplicant as $applicant) {
-                    $data = collect($applicant)->merge([
-                        'tanggal_lamaran' => $applicant->created_at,
-                        'keterangan' => 'dihapus karena job vacancy terhapus',
-                        'status_lamaran' => $applicant->status_tahap,
-                        'is_intern' => 0,                        
-                        'role_id' => $jobVacancy->role_id,
-                        
-                    ]);
-                    $this->archiveJobApplicant->create($data->all());
-                    $this->jobApplicant->delete($applicant);
-                }
-            }
+            $this->deleteApplicant($jobVacancy->jobapplicant, 0, $jobVacancy->role_id);
+
             if ($jobVacancy->is_intern) {
-                foreach ($jobVacancy->traineeship as $applicant) {                    
-                    $data = collect($applicant)->merge([
-                        'tanggal_lamaran' => $applicant->created_at,
-                        'keterangan' => 'dihapus karena job vacancy terhapus',
-                        'status_lamaran' => $applicant->status_tahap,
-                        'is_intern' => 1,
-                        'no_tlpn' => $applicant->nomor_telepone,
-                        'role_id' => $jobVacancy->role_id,
-                    ]);
-                    $this->archiveJobApplicant->create($data->all());
-                    $this->traineeship->delete($applicant);
-                }
+                $this->deleteApplicant($jobVacancy->traineeship, 1, $jobVacancy->role_id);
             }
+            
             $this->jobVacancy->delete($jobVacancy);
         });
     }
 
+    private function deleteApplicant($applicants, $isIntern, $roleId) {
+        foreach ($applicants as $applicant) {
+            $data = [
+                'tanggal_lamaran'   => $applicant->created_at,
+                'keterangan'        => 'dihapus karena job vacancy terhapus',
+                'status_lamaran'    => $applicant->status_tahap,
+                'is_intern'         => $isIntern,
+                'role_id'           => $roleId,
+            ];
+    
+            if ($isIntern) {
+                $data['no_tlpn'] = $applicant->nomor_telepone;
+            }
+    
+            $this->archiveJobApplicant->create($data);
+
+            ($isIntern ? $this->traineeship : $this->jobApplicant)->delete($applicants);
+        }
+    }
 }

@@ -2,38 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
-use Illuminate\Support\ItemNotFoundException;
 
 class RoleController extends Controller
 {
-    public function __construct(private RoleRepositoryInterface $roleRepositoryInterface)
+    public function __construct(
+        private RoleRepositoryInterface $roleRepositoryInterface,
+        private ResponseHelper $response
+    )
     {
+        //
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index($division = null)
+    public function index()
     {
         try {
-            $data = $this->roleRepositoryInterface->getAll($division);
-            if (count($data) <= 0) {
-                throw new ItemNotFoundException('data tidak ditemukan');
-            }
-            return response()->json([
-                'status' => 'success',
-                'data' =>$data,
-                'status_code' => 200,
-            ]);
+            $data = $this->roleRepositoryInterface->getAll();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -44,18 +37,9 @@ class RoleController extends Controller
     {
         try {
             $this->roleRepositoryInterface->create($request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -65,18 +49,10 @@ class RoleController extends Controller
     public function show($id)
     {
         try {
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->roleRepositoryInterface->find($id),
-                'status_code' => 200,
-            ]);
-
+            $data = $this->roleRepositoryInterface->find($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -87,19 +63,9 @@ class RoleController extends Controller
     {
         try {
             $this->roleRepositoryInterface->update($this->roleRepositoryInterface->find($id),$request->validated());
-            
-            return response()->json([
-                'status' => 'success',
-                'status_code' =>200,
-            ]);
-
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => $e->getCode() == 0 ? 500 : $e->getCode(),
-            ], );
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -110,18 +76,9 @@ class RoleController extends Controller
     {
         try {
             $this->roleRepositoryInterface->delete($this->roleRepositoryInterface->find($id));
-            
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
-
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() == 0 ? 404 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 }

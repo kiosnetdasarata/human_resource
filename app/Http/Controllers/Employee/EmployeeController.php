@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Services\EmployeeService;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
@@ -19,7 +18,8 @@ class EmployeeController extends Controller
 {
     public function __construct(
         private EmployeeService $employeeService,
-        private ResponseHelper $response)
+        private ResponseHelper $response
+        )
     { }
     
     /**
@@ -28,7 +28,7 @@ class EmployeeController extends Controller
     public function index()
     { 
         try {
-            $this->authorize('view-any', Employee::class);
+            // $this->authorize('view-any', Employee::class);
             $data = $this->employeeService->getAllEmployeePersonal();
             if (!count($data)) {
                 throw new ModelNotFoundException();
@@ -72,7 +72,7 @@ class EmployeeController extends Controller
             $this->employeeService->secondForm($uuid, $request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
-            return $this->response->error($e);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -83,10 +83,6 @@ class EmployeeController extends Controller
     {
         try {
             $data = $this->employeeService->findEmployeePersonal($id);
-            if (!$data) { 
-                throw new ModelNotFoundException('Data not found');
-            } else $this->authorize('view', $data);
-
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -99,7 +95,7 @@ class EmployeeController extends Controller
     public function update(UpdateEmployeeRequest $request, $uuid)
     {
         try {
-            $this->employeeService->updateEmployee($uuid, $request->validated());
+            $this->employeeService->update($uuid, $request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
@@ -115,9 +111,9 @@ class EmployeeController extends Controller
             $data = Validator::make($request->all(), ['status_terminate' => 'required']);
             if ($data->fails()) throw new ValidationException($data->errors()->first());
 
-            $this->authorize('delete', Employee::class);
-            $this->employeeService->deleteEmployeePersonal($data->validated(), $uuid);
-            return $this->response->success($data);
+            // $this->authorize('delete', Employee::class);
+            $this->employeeService->delete($data->validated(), $uuid);
+            return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $data->validated());
         }

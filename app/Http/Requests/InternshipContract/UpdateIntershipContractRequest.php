@@ -13,7 +13,7 @@ class UpdateIntershipContractRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->method('patch');
+        return $this->isMethod('PATCH');
     }
 
     /**

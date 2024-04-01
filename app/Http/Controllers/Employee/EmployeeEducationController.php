@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Employee;
 
-use App\Services\EmployeeService;
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\StoreEducationRequest;
 use App\Http\Requests\Employee\UpdateEducationRequest;
+use App\Services\EmployeeEducationService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeEducationController extends Controller
 {
-    public function __construct(private EmployeeService $employeeService) 
+    public function __construct(
+        private EmployeeEducationService $employeeService,
+        private ResponseHelper $response
+        ) 
     {
     }
     /**
@@ -19,19 +23,11 @@ class EmployeeEducationController extends Controller
     public function index($id)
     {
         try {            
-            $data = $this->employeeService->getEducations($id);
-            if (!count($data)) throw new ModelNotFoundException('data tidak ditemukan', 404);
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-                'status_code' => 200
-            ]);
+            $data = $this->employeeService->get($id);
+            if (!count($data)) throw new ModelNotFoundException();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -41,17 +37,10 @@ class EmployeeEducationController extends Controller
     public function store($uuid, StoreEducationRequest $request)
     {
         try {
-            $employee = $this->employeeService->addEducation($uuid, $request);
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
+            $this->employeeService->store($uuid, $request);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -61,19 +50,10 @@ class EmployeeEducationController extends Controller
     public function show(string $id)
     {
         try {
-            $edu = $this->employeeService->findEducation($id);
-            if (!$edu) throw new ModelNotFoundException('Education not found',404);
-            return response()->json([
-                'success' => true,
-                'data' => $edu,
-                'status_code' => 200,
-            ]);
+            $data = $this->employeeService->find($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -83,18 +63,10 @@ class EmployeeEducationController extends Controller
     public function update(UpdateEducationRequest $request, string $id)
     {
         try {
-            $this->employeeService->updateEducation($id, $request->all());
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
+            $this->employeeService->update($id, $request->all());
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'status_code' => $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -104,17 +76,10 @@ class EmployeeEducationController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->employeeService->deleteEducation($id);
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
+            $this->employeeService->delete($id);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 }

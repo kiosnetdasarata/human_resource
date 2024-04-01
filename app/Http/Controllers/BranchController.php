@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Interfaces\BranchCompanyRepositoryInterface;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BranchController extends Controller
 {
-    public function __construct(private BranchCompanyRepositoryInterface $branchCompanyRepositoryInterface)
+    public function __construct(
+        private BranchCompanyRepositoryInterface $branchCompanyRepositoryInterface,
+        private ResponseHelper $response
+        )
     {
         
     }
@@ -16,12 +20,15 @@ class BranchController extends Controller
      */
     public function __invoke()
     {
-        $branch = $this->branchCompanyRepositoryInterface->getAll()->map(function ($item) {
-            return $item->only(['id','kode_branch','nama_branch']);
-        });
-        return response()->json([
-            'status' => 'success',
-            'data' => $branch,
-        ]);
+        try {
+            $data = $this->branchCompanyRepositoryInterface->getAll();
+            if (!count($data)) {
+                throw new ModelNotFoundException();
+            } 
+            return $this->response->success($data);
+        } catch (\Exception $e) {
+            return $this->response->error($e);
+        }
+
     }
 }

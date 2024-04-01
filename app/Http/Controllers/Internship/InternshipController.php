@@ -2,27 +2,32 @@
 
 namespace App\Http\Controllers\Internship;
 
+use App\Helpers\ResponseHelper;
+use App\Services\InternshipService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Internship\StoreInternshipRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\Internship\UpdateInternshipRequest;
-use App\Services\InternshipService;
 
 class InternshipController extends Controller
 {
-    public function __construct(private InternshipService $internshipService) 
-    {
-    }
+    public function __construct(
+        private InternshipService $internshipService,
+        private ResponseHelper $response
+        )
+    { }
 
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $this->internshipService->getAllInternship(),
-            'status_code' => 200,
-        ]);
+        try {
+            $data = $this->internshipService->get();
+            return $this->response->success($data);
+        } catch (\Exception $e) {
+            return $this->response->error($e);
+        }
     }
 
     /**
@@ -31,20 +36,10 @@ class InternshipController extends Controller
     public function store($idTraineenship, StoreInternshipRequest $request)
     {
         try {
-            $this->internshipService->createInternship($idTraineenship, $request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            $this->internshipService->create($idTraineenship, $request->validated());
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'trace' => $e->getTrace(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -54,18 +49,11 @@ class InternshipController extends Controller
     public function show(string $uuid)
     {
         try {
-            $internship = $this->internshipService->findInternship($uuid);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $internship,
-            ], 200);
-
+            $data = $this->internshipService->find($uuid);
+            if (!$data) throw new ModelNotFoundException();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->response->error($e);
         }
     }
 
@@ -75,21 +63,12 @@ class InternshipController extends Controller
     public function update(UpdateInternshipRequest $request, string $uuid)
     {
         try {
-            $data = $this->internshipService->updateInternship($uuid, $request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $data,
-                'status_code' => 200,
-            ]);
+            $data = $this->internshipService->update($uuid, $request->validated());
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e, $request->validated());
         }
+
     }
 
     /**
@@ -98,20 +77,10 @@ class InternshipController extends Controller
     public function destroy(string $uuid)
     {
         try {
-            $this->internshipService->deleteInternship($uuid);
-            
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
-
+            $this->internshipService->delete($uuid);            
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'line' => $e->getTrace(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 }

@@ -13,7 +13,7 @@ class UpdateEducationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->method('patch');
+        return $this->method() == 'PATCH';
     }
 
     /**

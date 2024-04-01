@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Interfaces\LevelRepositoryInterface;
 use App\Http\Requests\Level\StoreLevelRequest;
 use App\Http\Requests\Level\UpdateLevelRequest;
 
 class LevelController extends Controller
 {
-    public function __construct(private LevelRepositoryInterface $levelRepositoryInterface)
+    public function __construct(
+        private LevelRepositoryInterface $levelRepositoryInterface,
+        private ResponseHelper $response,
+    )
     {
+        //
     }
     /**
      * Display a listing of the resource.
@@ -17,17 +22,10 @@ class LevelController extends Controller
     public function index()
     {
         try {
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->levelRepositoryInterface->getAll(),
-                'status_code' => 200
-            ]);
+            $data = $this->levelRepositoryInterface->getAll();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -38,18 +36,9 @@ class LevelController extends Controller
     {
         try {
             $this->levelRepositoryInterface->create($request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -59,18 +48,10 @@ class LevelController extends Controller
     public function show($id)
     {
         try {
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->levelRepositoryInterface->find($id),
-                'status_code' => 200
-            ]);
-
+            $data = $this->levelRepositoryInterface->find($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -81,19 +62,9 @@ class LevelController extends Controller
     {
         try {
             $this->levelRepositoryInterface->update($this->levelRepositoryInterface->find($id),$request->validated());
-            
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200
-            ]);
-
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -104,18 +75,9 @@ class LevelController extends Controller
     {
         try {
             $this->levelRepositoryInterface->delete($this->levelRepositoryInterface->find($id));
-            
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200
-            ]);
-
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e);
         }
     }
 }

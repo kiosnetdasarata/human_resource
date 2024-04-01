@@ -4,22 +4,21 @@ namespace App\Repositories\Internship;
 
 use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 use App\Models\InterviewPoint;
+use App\Models\JobApplicant;
 use App\Models\Traineeship;
 
 class InterviewPointRepository implements InterviewPointRepositoryInterface
 {
-    public function __construct(private InterviewPoint $internshipPoint, private Traineeship $traineeship) 
+    public function __construct(
+        private InterviewPoint $internshipPoint,
+        private Traineeship $traineeship,
+        private JobApplicant $jobApplicant)
     {
     }
 
-    public function find($uuid)
+    public function find($id, $isIntern)
     {
-        return $this->internshipPoint->with('traineeship')->with('id', $uuid)->firstOrFail();
-    }
-
-    public function latest()
-    {
-        return $this->internshipPoint->latest()->first();
+        return ($isIntern ? $this->traineeship : $this->jobApplicant)->find($id)->interviewPoint;
     }
 
     public function create($request)
@@ -37,15 +36,12 @@ class InterviewPointRepository implements InterviewPointRepositoryInterface
         return $internshipPoint->delete();
     }
 
-    public function avg($id)
-    {
-        $iP = $this->find($id);
-        $nilai = 0;
-        foreach($iP as $key => $nilai) {
-            $nilai += (int)$nilai;
-        }
-    }
-
+    // public function avg($id)
+    // {
+    //     $iP = $this->find($id);
+    //     $nilai = 0;
+    //     foreach($iP as $key => $nilai) {
+    //         $nilai += (int)$nilai;
+    //     }
+    // }
 }
-
-?>

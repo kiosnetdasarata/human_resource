@@ -2,36 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
+use App\Helpers\ResponseHelper;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 
 class ArchiveApplicantController extends Controller
 {
     public function __construct(
         private ArchiveJobApplicantRepositoryInterface $archive,
-        private JobVacancyRepositoryInterface $vacancy
+        private JobVacancyRepositoryInterface $vacancy,
+        private ResponseHelper $response
     ) { }
 
     public function getJobApplicant()
     {
         try {
             $data = $this->archive->getAllJobApplicant();
-            if (count($data)) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $data,
-                    'status_code' => 200,
-                ]);
-            } else throw new ModelNotFoundException('applicant tidak ditemukan', 404);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
+            }
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -39,19 +32,12 @@ class ArchiveApplicantController extends Controller
     {
         try {
             $data = $this->archive->getAllTranieeship();
-            if (count($data)) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $data,
-                    'status_code' => 200,
-                ]);
-            } else throw new ModelNotFoundException('applicant tidak ditemukan', 404);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
+            }
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -59,20 +45,12 @@ class ArchiveApplicantController extends Controller
     {
         try {
             $data = $this->archive->getJobApplicantByJobVacancy($id);
-            if (count($data)) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $data,
-                    'status_code' => 200,
-                ]);
-            } else throw new ModelNotFoundException('applicant tidak ditemukan', 404);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
+            }
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -80,36 +58,22 @@ class ArchiveApplicantController extends Controller
     {
         try {
             $data = $this->archive->getTraineeshipByJobVacancy($id);
-            if (count($data)) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $data,
-                    'status_code' => 200,
-                ]);
-            } else throw new ModelNotFoundException('applicant tidak ditemukan', 404);
+            if (!count($data)) {
+                throw new ModelNotFoundException();
+            }
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
     public function find($id)
     {
         try {
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->archive->find($id),
-                'status_code' => 200,
-            ]);
+            $data = $this->archive->find($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'error' => $e->getMessage(),
-                'status_code' => 404,
-            ]);
+            return $this->response->error($e);
         }
     }
 }

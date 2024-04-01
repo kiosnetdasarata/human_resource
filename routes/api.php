@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ArchiveApplicantController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
@@ -24,7 +23,6 @@ use App\Http\Controllers\Employee\EmployeeEducationController;
 use App\Http\Controllers\Internship\InterviewPointController;
 use App\Http\Controllers\Internship\FilePartnershipController;
 use App\Http\Controllers\Internship\InternshipContractController;
-use App\Models\Partnership;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,7 +71,7 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
 
 //Punya Al, form 3 pake updatenya employee resource ln.61
-Route::middleware(['jwt:api'])->group(function() {
+// Route::middleware(['jwt:api'])->group(function() {
     Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
     Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
     Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
@@ -83,7 +81,7 @@ Route::middleware(['jwt:api'])->group(function() {
     Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
     Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
     Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);
-});
+// });
 
 Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
 Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
@@ -111,18 +109,18 @@ Route::get('/partnership/{id}/{status}/archive', [PartnershipController::class, 
 Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
 Route::apiResource('partnership', PartnershipController::class)->except('destroy');
 
-Route::apiSingleton('{ApplicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
+Route::apiSingleton('{applicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
 
-Route::middleware(['jwt:api'
-        ])->group(function() {
-    Route::get('/get-current-user', function() {
-        return response()->json(['user' => auth()->user()->employee]);
-    });
-    Route::post('logout', LogoutController::class);    
-});
+// Route::middleware(['jwt:api'
+//         ])->group(function() {
+//     Route::get('/get-current-user', function() {
+//         return response()->json(['user' => auth()->user()->employee]);
+//     });
+//     Route::post('logout', LogoutController::class);    
+// });
 
-Route::middleware('guest:api')->group(function() {
-    Route::post('login', LoginController::class);
-    Route::post('register', RegisterController::class);
-});
+// Route::middleware('guest:api')->group(function() {
+//     Route::post('login', LoginController::class);
+//     Route::post('register', RegisterController::class);
+// });

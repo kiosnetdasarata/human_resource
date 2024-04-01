@@ -25,22 +25,18 @@ class ZoneRepository implements ZoneRepositoryInterface
         return $this->province->select('id','name')->get();
     }
 
-    public function getRegencies($province = null)
+    public function getRegencies($province)
     {        
         return $this->regency->where('province_id',$province)->select('id','name')->get();
     }
 
-    public function getDistricts($regency = null)
+    public function getDistricts($regency)
     {
         return $this->district->where('regency_id',$regency)->select('id','name')->get();
     }
 
-    public function getVillages($district = null)
+    public function getVillages($district)
     {
         return $this->village->where('district_id',$district)->select('id','name')->get();
-    }
-
-    
+    }   
 }
-
-?>

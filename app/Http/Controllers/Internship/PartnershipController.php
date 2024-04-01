@@ -2,35 +2,34 @@
 
 namespace App\Http\Controllers\Internship;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Partnership\StorePartnershipRequest;
-use App\Http\Requests\Partnership\UpdatePartnershipRequest;
 use App\Services\PartnershipService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use InvalidArgumentException;
+use App\Http\Requests\Partnership\StorePartnershipRequest;
+use App\Http\Requests\Partnership\UpdatePartnershipRequest;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PartnershipController extends Controller
 {
-    public function __construct(private PartnershipService $partnership) 
+    public function __construct(
+        private PartnershipService $partnership,
+        private ResponseHelper $response
+    )
     {
+        //
     }
+    
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         try {
-            return response()->json([
-                'success' => true,
-                'data' => $this->partnership->getAllPartnership(),
-                'status_code' => 200,
-            ]);
+            $data = $this->partnership->get();
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -40,82 +39,43 @@ class PartnershipController extends Controller
     public function store(StorePartnershipRequest $request)
     {
         try {
-            $this->partnership->createPartnership($request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            $this->partnership->create($request->validated());
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
     public function findInternship($id, $status)
     {
         try {
-            if($status != 'magang' && $status != 'internship') throw new InvalidArgumentException('status tidak valid', 422);
-            $partnership = $this->partnership->getInternship($id, $status);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $partnership,
-                'status_code' => 200
-            ]);
-
+            $data = $this->partnership->getInternship($id, $status);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e);
         }
     }
 
     public function findInternshipArchive($id, $status)
     {
         try {
-            if($status != 'magang' && $status != 'internship') throw new InvalidArgumentException('status tidak valid', 422);
-            $partnership = $this->partnership->getInternshipArchive($id, $status);
-            if(!count($partnership)) throw new ModelNotFoundException();
-            return response()->json([
-                'status' => 'success',
-                'data' => $partnership,
-                'status_code' => 200
-            ]);
-
+            $data = $this->partnership->getInternshipArchive($id, $status);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e);
         }
     }
+
     /**
      * Display the specified resource.
      */
     public function show(string $slug)
     {
         try {
-            $partnership = $this->partnership->findPartnership($slug);
-            return response()->json([
-                'status' => 'success',
-                'data' => $partnership,
-                'status_us_code' => 200
-            ]);
-
+            $data = $this->partnership->find($slug);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -125,19 +85,10 @@ class PartnershipController extends Controller
     public function update($id, UpdatePartnershipRequest $request)
     {
         try {
-            $this->partnership->updatePartnership($id,$request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200
-            ]);
+            $this->partnership->update($id,$request->validated());
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -147,19 +98,10 @@ class PartnershipController extends Controller
     public function destroy(string $uuid)
     {
         try {
-            $this->partnership->deletePartnership($uuid);
-            
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
-
+            $this->partnership->delete($uuid);            
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 }

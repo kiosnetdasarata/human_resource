@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\ResponseHelper;
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
@@ -10,7 +12,9 @@ use App\Interfaces\UserRepositoryInterface;
 
 class LoginController extends Controller
 {
-    public function __construct(private UserRepositoryInterface $userRepositoryInterface)
+    public function __construct(
+        private UserRepositoryInterface $userRepositoryInterface, 
+        private ResponseHelper $response)
     {
     }
     /**
@@ -28,13 +32,10 @@ class LoginController extends Controller
                     'token'   => $token
                 ], 200);
             }
-            throw new Exception('NIP atau Password Anda salah');
+            throw new AuthenticationException('NIP atau Password Anda salah');
 
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+            return $this->response->error($e);
         }
     }
 }

@@ -23,7 +23,7 @@ class JobApplicantRepository implements JobApplicantRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])->where('id', $id)->first();
+        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])->where('id', $id)->firstOrFail();
     }
 
     public function findSlug($slug)

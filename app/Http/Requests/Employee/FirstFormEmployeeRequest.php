@@ -15,7 +15,8 @@ class FirstFormEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', Employee::class);
+        return true;
+        // $this->user()->can('create', Employee::class);
     }
 
     /**

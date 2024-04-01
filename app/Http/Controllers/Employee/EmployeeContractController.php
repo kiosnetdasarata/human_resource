@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Employee;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\StoreContractRequest;
 use App\Http\Requests\Employee\UpdateContractRequest;
-use App\Services\EmployeeService;
+use App\Services\EmployeeContractService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 class EmployeeContractController extends Controller
 {
-    public function __construct(private EmployeeService $employeeService) {
+    public function __construct(
+        private EmployeeContractService $service,
+        private ResponseHelper $response
+        ) {
     }
 
     /**
@@ -20,21 +23,10 @@ class EmployeeContractController extends Controller
     public function index($id)
     {
         try {
-            $data = $this->employeeService->getEmployeeContracts($id);
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-                'status_code' => 200,
-            ]);
+            $data = $this->service->get($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode()
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -44,18 +36,10 @@ class EmployeeContractController extends Controller
     public function store($id, StoreContractRequest $request)
     {
         try {
-            $this->employeeService->storeEmployeeContract($id, $request->validated());
-            return response()->json([
-                'success' => true,
-                'status_code' => 200
-            ]);
+            $this->service->store($id, $request->validated());
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -65,17 +49,10 @@ class EmployeeContractController extends Controller
     public function show(string $id)
     {
         try {
-            return response()->json([
-                'success' => true,
-                'data' => $this->employeeService->findEmployeeContract($id),
-                'status_code' => 200
-            ]);
+            $data = $this->service->find($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -85,40 +62,23 @@ class EmployeeContractController extends Controller
     public function update(UpdateContractRequest $request, string $id)
     {
         try {
-            $this->employeeService->updateEmployeeContract($id, $request);
-
-            return response()->json([
-                'success' => true,
-                'status_code' => 200
-            ]);
+            $this->service->update($id, $request);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        try {
-            $this->employeeService->deleteEmployeeContract($id);
-
-            return response()->json([
-                'success' => true,
-                'status_code' => 200,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'status_code' => $e->getCode() == null ? 500 : $e->getCode(),
-            ]);
-        }
-    }
+    // public function destroy(string $id)
+    // {
+    //     try {
+    //         $this->service->deleteEmployeeContract($id);
+    //         return $this->response->success();
+    //     } catch (\Exception $e) {
+    //         return $this->response->error($e);
+    //     }
+    // }
 }

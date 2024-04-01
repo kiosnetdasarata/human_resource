@@ -2,13 +2,17 @@
 
 namespace App\Repositories\Employee;
 
+use App\Models\Employee;
 use App\Models\EmployeeConfidentalInformation;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 
 class EmployeeCIRepository implements EmployeeCIRepositoryInterface
 {
 
-    public function __construct(private EmployeeConfidentalInformation $employeeConfidentalInformation)
+    public function __construct(
+        private EmployeeConfidentalInformation $employeeConfidentalInformation,
+        private Employee $employee,    
+    )
     {
     }
 
@@ -19,7 +23,7 @@ class EmployeeCIRepository implements EmployeeCIRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->employeeConfidentalInformation->with('employee')->where('id', $uuid)->firstOrFail();
+        return $this->employee->where('id', $uuid)->firstOrFail()->employeeCI;
     }
 
     public function create($request)

@@ -4,33 +4,39 @@ namespace App\Helpers;
 
 use Dotenv\Exception\ValidationException;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Auth\AuthenticationException;
 use Google\Cloud\Core\Exception\ConflictException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ResponseHelper
 {
     public function error($e, $input = null)
     {
-        if ($e instanceof AuthorizationException || $e instanceof JWTException) {
-            return $this->responseError($e->getMessage() ?? 'Unauthorize', 401,$input, $e->getTrace());
-        } elseif ($e instanceof ValidationException) {
-            return $this->responseError($e->getMessage() ?? 'Unprocessable Content', 422,$input, $e->getTrace());
-        } elseif ($e instanceof ModelNotFoundException) {
-            return $this->responseError($e->getMessage() ?? 'Data not found', 404,$input, $e->getTrace());
-        } elseif ($e instanceof ConflictException) {
-            return $this->responseError($e->getMessage() ?? 'Conflict', 409,$input, $e->getTrace());
-        } else {
-            return $this->responseError($e->getMessage() ?? 'Internal Server Error', 500,$input, $e->getTrace());
-        }
+        $exceptions = [
+            AuthorizationException::class   => ['Unauthorize', 401],
+            JWTException::class             => ['Unauthorize', 401],
+            AuthenticationException::class  => ['Authentication Failed', 401],
+            ValidationException::class      => ['Unprocessable Content', 422],
+            ModelNotFoundException::class   => ['Data not found', 404],
+            ConflictException::class        => ['Conflict', 409],
+            NotFoundHttpException::class    => ['Not Found', 404],
+        ];
+
+        [$defaultMessage, $statusCode] = $exceptions[get_class($e)] ?? ['Internal Server Error', 500];
+
+        $message = $e->getMessage() ?: $defaultMessage;
+
+        return $this->responseError($message, $statusCode, $input, $e->getTrace());
     }
 
     private function responseError($message, $statusCode, $input, $trace) {
         $response = [
-            'status' => 'error',
-            'message' => $message,
-            'status_code' => $statusCode,
-            'trace' => $trace
+            'status'        => 'error',
+            'message'       => $message,
+            'status_code'   => $statusCode,
+            // 'trace'         => $trace    //debug only
         ];
 
         if ($input) {
@@ -41,11 +47,14 @@ class ResponseHelper
     }
 
     public function success($data = null) {
-        $response = ['status' => 'success'];
-        if ($data !== null) {
+        $response = [
+            'status'        => 'success',
+            'status_code'   => 200
+        ];
+
+        if ($data) {
             $response['data'] = $data;
         }
-        $response['status_code'] = 200;
         
         return response()->json($response);
     }

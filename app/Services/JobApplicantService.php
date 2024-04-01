@@ -4,22 +4,23 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use App\Helpers\FileHelper;
+use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\JobApplicantRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 
 class JobApplicantService
 {
     public function __construct(
         private JobApplicantRepositoryInterface $jobApplicant,
-        private InterviewPointRepositoryInterface $interviewPoint,
+        private InterviewPointService $interviewPoint,
         private JobVacancyRepositoryInterface $jobVacancy,
         private FileHelper $file,
-        )
+    )
     {
+        //
     }
 
     public function get()
@@ -41,34 +42,89 @@ class JobApplicantService
     {
         $data = $this->jobApplicant->search($key, $val);
         if (count($data)) return $data;
-        else throw new ModelNotFoundException('data tidak ditemukan',404);
+        else throw new ModelNotFoundException();
     }
 
     public function getByVacancy($id)
     {
         $data = $this->jobVacancy->getJobApplicants($id);
         if (count($data)) return $data;
-        else throw new ModelNotFoundException('data tidak ditemukan',404);
+        else throw new ModelNotFoundException();
     }
 
     public function create($request)
     {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
-        $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
-        if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date'])
-            throw new \Exception('vacancy belum dibuka / sudah ditutup',403);
-        if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur'])
-            throw new \Exception('umur tidak valid', 422);
         
+        $this->validateData($jobVacancy, $request);
+
         $slug = $this->generateSlug($request['nama_lengkap']);
-        $Applicant = collect($request)->merge([
-            'nama_lengkap' => Str::title($request['nama_lengkap']),
-            'file_cv' => $this->file->uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv' , 'Applicant/file_cv'),
-            'date' => now(),
-            'slug' => $slug,
-            'role_id' => $jobVacancy['role_id']
-        ]);
-        return $this->jobApplicant->create($Applicant->all());
+
+        $data = collect($request)->merge([
+            'nama_lengkap'  => Str::title($request['nama_lengkap']),
+            'file_cv'       => $this->file->uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv' , 'Applicant/file_cv'),
+            'date'          => now(),
+            'slug'          => $slug,
+            'role_id'       => $jobVacancy['role_id']
+        ])->all();
+
+        return $this->jobApplicant->create($data);
+    }
+
+    public function update($id, $request) 
+    {
+        return DB::transaction(function() use ($id, $request){  
+            $old = $this->find($id);
+            $data = collect($request)->diffAssoc($old);
+
+            $this->validateData($old->jobVacancy, $data);
+
+            if (isset($data['nama_lengkap'])) {
+                $data->put('nama_lengkap', Str::title($data['nama_lengkap']))
+                     ->put('slug', $this->generateSlug($request['nama_lengkap']));
+            }
+
+            if (isset($data['file_cv'])) {
+                $data->put('file_cv', $this->file->uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'Applicant/file_cv'));
+            }
+
+            $this->jobApplicant->update($old, $data->all());
+        });
+    }
+
+    public function updateStatus($id, $status) 
+    {
+        $jobApplicant = $this->find($id);
+
+        return DB::transaction(function() use ($jobApplicant, $status) {
+            $oldStatus = $jobApplicant->status_tahap;
+
+            if ($status == 'Assesment' && $oldStatus != 'FU') {
+                throw new ValidationException('status tidak valid');
+            } elseif ($status == 'Lolos' && $jobApplicant->hr_point_id == null) {
+                throw new ModelNotFoundException('hr point not found');
+            }
+            
+            $this->jobApplicant->update($jobApplicant, ['status' => $status]);
+
+            if ($status == 'Lolos' || $status == 'Tolak') {
+                $this->delete($jobApplicant);
+            }
+        });
+    }
+
+    private function validateData($jobVacancy, $jobApplicant)
+    {
+        if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date']){
+            throw new ModelNotFoundException('vacancy belum dibuka / sudah ditutup');
+        }
+
+        if (isset($jobApplicant['tanggal_lahir'])) {
+            $age = Carbon::parse($jobApplicant['tanggal_lahir'])->diffInYears(now());
+            if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) {
+                throw new ValidationException('umur tidak valid');
+            }
+        }
     }
 
     private function generateSlug($name)
@@ -77,81 +133,19 @@ class JobApplicantService
         
         $slug = Str::slug($name,'_');
         if (count($list)) {
-            $int = $list->sortBy('slug')->last()->slug;
-            $int = explode('_', $int);
-            $slug = $slug . '_' . (int) end($int) + 1;
+            $int    = $list->sortBy('slug')->last()->slug;
+            $int    = explode('_', $int);
+            $slug   = $slug . '_' . (int) end($int) + 1;
         }
+
         return $slug;
     }
 
-    public function update($id, $request) 
+    private function delete($jobApplicant)
     {
-        return DB::transaction(function() use ($id, $request){  
-            $old = $this->find($id);
-            $jobApplicant = collect($request)->diffAssoc($old);
-            if (isset($jobApplicant['nama_lengkap'])) {
-                $jobApplicant->put('nama_lengkap', Str::title($jobApplicant['nama_lengkap']));
-                $jobApplicant->put('slug', $this->generateSlug($request['nama_lengkap']));
-            }
-            if (isset($jobApplicant['file_cv'])) {
-                $jobApplicant->put('file_cv', $this->file->uploadToGCS($request['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'Applicant/file_cv'));
-            }
-            $this->jobApplicant->update($old, $jobApplicant->all());
-        });
-    }
-
-    public function updateStatus($id, $status) 
-    {
-        $jobApplicant = $this->find($id);        
-        if ($jobApplicant) throw new ModelNotFoundException('data already deleted');
-
-        return DB::transaction(function() use ($jobApplicant, $status) {
-            $oldStatus = $jobApplicant->status_tahap;
-            if ($status == 'Assesment' && $oldStatus != 'FU') {
-                throw new \Exception ('status jobApplicant tidak valid', 422);
-            } elseif ($status == 'Lolos' && $jobApplicant->hr_point_id == null) {
-                throw new \Exception ('hr point dari jobApplicant tidak ditemukan', 404);
-            }
-            
-            $this->update($jobApplicant, ['status' => $status]);
-
-            if ($status == 'Lolos' || $status == 'Tolak') {
-                if ($jobApplicant->interviewPoint) $this->interviewPoint->delete($jobApplicant->interviewPoint);
-                $this->jobApplicant->delete($jobApplicant);
-            }
-        });
-    }
-
-    public function addInterviewPoint($id, $request)
-    {
-        return DB::transaction(function () use ($id, $request) {
-            $jobApplicant = $this->jobApplicant->find($id);
-            if ($jobApplicant->hr_point_id) {
-                return $this->interviewPoint->update($jobApplicant->hr_point_id, $request);
-            } elseif ($jobApplicant->status_tahap != 'Assesment') {
-                throw new \Exception('job Applicant harus pada tahap Assesment',422);
-            }
-            $poin = $this->interviewPoint->create($request);
-            $this->jobApplicant->update($jobApplicant, ['hr_point_id' => $poin->id]);
-        });
-    }
-
-    public function showInterviewPoint($id)
-    {
-        return $this->find($id)->interviewPoint;
-    }
-
-    public function updateInterviewPoint($id, $request) 
-    {
-        $poin = $this->jobApplicant->find($id)->interviewPoint; 
-        if (!$poin) throw new ModelNotFoundException('Applicant ini belum memiliki interview point');
-        return $this->interviewPoint->update($poin, $request);
-    }
-
-    public function deleteInterviewPoint($id)
-    {
-        $poin = $this->jobApplicant->find($id)->interviewPoint;
-        if (!$poin) throw new ModelNotFoundException('Applicant ini belum memiliki interview point');
-        return $this->interviewPoint->delete($poin);
+        if ($jobApplicant->interviewPoint) {
+            $this->interviewPoint->delete($jobApplicant->interviewPoint);
+        }
+        $this->jobApplicant->delete($jobApplicant);
     }
 }

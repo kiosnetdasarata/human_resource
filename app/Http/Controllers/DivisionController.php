@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ResponseHelper;
 use App\Interfaces\DivisionRepositoryInterface;
 use App\Http\Requests\Division\StoreDivisionRequest;
 use App\Http\Requests\Division\UpdateDivisionRequest;
@@ -9,7 +10,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DivisionController extends Controller
 {
-    public function __construct(private DivisionRepositoryInterface $divisionRepositoryInterface)
+    public function __construct(
+        private DivisionRepositoryInterface $divisionRepositoryInterface,
+        private ResponseHelper $response
+        )
     {
         
     }
@@ -20,19 +24,10 @@ class DivisionController extends Controller
     {
         try {
             $data = $this->divisionRepositoryInterface->getAll();
-            if (count($data)) {
-                return response()->json([
-                    'status' => 'success',
-                    'data' => $data,
-                    'status_code' => 200,
-                ]);
-            } else throw new ModelNotFoundException('data tidak ditemukan');
+            if (!count($data)) throw new ModelNotFoundException('data tidak ditemukan');
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -43,19 +38,9 @@ class DivisionController extends Controller
     {
         try {
             $this->divisionRepositoryInterface->create($request->validated());
-
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
-
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'input' => $request->validated(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
     
@@ -70,52 +55,31 @@ class DivisionController extends Controller
             } else {
                 $data = $this->divisionRepositoryInterface->findSlug($id);
             }
-            return response()->json([
-                'status' => 'success',
-                'data' => $data,
-                'status_code' => 200,
-            ]);
+
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
     public function getEmployee($id)
     {
         try {
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->getEmployee($id)->employee,
-                'status_code' => 200,
-            ]);
+            $data = $this->divisionRepositoryInterface->getEmployee($id);
+
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e);
         }
     }
 
     public function getEmployeeArchive($id)
     {
         try {
-            return response()->json([
-                'status' => 'success',
-                'data' => $this->divisionRepositoryInterface->getEmployeeArchive($id)->employeeArchive,
-                'status_code' => 200,
-            ]);
+            $data = $this->divisionRepositoryInterface->getEmployeeArchive($id);
+            return $this->response->success($data);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'status_code' => $e->getCode() ?? 404,
-            ]);
+            return $this->response->error($e);
         }
     }
 
@@ -127,16 +91,9 @@ class DivisionController extends Controller
         try {
             $this->divisionRepositoryInterface->update($division, $request->validated());
 
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
+            return $this->response->success();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage() == "" ? 'data tidak ditemukan':$e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->error($e, $request->validated());
         }
     }
 
@@ -149,16 +106,9 @@ class DivisionController extends Controller
             $data = $this->divisionRepositoryInterface->find($slug);
             $this->divisionRepositoryInterface->delete($data);
 
-            return response()->json([
-                'status' => 'success',
-                'status_code' => 200,
-            ]);
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage() == "" ? 'data tidak ditemukan':$e->getMessage(),
-                'status_code' => 500,
-            ]);
+            return $this->response->success();
+        } catch (\Exception $e) {
+            return $this->response->error($e);
         }
     }
 }
