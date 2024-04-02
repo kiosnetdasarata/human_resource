@@ -40,7 +40,7 @@ class EmployeeEducationService
 
     public function update($uuid, $request)
     {
-        $data = collect($request)->diffAssoc($this->employeeEducation->find($uuid)->all());
+        $data = collect($request)->diffAssoc($this->employeeEducation->find($uuid))->all();
 
         $this->validateData($uuid, $data);
 
@@ -61,14 +61,16 @@ class EmployeeEducationService
         $history = $this->employeeEducation->getAll($uuid);
         if (count($history)) {
             foreach ($history as $data) {
-                if ($request['pendidikan_terakhir'] == 'Sarjana') return;
+                $oldPendidikan = $data['pendidikan_terakhir'];
+                $newPendidikan = $request['pendidikan_terakhir'];
+                if ($newPendidikan == 'Sarjana') return;
 
-                if ($data['pendidikan_terakhir'] == $request['pendidikan_terakhir']) {
-                    throw new ValidationException('pendidikan_terakhir jenjang '. $request['pendidikan_terakhir']. ' sudah ada');
+                if ($oldPendidikan == $newPendidikan) {
+                    throw new ValidationException('pendidikan_terakhir jenjang '. $newPendidikan. ' sudah ada');
                 }
 
                 $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-                if (array_search($data['pendidikan_terakhir'], $arr) < array_search($request['pendidikan_terakhir'], $arr) && 
+                if (array_search($oldPendidikan, $arr) < array_search($newPendidikan, $arr) && 
                     $data['tahun_lulus'] <= $request['tahun_lulus']) {
                     throw new ValidationException ('tahun lulus tidak valid');
                 }
