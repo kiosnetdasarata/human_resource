@@ -4,7 +4,6 @@ namespace App\Repositories\Internship;
 
 use App\Models\Internship;
 use App\Models\InternshipContract;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 
 
@@ -18,22 +17,14 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
 
     public function getAll($id)
     {
-        $intern = $this->internship
-                    ->with(['internshipContract' => function($query) {
-                        $query->withTrashed();
-                    }])
-                    ->where('id', $id)
-                    ->firstOrFail();
-        return $intern->internshipContract;
+        $internship = $this->internship->findOrFail($id);
+        return $internship->contractsHistory;
     }
 
     public function find($id)
     {
-        $internship = $this->internship
-                            ->with('internshipContract')
-                            ->where('id', $id)
-                            ->firstOrFail();
-        return $internship->internshipContract->first();
+        $internship = $this->internship->findOrFail($id);
+        return $internship->contract;
     }
 
     public function create($request)

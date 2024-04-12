@@ -26,7 +26,6 @@ class InternshipContractController extends Controller
     {
         try {
             $data = $this->internshipContract->get($idInternship);
-            if (!count($data)) throw new ModelNotFoundException();
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -80,7 +79,7 @@ class InternshipContractController extends Controller
     // {
     //     try {
     //         $this->internshipContract->delete($uuid);
-            
+
     //         return $this->response->success();
     //     } catch (\Exception $e) {
     //         return $this->response->error($e);

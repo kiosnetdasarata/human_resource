@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Internship;
 
@@ -7,7 +7,7 @@ use App\Interfaces\Internship\InternshipRepositoryInterface;
 
 class InternshipRepository implements InternshipRepositoryInterface
 {
-    public function __construct(private Internship $internship) 
+    public function __construct(private Internship $internship)
     {
     }
 
@@ -28,7 +28,8 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->internship->with(['role', 'partnership', 'internshipContract'])->where('id', $uuid)->first();
+        $internship = $this->internship->find($uuid);
+        return $internship->load(['role', 'partnership', 'internshipContract']);
     }
 
     public function create($request)

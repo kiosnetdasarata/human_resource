@@ -28,9 +28,7 @@ class InternshipContractService
 
     public function find($id)
     {
-        $data = $this->internshipContract->find($id);
-        if ($data->is_expired || $data->date_expired < now()) throw new ModelNotFoundException();
-        return $data;
+        return $this->internshipContract->find($id);
     }
 
     public function create($id,$request)
@@ -80,7 +78,7 @@ class InternshipContractService
 
     public function deleteExistingContract($id)
     {
-        $internshipContract = $this->internshipContract->find($id);
+        $internshipContract = $this->internshipContract->find($id)->last();
         if ($internshipContract) {
             $this->internshipContract->update($internshipContract, ['is_expired' => 1]);
             $this->internshipContract->delete($internshipContract);

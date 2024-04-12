@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Interfaces\Internship;
 
@@ -9,6 +9,6 @@ interface InternshipContractRepositoryInterface
     public function getAll($uuid);
     public function find($uuid);
     public function create($request);
-    public function update(InternshipContract $internshipContract, $request);
-    public function delete(InternshipContract $internshipContract);
+    public function update($internshipContract, $request);
+    public function delete($internshipContract);
 }
