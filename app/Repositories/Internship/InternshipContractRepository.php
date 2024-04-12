@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Internship;
 
@@ -19,7 +19,9 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
     public function getAll($id)
     {
         $intern = $this->internship
-                    ->with('internshipContract')
+                    ->with(['internshipContract' => function($query) {
+                        $query->withTrashed();
+                    }])
                     ->where('id', $id)
                     ->firstOrFail();
         return $intern->internshipContract;
@@ -28,10 +30,7 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
     public function find($id)
     {
         $internship = $this->internship
-                            ->with(['internshipContract' => fn($query) => 
-                                $query->where('is_expired', 0)
-                                      ->where('date_expired', '>', now())
-                            ])
+                            ->with('internshipContract')
                             ->where('id', $id)
                             ->firstOrFail();
         return $internship->internshipContract->first();

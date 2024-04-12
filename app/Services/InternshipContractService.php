@@ -29,18 +29,17 @@ class InternshipContractService
     public function find($id)
     {
         $data = $this->internshipContract->find($id);
-        if (!$data) throw new ModelNotFoundException();
+        if ($data->is_expired || $data->date_expired < now()) throw new ModelNotFoundException();
         return $data;
     }
 
     public function create($id,$request)
     {
         return DB::transaction(function () use ($id, $request) {
-            $internship = $this->internship->find($id);
-            if (!$internship) throw new ModelNotFoundException();
-            
             $this->deleteExistingContract($id);
-            
+
+            $internship = $this->internship->find($id);
+
             $dateExpired = Carbon::parse($request['date_start'])->addMonths($request['durasi_kontrak']);
             $data = collect($request)->merge([
                 'id'                => Uuid::uuid4()->getHex(),
@@ -55,7 +54,7 @@ class InternshipContractService
         });
     }
 
-    public function update($id, $request) 
+    public function update($id, $request)
     {
         return DB::transaction(function () use ($id, $request) {
             $old = $this->get($id);
@@ -63,16 +62,16 @@ class InternshipContractService
 
             $date_start = isset($data['date_start']) ? $data['date_start'] : $old['date_start'];
             $durasi_kontrak = isset($data['durasi_kontrak']) ? $data['durasi_kontrak'] : $old['durasi_kontrak'];
-            
+
             $date_expired = Carbon::parse($date_start)->addMonths($durasi_kontrak);
 
             $data = $data->merge([
                 'date_expired' => $date_expired,
                 'is_expired'   => $date_expired < now() ? 1 : 0,
             ])->all();
-            
+
             $this->internshipContract->update($old, $data);
-            
+
             if ($data['is_expired']) {
                 $this->internshipContract->delete($old);
             }
