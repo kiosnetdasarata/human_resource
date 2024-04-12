@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Employee;
 
@@ -27,22 +27,21 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
     public function find($id)
     {
         $employee = $this->employee->findOrFail($id);
-        dd($employee->employeeContract);
         return $employee->employeeContract;
     }
-    
+
     public function create($request)
-    {       
-        $this->employeeContract->create($request);        
+    {
+        $this->employeeContract->create($request);
         $this->employeeContractHistory->create($request);
     }
-    
+
     public function update($id, $request)
-    {          
+    {
         $this->getAll($id)->last()->update($request);
         $this->find($id)->update($request);
     }
-    
+
     public function delete($employeeContract)
     {
         return $employeeContract->delete();

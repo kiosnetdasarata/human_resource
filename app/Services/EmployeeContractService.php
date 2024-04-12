@@ -5,7 +5,6 @@ namespace App\Services;
 use Ramsey\Uuid\Uuid;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
@@ -18,19 +17,13 @@ class EmployeeContractService
         private UserRepositoryInterface $user,
         private FileHelper $file
     )
-    { 
+    {
         //
     }
-    
+
     public function get($uuid)
     {
-        $data = $this->contract->getAll($uuid);
-        
-        if (!count($data)) {
-            throw new ModelNotFoundException();
-        }
-        
-        return $data;
+        return $this->contract->getAll($uuid);
     }
 
     public function find($uuid)
@@ -55,9 +48,9 @@ class EmployeeContractService
             'id'            => Uuid::uuid4()->getHex(),
             'nip_id'        => $employee->nip,
             'file_terms'    => $this->file->uploadToGCS($request['file_terms'],$employee->nip.'_file_terms_'.$request['start_kontrak'],'employee/file_terms'),
-            'kontrak_ke'    => (count($this->contract->getAll($uuid)) + 1),
+            'kontrak_ke'    => (count($this->get($uuid)) + 1),
         ])->all();
-        
+
         $this->contract->create($data);
         $this->user->setIsactive($employee->user, true);
     }
@@ -79,7 +72,7 @@ class EmployeeContractService
     {
         $contract = $this->find($uuid);
 
-        $this->user->setIsactive($contract->employee->user, false);            
+        $this->user->setIsactive($contract->employee->user, false);
         $this->contract->delete($contract);
     }
 }
