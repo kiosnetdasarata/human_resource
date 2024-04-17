@@ -1,11 +1,11 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
 use App\Models\Role;
 use App\Models\JobVacancy;
 use App\Interfaces\JobVacancyRepositoryInterface;
-use DomainException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class JobVacancyRepository implements JobVacancyRepositoryInterface
 {
@@ -16,9 +16,17 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getAll()
     {
-        return $this->jobVacancy->get()->map(function ($e) {
-            return $this->map($e)->except(['jobapplicant', 'traineeship']);
-        });
+        return $this->jobVacancy
+                ->with('role:id,nama_jabatan', 'branch:id,nama_branch', 'jobapplicant', 'traineeship')
+                ->get()
+                ->map(function ($e) {
+                    return collect($e)->merge([
+                        'role' => $e->role->nama_jabatan,
+                        'branch' => $e->branch->nama_branch,
+                        'applicant_count' => count($e->jobapplicant) + count($e->traineeship),
+                        'applicant_sum' => $e->countApplicantsByStatus()
+                    ]);
+                });
     }
 
     public function getRole()
@@ -29,34 +37,22 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobVacancy->with('role')->where('id', $id)->firstOrFail();
+        return $this->jobVacancy->find($id);
     }
 
     public function findMap($id)
     {
-        return $this->map($this->find($id));
-    }
-
-    private function map($jobVacancy)
-    {
-        $applicant = collect($jobVacancy->jobapplicant)->countBy('status_tahap');
-        if ($jobVacancy->is_intern) {
-            $trainee = collect($jobVacancy->traineeship)->countBy('status_tahap');
-            $applicant = $applicant->mergeRecursive($trainee)->map(function ($value, $key) {
-                return is_array($value) ? array_sum($value) : $value;
-            });
-        }
+        $jobVacancy = $this->find($id)->load('role');
         return collect($jobVacancy)->merge([
-            'role' => $jobVacancy->role->nama_jabatan,
             'branch' => $jobVacancy->branch->nama_branch,
             'applicant_count' => count($jobVacancy->jobapplicant) + count($jobVacancy->traineeship),
-            'applicant_sum' => $applicant->all()
+            'applicant_sum' => $jobVacancy->countApplicantsByStatus()
         ]);
     }
 
-    public function getTraineeships($id) 
+    public function getTraineeships($id)
     {
-        return $this->find($id)->traineeship ?? throw new DomainException('isIntern is false');
+        return $this->find($id)->traineeship ?? throw new ModelNotFoundException('isIntern is false');
     }
 
     public function getJobApplicants($id)
@@ -74,17 +70,17 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     {
         return $this->jobVacancy->where('role_id', $roleId)->where('branch_company_id', $branch)->first();
     }
-    
+
     public function create($request)
     {
         return $this->jobVacancy->create($request->all());
     }
-    
+
     public function update($jobVacancy, $request)
     {
         return $jobVacancy->update($request);
     }
-    
+
     public function delete($jobVacancy)
     {
         return $jobVacancy->delete();

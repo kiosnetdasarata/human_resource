@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Dotenv\Exception\ValidationException;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class JobVacancy extends Model
 {
@@ -25,6 +25,20 @@ class JobVacancy extends Model
         'is_intern',
         'keterangan'
     ];
+
+    public function countApplicantsByStatus(): Collection
+    {
+        $applicantCounts = $this->jobapplicant->countBy('status_tahap');
+
+        if ($this->is_intern) {
+            $traineeCounts = $this->traineeship->countBy('status_tahap');
+            $applicantCounts = $applicantCounts->mergeRecursive($traineeCounts)->map(function ($value, $key) {
+                return is_array($value) ? array_sum($value) : $value;
+            });
+        }
+
+        return $applicantCounts;
+    }
 
     public function division(): BelongsTo
     {

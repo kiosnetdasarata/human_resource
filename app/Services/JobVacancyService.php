@@ -1,14 +1,14 @@
-<?php 
+<?php
 
 namespace App\Services;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Dotenv\Exception\ValidationException;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\JobApplicantRepositoryInterface;
 use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
+use LogicException;
 
 class JobVacancyService
 {
@@ -17,8 +17,8 @@ class JobVacancyService
         private ArchiveJobApplicantRepositoryInterface $archiveJobApplicant,
         private JobApplicantRepositoryInterface $jobApplicant,
         private TraineeshipRepositoryInterface $traineeship
-    ) 
-    { 
+    )
+    {
         //
     }
 
@@ -42,7 +42,7 @@ class JobVacancyService
         return $this->jobVacancy->getJobApplicants($id);
     }
 
-    public function getTraineeships($id) 
+    public function getTraineeships($id)
     {
         return $this->jobVacancy->getTraineeships($id);
     }
@@ -78,21 +78,21 @@ class JobVacancyService
 
         $this->jobVacancy->update($jobVacancy,$data->all());
     }
-    
+
     private function validateData($request, $jobVacancy = null)
     {
-        $roleId = $request['role_id'] ?: $jobVacancy->role_Id;
-        $branchId = $request['branch_company_id'] ?: $jobVacancy->branch_company_id;
+        $roleId = $request->has('role_id') ? $request['role_id'] : $jobVacancy->role_Id;
+        $branchId = $request->has('branch_company_id') ? $request['role_id'] : $jobVacancy->branch_company_id;
 
         if ($this->jobVacancy->findSameRoleOnBranch($roleId, $branchId)) {
-            throw new ValidationException('Duplikat role');
+            throw new LogicException('Duplikat role');
         }
-        
-        $closeDate = $request['close_data'] ?: $jobVacancy->close_date;
-        $openDate = $request['open_data'] ?: $jobVacancy->open_date;
+
+        $closeDate = $request->has('close_data') ? $request['close_data'] : $jobVacancy->close_date;
+        $openDate = $request->has('open_data') ? $request['open_data'] : $jobVacancy->open_date;
 
         if ($closeDate <= $openDate) {
-            throw new ValidationException('close date tidak sesuai dengan open date');
+            throw new LogicException('close date tidak sesuai dengan open date');
         }
     }
 
@@ -106,7 +106,7 @@ class JobVacancyService
             if ($jobVacancy->is_intern) {
                 $this->deleteApplicant($jobVacancy->traineeship, 1, $jobVacancy->role_id);
             }
-            
+
             $this->jobVacancy->delete($jobVacancy);
         });
     }
@@ -120,11 +120,11 @@ class JobVacancyService
                 'is_intern'         => $isIntern,
                 'role_id'           => $roleId,
             ];
-    
+
             if ($isIntern) {
                 $data['no_tlpn'] = $applicant->nomor_telepone;
             }
-    
+
             $this->archiveJobApplicant->create($data);
 
             ($isIntern ? $this->traineeship : $this->jobApplicant)->delete($applicants);
