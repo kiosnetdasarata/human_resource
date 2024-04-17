@@ -8,12 +8,9 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\TechnicianController;
-use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\JobApplicantController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Internship\InternshipController;
 use App\Http\Controllers\Internship\PartnershipController;
@@ -40,29 +37,30 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 
 // Route get branch
 Route::get('/branchs', BranchController::class);
-//Route JobVacancy
-Route::get('/job-vacancy/{id}/job-aplicant', [JobApplicantController::class, 'getByJobVacancy']);
-Route::get('/job-vacancy/{id}/job-aplicant/archive', [ArchiveApplicantController::class, 'getJobApplicant']);
-Route::get('/job-vacancy/{id}/traineeship', [TraineeshipController::class, 'getByJobVacancy']);
-Route::get('/job-vacancy/{id}/traineeship/archive', [ArchiveApplicantController::class, 'getTraineeship']);
 
+// ---------- Job Vacancy ----------
+Route::get('/job-vacancy/{id}/job-aplicant', [JobApplicantController::class, 'getByJobVacancy']);
+Route::get('/job-vacancy/{id}/traineeship', [TraineeshipController::class, 'getByJobVacancy']);
 Route::get('/job-vacancy/role', [JobVacancyController::class, 'role']);
 Route::apiResource('job-vacancy', JobVacancyController::class);
-//Route Zone
+
+// ---------- Zone ----------
 Route::controller(ZoneController::class)->prefix('zone')->group(function() {
     Route::get('/provinces', 'getProvinces');
     Route::get('/{province}/regencies', 'getRegencies');
     Route::get('/{regency}/districts', 'getDistricts');
     Route::get('/{district}/villages', 'getVillages');
 });
-// Route get job title by division
+
+// ---------- Division ----------
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
 Route::get('/division/{division}/employee', [DivisionController::class, 'getEmployee']);
 Route::get('/division/{division}/employee/archive', [DivisionController::class, 'getEmployeeArchive']);
 Route::apiResource('division', DivisionController::class);
-// Route get Job Title
+
+// ---------- Role ----------
 Route::apiresource('role', RoleController::class);
-// Route get Level
+// ---------- Level ----------
 Route::apiResource('level', LevelController::class);
 
 
@@ -70,7 +68,7 @@ Route::apiResource('level', LevelController::class);
 Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
 
-//Punya Al, form 3 pake updatenya employee resource ln.61
+// ---------- Employee ----------
 // Route::middleware(['jwt:api'])->group(function() {
     Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
     Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
@@ -83,32 +81,35 @@ Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
     Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);
 // });
 
-Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
-Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
+// Route::apiResource('sales', SalesController::class)->except(['store', 'destroy']);
+// Route::apiResource('technician', TechnicianController::class)->except(['store', 'destroy']);
 
-Route::get('/aplicant/archive/{id}', [ArchiveApplicantController::class, 'find']);
+// ---------- Job Applicant ----------
 Route::get('/job-aplicant/status/{status}', [JobApplicantController::class, 'find']);
-Route::get('/job-aplicant/archive', [ArchiveApplicantController::class, 'getJobApplicant']);
 Route::patch('job-aplicant/{id}/update-status', [JobApplicantController::class, 'changeStatus']);
-Route::apiResource('job-aplicant', JobApplicantController::class);
+Route::apiResource('job-aplicant', JobApplicantController::class)->except(['destroy']);
 
-//Punya Aul
-Route::get('/traineeship/archive', [ArchiveApplicantController::class, 'getTraineeship']);
+// ---------- Archive Applicant ----------
+Route::get('/aplicant/archive/{id}', [ArchiveApplicantController::class, 'find']);
+Route::get('/aplicant/archive', [ArchiveApplicantController::class, 'get']);
+
+// ---------- Traineeship ----------
 Route::apiResource('traineeship', TraineeshipController::class)->except(['destroy']);
 
-Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']); //create internship pake ini,
-Route::apiResource('internship', InternshipController::class)->except(['store']);
+// ---------- Internship ----------
+Route::post('/internship/{idTraineeship}', [InternshipController::class, 'store']);
 Route::get('/internship/{idInternship}/contract/history', [InternshipContractController::class, 'index']);
+Route::apiResource('internship', InternshipController::class)->except(['store']);
 Route::apiSingleton('internship.contract', InternshipContractController::class)->creatable()->except('destroy');
 
-
-Route::get('/partnership/{IdMitra}/file/history', [FilePartnershipController::class, 'index']);
-Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
+// ---------- Partnership ----------
+Route::get('/partnership/{id}/file/history', [FilePartnershipController::class, 'index']);
 Route::get('/partnership/{id}/{status}', [PartnershipController::class, 'findInternship']);
 Route::get('/partnership/{id}/{status}/archive', [PartnershipController::class, 'findInternshipArchive']);
 Route::apiSingleton('partnership.file', FilePartnershipController::class)->creatable()->except('destroy');
 Route::apiResource('partnership', PartnershipController::class)->except('destroy');
 
+// ---------- Interview Point ----------
 Route::apiSingleton('{applicantType}/{id}/interview-point', InterviewPointController::class)->creatable()->except(['destroy']);
 
 
@@ -117,7 +118,7 @@ Route::apiSingleton('{applicantType}/{id}/interview-point', InterviewPointContro
 //     Route::get('/get-current-user', function() {
 //         return response()->json(['user' => auth()->user()->employee]);
 //     });
-//     Route::post('logout', LogoutController::class);    
+//     Route::post('logout', LogoutController::class);
 // });
 
 // Route::middleware('guest:api')->group(function() {
