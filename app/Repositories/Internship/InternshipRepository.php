@@ -28,8 +28,13 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function find($uuid)
     {
-        $internship = $this->internship->find($uuid);
-        return $internship->load(['role', 'partnership', 'internshipContract']);
+        return $this->internship
+                ->findOrFail($uuid)
+                ->load([
+                    'role',
+                    'partnership',
+                    'internshipContract
+                ']);
     }
 
     public function create($request)

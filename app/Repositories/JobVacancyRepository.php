@@ -12,6 +12,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function __construct(private JobVacancy $jobVacancy)
     {
+        //
     }
 
     public function getAll()

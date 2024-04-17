@@ -4,7 +4,6 @@ namespace App\Repositories\Employee;
 
 use App\Models\Employee;
 use App\Models\EmployeeContract;
-use Illuminate\Support\Facades\DB;
 use App\Models\EmployeeContractHistory;
 use App\Interfaces\Employee\EmployeeContractRepositoryInterface;
 
@@ -20,14 +19,12 @@ class EmployeeContractRepository implements EmployeeContractRepositoryInterface
 
     public function getAll($id)
     {
-        $employee = $this->employee->findOrFail($id);
-        return $employee->contractHistory;
+        return $this->employee->findOrFail($id)->contractHistory;
     }
 
     public function find($id)
     {
-        $employee = $this->employee->findOrFail($id);
-        return $employee->employeeContract;
+        return $this->employee->findOrFail($id)->contract;
     }
 
     public function create($request)

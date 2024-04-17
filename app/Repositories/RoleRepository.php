@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -12,35 +12,34 @@ class RoleRepository implements RoleRepositoryInterface
     {
     }
 
-    public function getAll($division = null)
+    public function getAll($divisionId = null)
     {
-        $query = $this->role;
-        if ($division != null) {
-            $query = $query->where('divisi_id', $division);
-        }
+        $query = $this->role->query();
+        $query->when($divisionId, function ($q) use ($divisionId) {
+            return $q->where('status', $divisionId);
+        });
+
         return $query->with(['division', 'level'])->get();
     }
 
-    public function find($kodeJabatan)
+    public function find($id)
     {
-        return $this->role->where('id', $kodeJabatan)->firstOrFail();
+        return $this->role->findOrFail($id);
     }
-    
+
     public function create($request)
     {
         return $this->role->create($request);
     }
-    
+
     public function update($role, $request)
     {
         return $role->update($request);
     }
-    
+
     public function delete($role)
     {
         return $role->delete();
     }
-    
-}
 
-?>
+}

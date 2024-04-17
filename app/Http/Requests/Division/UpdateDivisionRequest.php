@@ -27,11 +27,8 @@ class UpdateDivisionRequest extends FormRequest
         $division = $this->route('division');
         return [
             'nama_divisi' => 'unique:divisions,nama_divisi,'.$division.',id',
-            'kode_divisi' => 'string|unique:divisions,kode_divisi,'.$division.',id',
             'manager_divisi' => 'exists:employee_personal_informations,nip',
-            'email' => 'email|unique:divisions,email,'.$division.',id',
-            'no_tlpn' => 'numeric|digits_between:10,15|unique:divisions,no_tlpn,'.$division.',id',
-            'status' => 'string',
+            'is_active' => 'in:0,1',
         ];
     }
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Internship;
 
@@ -6,6 +6,7 @@ use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 use App\Models\InterviewPoint;
 use App\Models\JobApplicant;
 use App\Models\Traineeship;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class InterviewPointRepository implements InterviewPointRepositoryInterface
 {
@@ -18,7 +19,8 @@ class InterviewPointRepository implements InterviewPointRepositoryInterface
 
     public function find($id, $isIntern)
     {
-        return ($isIntern ? $this->traineeship : $this->jobApplicant)->find($id)->interviewPoint;
+        $poin = ($isIntern ? $this->traineeship : $this->jobApplicant)->findOrFail($id)->interviewPoint;
+        return $poin ?: throw new ModelNotFoundException();
     }
 
     public function create($request)

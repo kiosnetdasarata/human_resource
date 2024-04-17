@@ -23,7 +23,6 @@ class InternshipService
     public function get()
     {
         $data =  $this->internship->getAll();
-        if (!$data) throw new ModelNotFoundException();
         return $data;
     }
 
@@ -35,7 +34,7 @@ class InternshipService
 
     public function create($idTraineenship, $request)
     {
-        return DB::Transaction(function() use ($idTraineenship, $request) {            
+        return DB::Transaction(function() use ($idTraineenship, $request) {
             $traineeship = $this->traineeship->find($idTraineenship);
 
             $data = collect($traineeship)->merge($request)->merge([
@@ -71,7 +70,7 @@ class InternshipService
     {
         return DB::transaction(function () use ($uuid) {
             $this->internshipContract->deleteExistingContract($uuid);
-            
+
             $this->internship->delete($this->find($uuid));
         });
     }
@@ -82,8 +81,8 @@ class InternshipService
         if (($count < 10)) $count = '00'.$count;
         else if (($count < 100)) $count = '0'.$count;
 
-        return (string) ( 
-            '2' 
+        return (string) (
+            '2'
             . (string) now()->format('Ym')
             . ($jk == 'Laki-Laki' ? '1':'0')
             . $count
@@ -93,7 +92,7 @@ class InternshipService
     private function generateInternshipSlug($name)
     {
         $list = $this->find($name, 'slug');
-        
+
         $slug = Str::slug($name,'_');
         if (count($list)) {
             $int    = $list->sortBy('slug')->last()->slug;

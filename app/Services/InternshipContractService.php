@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
 

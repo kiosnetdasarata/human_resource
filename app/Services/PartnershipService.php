@@ -2,10 +2,10 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use LogicException;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Dotenv\Exception\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\PartnershipRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
@@ -36,7 +36,7 @@ class PartnershipService
         if ($status != 'magang' && $status != 'internship') {
             throw new ModelNotFoundException();
         }
-        
+
         $status = Str::title($status);
         return $this->partnership->getInternship($id,$status);
     }
@@ -46,9 +46,8 @@ class PartnershipService
         if ($status != 'magang' && $status != 'internship') {
             throw new ModelNotFoundException();
         }
-        
-        $data =  $this->partnership->getInternshipArchive($id,$status);
-        if (!$data) throw new ModelNotFoundException();
+
+        $data = $this->partnership->getInternshipArchive($id,$status);
         return $data;
     }
 
@@ -61,8 +60,11 @@ class PartnershipService
     public function update($id, $request)
     {
         $old = $this->find($id);
-        $data = collect($request)->diffAssoc($old)
-                ->put('nama_mitra', Str::title($request['nama_mitra']))->all();
+        $data = collect($request)->diffAssoc($old);
+
+        if($data->has('nama_mitra')) {
+            $data->put('nama_mitra', Str::title($request['nama_mitra']))->all();
+        }
         return $this->partnership->update($old, $data);
     }
 
@@ -74,27 +76,26 @@ class PartnershipService
     public function findFile($idParnership)
     {
         $data = $this->filePartnership->find($idParnership);
-        
-        if (!$data) throw new ModelNotFoundException();
+
+        if ($data->is_expired || $data->date_expired < now()) throw new ModelNotFoundException();
         return $data;
     }
 
     public function getFile($id)
     {
         $data = $this->filePartnership->getAll($id);
-        if (!$data) throw new ModelNotFoundException();
         return $data;
     }
 
     public function createFile($idPartnership, $request)
     {
         return DB::transaction(function () use ($idPartnership, $request) {
-            if ($request['date_start'] > now()) { 
-                throw new ValidationException('date_start tidak boleh tanggal yang akan datang');
+            if ($request['date_start'] > now()) {
+                throw new LogicException('date_start tidak boleh tanggal yang akan datang');
             }
-            
+
             $old = $this->filePartnership->find($idPartnership);
-            if ($old && $old->date_expired > now()) {
+            if ($old) {
                 $this->filePartnership->update($old, ['is_expired' => 1]);
             }
 
@@ -122,11 +123,12 @@ class PartnershipService
 
             $date_start = isset($data['date_start']) ? $data['date_start'] : $old['date_start'];
             $durasi_kontrak = isset($data['durasi_kontrak']) ? $data['durasi_kontrak'] : $old['durasi_kontrak'];
-            
+
             $date_expired = Carbon::parse($date_start)->addMonths($durasi_kontrak);
 
-            $data->put('date_expired', $date_expired)
-                 ->put('is_expired', $date_expired < now() ? 1 : 0);
+            $data->put('is_expired', $date_expired < now() ? 1 : 0);
+            $data->put('date_expired', $date_expired);
+
 
             $this->filePartnership->update($old, $data);
         });

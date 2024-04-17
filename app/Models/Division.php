@@ -25,7 +25,7 @@ class Division extends Model
         'manager_divisi',
         'email',
         'no_tlpn',
-        'status',
+        'is_active',
     ];
 
     public function employee(): HasManyThrough
@@ -42,7 +42,7 @@ class Division extends Model
     {
         return $this->belongsTo(Employee::class, 'manager_divisi', 'nip');
     }
-    
+
     public function internship(): HasMany
     {
         return $this->hasMany(Internship::class, 'divisi_id');

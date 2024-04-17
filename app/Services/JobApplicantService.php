@@ -4,12 +4,12 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use App\Helpers\FileHelper;
-use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\JobApplicantRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use LogicException;
 
 class JobApplicantService
 {
@@ -28,7 +28,7 @@ class JobApplicantService
         return $this->jobApplicant->getAll();
     }
 
-    public function find($id) 
+    public function find($id)
     {
         return $this->jobApplicant->find($id);
     }
@@ -41,21 +41,19 @@ class JobApplicantService
     public function search($key, $val)
     {
         $data = $this->jobApplicant->search($key, $val);
-        if (count($data)) return $data;
-        else throw new ModelNotFoundException();
+        return $data;
     }
 
     public function getByVacancy($id)
     {
         $data = $this->jobVacancy->getJobApplicants($id);
-        if (count($data)) return $data;
-        else throw new ModelNotFoundException();
+        return $data;
     }
 
     public function create($request)
     {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
-        
+
         $this->validateData($jobVacancy, $request);
 
         $slug = $this->generateSlug($request['nama_lengkap']);
@@ -71,9 +69,9 @@ class JobApplicantService
         return $this->jobApplicant->create($data);
     }
 
-    public function update($id, $request) 
+    public function update($id, $request)
     {
-        return DB::transaction(function() use ($id, $request){  
+        return DB::transaction(function() use ($id, $request){
             $old = $this->find($id);
             $data = collect($request)->diffAssoc($old);
 
@@ -92,7 +90,7 @@ class JobApplicantService
         });
     }
 
-    public function updateStatus($id, $status) 
+    public function updateStatus($id, $status)
     {
         $jobApplicant = $this->find($id);
 
@@ -100,11 +98,11 @@ class JobApplicantService
             $oldStatus = $jobApplicant->status_tahap;
 
             if ($status == 'Assesment' && $oldStatus != 'FU') {
-                throw new ValidationException('status tidak valid');
+                throw new LogicException('status tidak valid');
             } elseif ($status == 'Lolos' && $jobApplicant->hr_point_id == null) {
                 throw new ModelNotFoundException('hr point not found');
             }
-            
+
             $this->jobApplicant->update($jobApplicant, ['status' => $status]);
 
             if ($status == 'Lolos' || $status == 'Tolak') {
@@ -116,13 +114,13 @@ class JobApplicantService
     private function validateData($jobVacancy, $jobApplicant)
     {
         if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date']){
-            throw new ModelNotFoundException('vacancy belum dibuka / sudah ditutup');
+            throw new LogicException('vacancy belum dibuka / sudah ditutup');
         }
 
         if (isset($jobApplicant['tanggal_lahir'])) {
             $age = Carbon::parse($jobApplicant['tanggal_lahir'])->diffInYears(now());
             if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) {
-                throw new ValidationException('umur tidak valid');
+                throw new LogicException('umur tidak valid');
             }
         }
     }
@@ -130,7 +128,7 @@ class JobApplicantService
     private function generateSlug($name)
     {
         $list = $this->findSlug($name);
-        
+
         $slug = Str::slug($name,'_');
         if (count($list)) {
             $int    = $list->sortBy('slug')->last()->slug;
@@ -143,9 +141,7 @@ class JobApplicantService
 
     private function delete($jobApplicant)
     {
-        if ($jobApplicant->interviewPoint) {
-            $this->interviewPoint->delete($jobApplicant->interviewPoint);
-        }
+        $this->interviewPoint->delete($jobApplicant->interviewPoint);
         $this->jobApplicant->delete($jobApplicant);
     }
 }

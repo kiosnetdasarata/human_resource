@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Employee;
 
@@ -18,34 +18,26 @@ class EmployeeEducationRepository implements EmployeeEducationRepositoryInterfac
 
     public function getAll($id)
     {
-        $employee = $this->employee->with('employeeEducation')->find($id);
-        return $employee->employeeEducation;
+        return $this->employee->findOrFail($id)->educationHistory;
     }
 
     public function find($id)
     {
-        $employee =  $this->employee->with(['employeeEducation' => function ($query) {
-                    $query->orderBy('pendidikan_terakhir')
-                        ->orderBy('created_at')
-                        ->first();
-                }])->find($id);
-        return $employee->employeeEducation->first();
+        return$this->employee->findOrFail($id)->education;
     }
-    
+
     public function create($request)
     {
         return $this->employeeEducation->create($request);
     }
-    
+
     public function update($id, $request)
     {
         return $this->find($id)->update($request);
     }
-    
+
     public function delete($id)
     {
         return $this->find($id)->delete();
     }
 }
-
-?>

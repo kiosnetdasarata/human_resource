@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -16,23 +16,23 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getAll()
     {
-        return $this->division->with(['role', 'manager'])->get()->map(function ($e) {
+        return $this->division->with(['role:id', 'manager:nip,nama'])->get()->map(function ($e) {
             return[
-                'id' => $e->id,
-                'nama_divisi' => $e->nama_divisi,
-                'kode_divisi' => $e->kode_divisi,
-                'supervisor' => $e->manager->nama,
-                'no_tlpn' => $e->no_tlpn,
-                'jumlah_jabatan' => count($e->role),
-                'created_at' => $e->created_at,
-                'updated_at' => $e->updated_at
+                'id'                => $e->id,
+                'nama_divisi'       => $e->nama_divisi,
+                'kode_divisi'       => $e->kode_divisi,
+                'supervisor'        => $e->manager->nama,
+                'no_tlpn'           => $e->no_tlpn,
+                'jumlah_jabatan'    => count($e->role),
+                'created_at'        => $e->created_at,
+                'updated_at'        => $e->updated_at
             ];
         });
     }
 
     public function find($id)
     {
-        return $this->division->with(['role', 'manager'])->where('id', $id)->firstOrFail();
+        return $this->division->find($id)->load(['role', 'manager']);
     }
 
     public function findSlug($slug)
@@ -42,37 +42,14 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function create($request)
     {
-        $division = collect($request)->merge([
-            'nama_divisi' => Str::title($request['nama_divisi']),
-            'slug' => Str::slug($request['nama_divisi'], '_')
-        ])->all();
-        return $this->division->create($division);
+        return $this->division->create($request);
     }
 
-    public function getEmployee($id)
+    public function update($old, $request)
     {
-        return $this->division->with('employee')->where('id', $id)->firstOrFail()->employee;
+        return $old->update($request);
     }
 
-    public function getEmployeeArchive($id)
-    {
-        return $this->division->with('employeeArchive')->where('id', $id)->firstOrFail()->employeeArchive;
-    }
-    
-    public function update($id, $request)
-    {
-        $old = $this->find($id);
-        $division = collect($request)->diffAssoc($old);
-        if (isset($division['nama_divisi'])) {
-            $division = $division->merge([
-                'nama_divisi' => Str::title($request['nama_divisi']),
-                'slug' => Str::slug($request['nama_divisi'], '_')
-            ]);
-        }
-        
-        return $old->update($division->all());
-    }
-    
     public function delete($division)
     {
         return $division->delete();

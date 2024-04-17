@@ -8,6 +8,7 @@ use Illuminate\Auth\AuthenticationException;
 use Google\Cloud\Core\Exception\ConflictException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use LogicException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ResponseHelper
@@ -22,6 +23,7 @@ class ResponseHelper
             ModelNotFoundException::class   => ['Data not found', 404],
             ConflictException::class        => ['Conflict', 409],
             NotFoundHttpException::class    => ['Not Found', 404],
+            LogicException::class           => ['Logic Exception', 400]
         ];
 
         [$defaultMessage, $statusCode] = $exceptions[get_class($e)] ?? ['Internal Server Error', 500];
@@ -36,7 +38,7 @@ class ResponseHelper
             'status'        => 'error',
             'message'       => $message,
             'status_code'   => $statusCode,
-            // 'trace'         => $trace    //debug only
+            'trace'         => $trace    //debug only
         ];
 
         if ($input) {
@@ -46,16 +48,15 @@ class ResponseHelper
         return response()->json($response);
     }
 
-    public function success($data = null) {
+    public function success($data = '') {
         $response = [
             'status'        => 'success',
             'status_code'   => 200
         ];
-
-        if ($data) {
+        if ($data != '') {
             $response['data'] = $data;
         }
-        
+
         return response()->json($response);
     }
 }

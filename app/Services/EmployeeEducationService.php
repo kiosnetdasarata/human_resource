@@ -1,11 +1,11 @@
-<?php 
+<?php
 
 namespace App\Services;
 
-use Dotenv\Exception\ValidationException;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
+use LogicException;
 
 class EmployeeEducationService
 {
@@ -13,10 +13,10 @@ class EmployeeEducationService
         private EmployeeEducationRepositoryInterface $employeeEducation,
         private EmployeeRepositoryInterface $employee
     )
-    { 
+    {
         //
     }
-    
+
     public function get($uuid)
     {
         return $this->employeeEducation->getAll($uuid);
@@ -25,7 +25,7 @@ class EmployeeEducationService
     public function find($uuid)
     {
         $data = $this->employeeEducation->find($uuid);
-        
+
         if (!$data) throw new ModelNotFoundException();
         else return $data;
     }
@@ -55,7 +55,7 @@ class EmployeeEducationService
     private function validateData($uuid, $request)
     {
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] > date('Y')) {
-            throw new ValidationException('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
+            throw new LogicException('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
         }
 
         $history = $this->employeeEducation->getAll($uuid);
@@ -66,13 +66,13 @@ class EmployeeEducationService
                 if ($newPendidikan == 'Sarjana') return;
 
                 if ($oldPendidikan == $newPendidikan) {
-                    throw new ValidationException('pendidikan_terakhir jenjang '. $newPendidikan. ' sudah ada');
+                    throw new LogicException('pendidikan_terakhir jenjang '. $newPendidikan. ' sudah ada');
                 }
 
                 $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-                if (array_search($oldPendidikan, $arr) < array_search($newPendidikan, $arr) && 
+                if (array_search($oldPendidikan, $arr) < array_search($newPendidikan, $arr) &&
                     $data['tahun_lulus'] <= $request['tahun_lulus']) {
-                    throw new ValidationException ('tahun lulus tidak valid');
+                    throw new LogicException ('tahun lulus tidak valid');
                 }
             }
         }

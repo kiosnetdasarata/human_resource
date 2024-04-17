@@ -19,7 +19,7 @@ class PartnershipController extends Controller
     {
         //
     }
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -60,6 +60,7 @@ class PartnershipController extends Controller
     {
         try {
             $data = $this->partnership->getInternshipArchive($id, $status);
+            dd($data);
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -98,7 +99,7 @@ class PartnershipController extends Controller
     public function destroy(string $uuid)
     {
         try {
-            $this->partnership->delete($uuid);            
+            $this->partnership->delete($uuid);
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Partnership extends Model
 {
@@ -19,13 +20,18 @@ class Partnership extends Model
         'email',
     ];
 
-    public function internship(): HasMany
+    public function internships(): HasMany
     {
         return $this->hasMany(Internship::class, 'mitra_id');
     }
 
-    public function filePartnership(): HasMany
+    public function filesHistory(): HasMany
     {
         return $this->hasMany(FilePartnership::class, 'mitra_id')->orderBy('created_at');
+    }
+
+    public function file(): HasOne
+    {
+        return $this->files()->one()->latestOfMany();
     }
 }

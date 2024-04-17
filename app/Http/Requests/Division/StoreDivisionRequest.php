@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Division;
 
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -18,16 +17,6 @@ class StoreDivisionRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     */
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'slug' => Str::slug($this->nama_divisi, '_')
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
@@ -38,9 +27,6 @@ class StoreDivisionRequest extends FormRequest
             'nama_divisi' => 'required|unique:divisions,nama_divisi',
             'kode_divisi' => 'required|string|unique:divisions,kode_divisi',
             'manager_divisi' => 'required|exists:employee_personal_informations,nip',
-            'email' => 'required|email|unique:divisions,email',
-            'no_tlpn' => 'required|numeric|digits_between:10,15|unique:divisions,no_tlpn',
-            'status' => 'required|string',
         ];
     }
 

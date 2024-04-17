@@ -1,16 +1,16 @@
-<?php 
+<?php
 
 namespace App\Services;
 
 use Carbon\Carbon;
+use LogicException;
 use App\Helpers\FileHelper;
-use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
-use Dotenv\Exception\ValidationException;
 
 class TraineeshipService
 {
@@ -23,7 +23,7 @@ class TraineeshipService
     {
         //
     }
-    
+
     public function get()
     {
         return $this->traineeship->getAll();
@@ -34,18 +34,18 @@ class TraineeshipService
         return $withtrashes ? $this->traineeship->findWithTrashes($id) : $this->traineeship->find($id);
     }
 
-    public function findTraineeshipSlug($name) 
+    public function findTraineeshipSlug($name)
     {
         return $this->traineeship->findBySlug(Str::slug($name, '_'));
     }
 
-    public function findByVacancy($id) 
+    public function findByVacancy($id)
     {
         return $this->jobVacancy->getTraineeships($id);
     }
-    
+
     public function create($request)
-    {        
+    {
         $jobVacancy = $this->jobVacancy->find($request['vacancy_id']);
         $this->validateData($request, $jobVacancy);
 
@@ -56,14 +56,14 @@ class TraineeshipService
             'tanggal_lamaran'   => now()->format('Y-m-d'),
             'file_cv'           => $this->file->uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv','traineeship/cv')
         ]);
-        
+
         return $this->traineeship->create($traineeship->all());
     }
 
-    public function update($id, $request) 
+    public function update($id, $request)
     {
         $old = $this->traineeship->find($id);
-                    
+
         $data = collect($request)->diffAssoc($old);
         $this->validateData($data, $old->jobVacancy);
 
@@ -77,7 +77,7 @@ class TraineeshipService
                 $link = $this->file->uploadToGCS($data['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'traineeship/file_cv');
                 $data->put('file_cv', $link);
             }
-            
+
             $this->traineeship->update($old, $data->all());
         });
     }
@@ -86,12 +86,12 @@ class TraineeshipService
     {
         $old = $this->traineeship->find($id);
         if (!$old) throw new ModelNotFoundException();
-        
+
         return DB::transaction(function () use ($old, $status) {
             $oldStatus = $old->status_tahap;
 
             if ($status == 'Assesment' && $oldStatus != 'FU') {
-                throw new ValidationException ('status jobApplicant tidak valid');
+                throw new LogicException('status jobApplicant tidak valid');
             }
 
             $this->traineeship->update($old, ['status_tahap' => $status]);
@@ -99,7 +99,7 @@ class TraineeshipService
             if ($status == 'Tolak' ||$status == 'Lolos') {
                 $this->delete($old);
             }
-        });            
+        });
     }
 
     private function validateData($request, $jobVacancy)
@@ -110,19 +110,19 @@ class TraineeshipService
 
         $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
         if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) {
-            throw new ValidationException('umur tidak valid');
+            throw new LogicException('umur tidak valid');
         }
-        
+
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] >= date('Y')) {
-            throw new ValidationException('tahun lulus tidak valid');
+            throw new LogicException('tahun lulus tidak valid');
         }
     }
 
-    
+
     private function generateTraineeshipSlug($name)
     {
         $list = $this->findTraineeshipSlug($name);
-        
+
         $slug = Str::slug($name,'_');
         if (count($list)) {
             $int    = $list->sortBy('slug')->last()->slug;

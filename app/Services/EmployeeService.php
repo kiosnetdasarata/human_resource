@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use LogicException;
 use Ramsey\Uuid\Uuid;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
@@ -9,11 +10,9 @@ use Illuminate\Support\Facades\DB;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
-use Google\Cloud\Core\Exception\ConflictException;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
-use App\Interfaces\Employee\EmployeeArchiveRepositoryInterface;
 
 class EmployeeService
 {
@@ -23,12 +22,11 @@ class EmployeeService
         private SalesRepositoryInterface $sales,
         private TechnicianRepositoryInterface $technician,
         private UserRepositoryInterface $user,
-        private EmployeeArchiveRepositoryInterface $employeeArchive,
         private FileHelper $file,
         private EmployeeEducationService $education,
         private EmployeeContractService $contract,
     )
-    { 
+    {
         //
     }
 
@@ -39,19 +37,19 @@ class EmployeeService
 
     public function getEmployeeArchive()
     {
-        $data = $this->employeeArchive->getAll();
-        
-        if (!count($data)) { 
-            throw new ModelNotFoundException('Data not found');
+        $data = $this->employee->getArchive();
+
+        if (!count($data)) {
+            throw new ModelNotFoundException();
         } else return $data;
     }
 
     public function findEmployeePersonal($uuid)
     {
         $data = $this->employee->show($uuid);
-        
-        if (!$data) { 
-            throw new ModelNotFoundException('Data not found');
+
+        if (!$data) {
+            throw new ModelNotFoundException();
         } else return $data;
     }
 
@@ -74,11 +72,11 @@ class EmployeeService
             $employee = $this->employee->find($uuid);
 
             if ($employee->employeeContract) {
-                throw new ConflictException('Data contract is exist. You have already filled out this form');
+                throw new LogicException('Data contract is exist. You have already filled out this form');
             }
-            
+
             $this->updateConfidential($employee->employeeCI, $request);
-            $this->contract->storeContract($uuid, $request);            
+            $this->contract->storeContract($uuid, $request);
             $this->user->setIsactive($employee->user, true);
         });
     }
@@ -100,7 +98,7 @@ class EmployeeService
 
             $this->contract->delete($uuid);
             $this->employeeCI->delete($employee->employeeCI);
-            $this->employee->delete($employee);            
+            $this->employee->delete($employee);
             $this->user->setIsactive($employee->user, false);
             $this->storeArchive($employee, $request);
         });
@@ -151,7 +149,7 @@ class EmployeeService
         $nip = $this->generateNip($request['jenis_kelamin']);
         $slug = Str::slug($request['nama'], '_');
 
-        $data = collect($request)->merge([                
+        $data = collect($request)->merge([
             'id'            => Uuid::uuid4()->getHex(),
             'nip'           => $nip,
             'slug'          => $slug,
@@ -159,7 +157,7 @@ class EmployeeService
         ])->all();
 
         $data = $this->employee->create($data);
-        
+
         if ($data['role_id'] == 2) {
             $this->createSales($data);
         } elseif ($data['role_id'] == 3) {
@@ -183,7 +181,7 @@ class EmployeeService
                 if ($old->sales) {
                     $this->sales->update($old['nip'], ['slug' => $data['slug']]);
                 } elseif ($old->technician) {
-                    $this->technician->update($old['nip'], ['slug' => $data['slug']]);            
+                    $this->technician->update($old['nip'], ['slug' => $data['slug']]);
                 }
             }
 
@@ -205,7 +203,7 @@ class EmployeeService
             'status_terminate'  => $request
         ])->all();
 
-        $this->employeeArchive->create($data);
+        $this->employee->createArchive($data);
     }
 
     private function storeConfidential($request)
@@ -218,7 +216,7 @@ class EmployeeService
             'foto_kk'   => $this->file->uploadToGCS($request['foto_kk'], $nip.'_kk', 'employee/foto_kk'),
             'file_cv'   => $this->file->uploadToGCS($request['file_cv'], $nip.'_cv', 'employee/file_cv'),
         ])->all();
-        
+
         $this->employeeCI->create($data);
     }
 

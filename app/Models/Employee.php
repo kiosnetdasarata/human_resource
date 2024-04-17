@@ -4,13 +4,9 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Sales;
-use App\Models\Presence;
 use App\Models\Technician;
-use App\Models\ContractHistory;
-use App\Models\EmployeeHistory;
 use App\Models\EmployeeContract;
 use App\Models\EmployeeEducation;
-use App\Models\EmployeeTrainings;
 use App\Models\EmployeeContractHistory;
 use App\Models\EmployeeConfidentalInformation;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Employee extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $table = 'employee_personal_informations';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -83,45 +79,30 @@ class Employee extends Model
     {
         return $this->regency->province();
     }
-    
-    public function contractHistory(): HasMany
-    {
-        return $this->hasMany(ContractHistory::class, 'nip_id','nip');
-    }
 
     public function employeeCI(): HasOne
     {
         return $this->hasOne(EmployeeConfidentalInformation::class, 'nip_id', 'nip');
     }
-    
-    public function employeeContract(): HasOne
+
+    public function contract(): HasOne
     {
         return $this->hasOne(EmployeeContract::class, 'nip_id', 'nip');
     }
 
-    public function employeeContractHistory(): HasMany
+    public function contractsHistory(): HasMany
     {
         return $this->hasMany(EmployeeContractHistory::class, 'nip_id', 'nip');
     }
 
-    public function employeeEducation(): HasMany
+    public function educationHistory(): HasMany
     {
-        return $this->hasMany(EmployeeEducation::class, 'nip_id', 'nip');
+        return $this->hasMany(EmployeeEducation::class, 'nip_id', 'nip')->orderByDesc('created_at');
     }
 
-    public function employeeHistory(): HasMany
+    public function education(): HasOne
     {
-        return $this->hasMany(EmployeeHistory::class, 'nip_id', 'nip');
-    }
-
-    public function employeeTrainings(): HasMany
-    {
-        return $this->hasMany(EmployeeTrainings::class, 'nip_id', 'nip');
-    }
-
-    public function presence(): HasMany
-    {
-        return $this->hasMany(Presence::class, 'nip','nip');
+        return $this->educations()->one()->latestOfMany();
     }
 
     public function sales(): HasOne

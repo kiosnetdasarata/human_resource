@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Employee;
 
-use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Services\EmployeeService;
@@ -21,19 +20,15 @@ class EmployeeController extends Controller
         private ResponseHelper $response
         )
     { }
-    
+
     /**
      * Display a listing of the resource.
      */
     public function index()
-    { 
+    {
         try {
             // $this->authorize('view-any', Employee::class);
             $data = $this->employeeService->getAllEmployeePersonal();
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
-
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -43,10 +38,7 @@ class EmployeeController extends Controller
     {
         try {
             $data = $this->employeeService->getEmployeeArchive();
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
-            
+
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -58,7 +50,7 @@ class EmployeeController extends Controller
      */
     public function storeFormOne(FirstFormEmployeeRequest $request)
     {
-        try {            
+        try {
             $this->employeeService->firstForm($request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
@@ -107,7 +99,7 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request, $uuid)
     {
-        try {            
+        try {
             $data = Validator::make($request->all(), ['status_terminate' => 'required']);
             if ($data->fails()) throw new ValidationException($data->errors()->first());
 

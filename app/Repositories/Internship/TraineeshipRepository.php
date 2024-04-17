@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Internship;
 
@@ -7,42 +7,36 @@ use App\Models\Traineeship;
 
 class TraineeshipRepository implements TraineeshipRepositoryInterface
 {
-    public function __construct(private Traineeship $traineeship) 
+    public function __construct(private Traineeship $traineeship)
     {
     }
 
     public function getAll()
     {
-        return $this->traineeship->with(['interviewPoint', 'jobVacancy'])->get()->map(function ($e) {
-            $poin = $e->interviewPoint;
-            $data = collect($e)->put('poin', 0);
-            if ($poin != null)
-                $data['poin'] = (double) ($poin->presentasi + $poin->kualitas_kerja + $poin->etika
-                        + $poin->adaptif + $poin->kerja_sama + $poin->disiplin
-                        + $poin->tanggung_jawab + $poin->inovatif_kreatif 
-                        + $poin->problem_solving + $poin->kemampuan_teknis + $poin->tugas) / 11;
-            return $data->put('interview_point', '')->except(['interview_point'])->all();
-        });
+        return $this->traineeship->with(['jobVacancy'])->get();
     }
 
-    public function findBySlug($slug) 
+    public function findBySlug($slug)
     {
-        return $this->traineeship->with('interviewPoint')
+        return $this->traineeship
+                    ->with('interviewPoint')
                     ->where(function ($query) use ($slug) {
                         $query->where('slug', $slug)
                             ->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
-                    })->withTrashed()->get();        
+                    })
+                    ->withTrashed()
+                    ->get();
     }
 
 
     public function find($id)
     {
-        return $this->traineeship->with('interviewPoint')->where('id', $id)->firstOrFail();
+        return $this->traineeship->find($id)->load(['interviewPoint']);
     }
 
     public function findWithTrashes($id)
     {
-        return $this->traineeship->with('interviewPoint')->where('id', $id)->withTrashed()->firstOrFail();
+        return  $this->traineeship->withTrashed()->find($id)->load(['interviewPoint']);
     }
 
     public function findByJobVacancy($vacancyId)

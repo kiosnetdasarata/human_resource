@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Roles;
 use App\Models\InternshipContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 class Internship extends Model
 {
@@ -62,8 +60,15 @@ class Internship extends Model
         return $this->belongsTo(Partnership::class, 'mitra_id');
     }
 
-    public function internshipContract(): HasMany
+    public function contractsHistory(): HasMany
     {
-        return $this->hasMany(InternshipContract::class, 'internship_nip_id', 'internship_nip');
-    }    
+        return $this->hasMany(InternshipContract::class, 'internship_nip_id', 'internship_nip')
+                ->withTrashed()
+                ->orderBy('created_at');
+    }
+
+    public function contract(): HasOne
+    {
+        return $this->contractsHistory()->one()->latestOfMany();
+    }
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Internship;
 
@@ -7,7 +7,7 @@ use App\Interfaces\Internship\PartnershipRepositoryInterface;
 
 class PartnershipRepository implements PartnershipRepositoryInterface
 {
-    public function __construct(private Partnership $partnership) 
+    public function __construct(private Partnership $partnership)
     {
     }
 
@@ -18,28 +18,21 @@ class PartnershipRepository implements PartnershipRepositoryInterface
 
     public function find($id)
     {
-        return $this->partnership->with(['filePartnership' => fn ($query) =>
-            $query->where('is_expired', 0)
-                  ->where('date_expired', '>', now())
-                  ->first()
-        ])->where('id', $id)->firstOrFail();
+        return $this->partnership->find($id)->load('filesHistory');
     }
 
     public function getInternship($id, $status)
     {
-        $partnership =  $this->partnership->with(['internship' => function($query) use ($status){
+        return $this->partnership->with(['internships' => function($query) use ($status){
             $query->where('status_internship', $status);
-        }])->where('id', $id)->firstOrFail();
-        
-        return $partnership->internship;
+        }])->findOrFail($id)->internships;
     }
 
     public function getInternshipArchive($id, $status)
     {
-        $partnership = $this->partnership->with(['internship' => function($query) use ($status){
+        return $this->partnership->with(['internships' => function($query) use ($status){
             $query->where('status_internship', $status)->withTrashed();
-        }])->where('id', $id)->firstOrFail();
-        return $partnership->internship;
+        }])->findOrFail($id)->internships;
     }
 
     public function create($request)
@@ -56,5 +49,4 @@ class PartnershipRepository implements PartnershipRepositoryInterface
     {
         return $partnership->delete();
     }
-
 }

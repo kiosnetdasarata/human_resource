@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Employee;
 
@@ -11,7 +11,7 @@ class EmployeeCIRepository implements EmployeeCIRepositoryInterface
 
     public function __construct(
         private EmployeeConfidentalInformation $employeeConfidentalInformation,
-        private Employee $employee,    
+        private Employee $employee,
     )
     {
     }
@@ -23,23 +23,21 @@ class EmployeeCIRepository implements EmployeeCIRepositoryInterface
 
     public function find($uuid)
     {
-        return $this->employee->where('id', $uuid)->firstOrFail()->employeeCI;
+        return $this->employee->findOrFail($uuid)->employeeCI;
     }
 
     public function create($request)
     {
         return $this->employeeConfidentalInformation->create($request);
     }
-    
+
     public function update($employeeConfidentalInformation, $request)
     {
         return $employeeConfidentalInformation->update($request);
     }
-    
+
     public function delete($employeeConfidentalInformation)
     {
         return $employeeConfidentalInformation->delete();
     }
 }
-
-?>

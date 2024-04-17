@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\StoreContractRequest;
 use App\Http\Requests\Employee\UpdateContractRequest;
 use App\Services\EmployeeContractService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeContractController extends Controller
 {

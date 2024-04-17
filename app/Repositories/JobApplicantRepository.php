@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -7,7 +7,7 @@ use App\Models\JobApplicant;
 
 class JobApplicantRepository implements JobApplicantRepositoryInterface
 {
-    public function __construct(private JobApplicant $jobApplicant) 
+    public function __construct(private JobApplicant $jobApplicant)
     {
     }
 
@@ -23,7 +23,7 @@ class JobApplicantRepository implements JobApplicantRepositoryInterface
 
     public function find($id)
     {
-        return $this->jobApplicant->with(['interviewPoint', 'jobVacancy'])->where('id', $id)->firstOrFail();
+        return $this->jobApplicant->findOrFail($id)->load(['interviewPoint', 'jobVacancy']);
     }
 
     public function findSlug($slug)
@@ -32,19 +32,6 @@ class JobApplicantRepository implements JobApplicantRepositoryInterface
             $query->orWhere('slug', $slug);
             $query->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
         })->get();
-    }
-    
-    public function countSlug($slug)
-    {
-        return $this->jobApplicant->where(function ($query) use ($slug) {
-            $query->orWhere('slug', $slug);
-            $query->orWhere('slug', 'REGEXP', '^'.$slug.'_[0-9]+$');
-        })->get();
-    }
-
-    public function findWithTrashes($id)
-    {
-        return $this->jobApplicant->withTrashed()->findOrFail($id);
     }
 
     public function create($request)

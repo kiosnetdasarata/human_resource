@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use Illuminate\Http\Request;
 use App\Interfaces\JobVacancyRepositoryInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 
 class ArchiveApplicantController extends Controller
@@ -15,52 +15,11 @@ class ArchiveApplicantController extends Controller
         private ResponseHelper $response
     ) { }
 
-    public function getJobApplicant()
+    public function get(Request $request)
     {
         try {
-            $data = $this->archive->getAllJobApplicant();
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
-            return $this->response->success($data);
-        } catch (\Exception $e) {
-            return $this->response->error($e);
-        }
-    }
+            $data = $this->archive->query($request);
 
-    public function getTraineeship()
-    {
-        try {
-            $data = $this->archive->getAllTranieeship();
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
-            return $this->response->success($data);
-        } catch (\Exception $e) {
-            return $this->response->error($e);
-        }
-    }
-
-    public function getJobApplicantByJobVacancy($id)
-    {
-        try {
-            $data = $this->archive->getJobApplicantByJobVacancy($id);
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
-            return $this->response->success($data);
-        } catch (\Exception $e) {
-            return $this->response->error($e);
-        }
-    }
-
-    public function getTraineeshipByJobVacancy($id)
-    {
-        try {
-            $data = $this->archive->getTraineeshipByJobVacancy($id);
-            if (!count($data)) {
-                throw new ModelNotFoundException();
-            }
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);

@@ -38,6 +38,22 @@ class Traineeship extends Model
         'link_portofolio',
         'sumber_info',
     ];
+    protected $appends = ['poin'];
+
+    public function getPoinAttribute()
+    {
+        if ($this->interviewPoint != null) {
+            $poin = $this->interviewPoint;
+            $totalPoin = ($poin->presentasi + $poin->kualitas_kerja + $poin->etika
+                + $poin->adaptif + $poin->kerja_sama + $poin->disiplin
+                + $poin->tanggung_jawab + $poin->inovatif_kreatif
+                + $poin->problem_solving + $poin->kemampuan_teknis + $poin->tugas) / 11;
+
+            return $totalPoin;
+        }
+
+        return 0;
+    }
 
     public function division(): BelongsTo
     {

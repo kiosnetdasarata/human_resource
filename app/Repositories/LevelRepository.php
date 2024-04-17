@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -17,26 +17,24 @@ class LevelRepository implements LevelRepositoryInterface
         return $this->level->get();
     }
 
-    public function find($kodeJabatan)
+    public function find($id)
     {
-        return $this->level->where('id', $kodeJabatan)->firstOrFail();
+        return $this->level->findOrFail($id);
     }
-    
+
     public function create($request)
     {
         return $this->level->create($request);
     }
-    
+
     public function update($level, $request)
     {
         return $level->update($request);
     }
-    
+
     public function delete($level)
     {
         return $level->delete();
     }
-    
-}
 
-?>
+}
