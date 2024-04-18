@@ -33,8 +33,8 @@ class InternshipRepository implements InternshipRepositoryInterface
                 ->load([
                     'role',
                     'partnership',
-                    'internshipContract
-                ']);
+                    'contract'
+                ]);
     }
 
     public function create($request)
