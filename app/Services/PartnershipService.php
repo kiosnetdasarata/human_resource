@@ -62,7 +62,7 @@ class PartnershipService
         $old = $this->find($id);
         $data = collect($request)->diffAssoc($old);
 
-        if($data->has('nama_mitra')) {
+        if (isset($data['nama_mitra'])) {
             $data->put('nama_mitra', Str::title($request['nama_mitra']))->all();
         }
         return $this->partnership->update($old, $data);

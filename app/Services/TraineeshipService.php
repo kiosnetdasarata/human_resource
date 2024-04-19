@@ -107,7 +107,7 @@ class TraineeshipService
         if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date']) {
             throw new ModelNotFoundException('vacancy belum dibuka / sudah ditutup');
         }
-        if ($request->has('tanggal_lahir')){
+        if (isset($request['tanggal_lahir'])) {
             $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
             if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) {
                 throw new LogicException('umur tidak valid');

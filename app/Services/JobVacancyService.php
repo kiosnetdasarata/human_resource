@@ -31,12 +31,6 @@ class JobVacancyService
     {
         return $this->jobVacancy->getRole();
     }
-
-    public function find($id)
-    {
-        return $this->jobVacancy->findMap($id);
-    }
-
     public function getApplicant($id)
     {
         return $this->jobVacancy->getJobApplicants($id);
@@ -50,6 +44,10 @@ class JobVacancyService
     public function findByRole($id)
     {
         return $this->jobVacancy->findByRole($id);
+    }
+    public function find($id)
+    {
+        return $this->jobVacancy->findMap($id);
     }
 
     public function create($request)
@@ -81,15 +79,15 @@ class JobVacancyService
 
     private function validateData($request, $jobVacancy = null)
     {
-        $roleId = $request->has('role_id') ? $request['role_id'] : $jobVacancy->role_Id;
-        $branchId = $request->has('branch_company_id') ? $request['role_id'] : $jobVacancy->branch_company_id;
+        $roleId = isset($request['role_id']) ? $request['role_id'] : $jobVacancy->role_Id;
+        $branchId = isset($request['branch_company_id']) ? $request['role_id'] : $jobVacancy->branch_company_id;
 
         if ($this->jobVacancy->findSameRoleOnBranch($roleId, $branchId)) {
             throw new LogicException('Duplikat role');
         }
 
-        $closeDate = $request->has('close_data') ? $request['close_data'] : $jobVacancy->close_date;
-        $openDate = $request->has('open_data') ? $request['open_data'] : $jobVacancy->open_date;
+        $closeDate = isset($request['close_data']) ? $request['close_data'] : $jobVacancy->close_date;
+        $openDate = isset($request['open_data']) ? $request['open_data'] : $jobVacancy->open_date;
 
         if ($closeDate <= $openDate) {
             throw new LogicException('close date tidak sesuai dengan open date');

@@ -60,7 +60,7 @@ class EmployeeContractService
         return DB::transaction(function () use ($id, $request) {
             $data = collect($request)->diffAssoc($this->find($id));
 
-            if ($data->has('file_terms')) {
+            if (isset($data['file_terms'])) {
                 $data->put('file_terms', $this->file->uploadToGCS($request['file_terms'],$request['nip_id'].'_file_terms','employee/file_terms'));
             }
 

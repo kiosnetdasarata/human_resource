@@ -185,7 +185,7 @@ class EmployeeService
                 }
             }
 
-            if ($data->has('foto_profil')) {
+            if (isset($data['foto_profil'])) {
                 $data->put('foto_profil', $this->file->uploadToGCS($data['foto_profil'], $old['nip'].'_cv','employee/file_cv'));
             }
 
@@ -224,15 +224,15 @@ class EmployeeService
     {
         $employee = collect($request)->diffAssoc($old);
 
-        if ($employee->has('foto_ktp')) {
+        if (isset($employee['foto_ktp'])) {
             $employee->put('foto_ktp', $this->file->uploadToGCS($request['foto_ktp'],$old['nip_id'].'_ktp','employee/foto_ktp'));
         }
 
-        if ($employee->has('foto_kk')) {
+        if (isset($employee['foto_kk'])) {
             $employee->put('foto_kk', $this->file->uploadToGCS($request['foto_kk'],$old['nip_id'].'_kk','employee/foto_kk'));
         }
 
-        if ($employee->has('file_cv')) {
+        if (isset($employee['file_cv'])) {
             $employee->put('file_cv', $this->file->uploadToGCS($request['file_cv'],$old['nip_id'].'_cv','employee/file_cv'));
         }
 
