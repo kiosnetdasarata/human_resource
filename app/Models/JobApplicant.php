@@ -49,4 +49,9 @@ class JobApplicant extends Model
     {
         return $this->belongsTo(InterviewPoint::class, 'hr_point_id');
     }
+
+    protected function getRoleIdAttribute()
+    {
+        return $this->jobVacancy->role_id;
+    }
 }

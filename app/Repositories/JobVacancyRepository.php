@@ -45,9 +45,9 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     {
         $jobVacancy = $this->find($id)->load('role');
         return collect($jobVacancy)->merge([
-            'branch' => $jobVacancy->branch->nama_branch,
-            'applicant_count' => count($jobVacancy->jobapplicant) + count($jobVacancy->traineeship),
-            'applicant_sum' => $jobVacancy->countApplicantsByStatus()
+            'branch'            => $jobVacancy->branch->nama_branch,
+            'applicant_count'   => count($jobVacancy->jobapplicant) + count($jobVacancy->traineeship),
+            'applicant_sum'     => $jobVacancy->countApplicantsByStatus()
         ]);
     }
 
@@ -58,7 +58,6 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getJobApplicants($id)
     {
-
         return $this->find($id)->jobApplicant;
     }
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use App\Helpers\FileHelper;
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
@@ -16,6 +17,7 @@ class JobApplicantService
     public function __construct(
         private JobApplicantRepositoryInterface $jobApplicant,
         private InterviewPointService $interviewPoint,
+        private ArchiveJobApplicantRepositoryInterface $archive,
         private JobVacancyRepositoryInterface $jobVacancy,
         private FileHelper $file,
     )
@@ -40,14 +42,12 @@ class JobApplicantService
 
     public function search($key, $val)
     {
-        $data = $this->jobApplicant->search($key, $val);
-        return $data;
+        return $this->jobApplicant->search($key, $val);
     }
 
     public function getByVacancy($id)
     {
-        $data = $this->jobVacancy->getJobApplicants($id);
-        return $data;
+        return $this->jobVacancy->getJobApplicants($id);
     }
 
     public function create($request)
@@ -106,7 +106,7 @@ class JobApplicantService
             $this->jobApplicant->update($jobApplicant, ['status' => $status]);
 
             if ($status == 'Lolos' || $status == 'Tolak') {
-                $this->delete($jobApplicant);
+                $this->delete($jobApplicant, 'status menjadi' + $status);
             }
         });
     }
@@ -139,9 +139,18 @@ class JobApplicantService
         return $slug;
     }
 
-    private function delete($jobApplicant)
+    public function delete($applicant, $ket)
     {
-        $this->interviewPoint->delete($jobApplicant->interviewPoint);
-        $this->jobApplicant->delete($jobApplicant);
+        $this->interviewPoint->delete($applicant->interviewPoint);
+
+        $data = collect($applicant)->merge([
+            'tanggal_lamaran'   => $applicant->created_at,
+            'status_lamaran'    => $applicant->status_tahap,
+            'is_intern'         => 0,
+            'keterangan'        => $ket,
+            'role_id'           => $applicant->role_id,
+        ]);
+        $this->archive->create($data);
+        $this->jobApplicant->delete($applicant);
     }
 }

@@ -5,9 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
-use App\Interfaces\JobApplicantRepositoryInterface;
 use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
-use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use LogicException;
 
 class JobVacancyService
@@ -15,8 +13,8 @@ class JobVacancyService
     public function __construct(
         private JobVacancyRepositoryInterface $jobVacancy,
         private ArchiveJobApplicantRepositoryInterface $archiveJobApplicant,
-        private JobApplicantRepositoryInterface $jobApplicant,
-        private TraineeshipRepositoryInterface $traineeship
+        private JobApplicantService $jobApplicant,
+        private TraineeshipService $traineeship
     )
     {
         //
@@ -99,33 +97,19 @@ class JobVacancyService
         $jobVacancy = $this->jobVacancy->find($id);
 
         return DB::transaction(function() use ($jobVacancy) {
-            $this->deleteApplicant($jobVacancy->jobapplicant, 0, $jobVacancy->role_id);
+            $this->deleteApplicant($jobVacancy->jobapplicant, 0);
 
             if ($jobVacancy->is_intern) {
-                $this->deleteApplicant($jobVacancy->traineeship, 1, $jobVacancy->role_id);
+                $this->deleteApplicant($jobVacancy->traineeship, 1);
             }
 
             $this->jobVacancy->delete($jobVacancy);
         });
     }
 
-    private function deleteApplicant($applicants, $isIntern, $roleId) {
+    private function deleteApplicant($applicants, $isIntern) {
         foreach ($applicants as $applicant) {
-            $data = [
-                'tanggal_lamaran'   => $applicant->created_at,
-                'keterangan'        => 'dihapus karena job vacancy terhapus',
-                'status_lamaran'    => $applicant->status_tahap,
-                'is_intern'         => $isIntern,
-                'role_id'           => $roleId,
-            ];
-
-            if ($isIntern) {
-                $data['no_tlpn'] = $applicant->nomor_telepone;
-            }
-
-            $this->archiveJobApplicant->create($data);
-
-            ($isIntern ? $this->traineeship : $this->jobApplicant)->delete($applicants);
+            ($isIntern ? $this->traineeship : $this->jobApplicant)->delete($applicant, 'dihapus karena job vacancy terhapus');
         }
     }
 }

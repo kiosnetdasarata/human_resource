@@ -15,7 +15,7 @@ use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 class TraineeshipService
 {
     public function __construct(
-        private ArchiveJobApplicantRepositoryInterface $archiveJobApplicant,
+        private ArchiveJobApplicantRepositoryInterface $archive,
         private TraineeshipRepositoryInterface $traineeship,
         private JobVacancyRepositoryInterface $jobVacancy,
         private FileHelper $file,
@@ -97,7 +97,7 @@ class TraineeshipService
             $this->traineeship->update($old, ['status_tahap' => $status]);
 
             if ($status == 'Tolak' ||$status == 'Lolos') {
-                $this->delete($old);
+                $this->delete($old, 'status menjadi' + $status);
             }
         });
     }
@@ -107,6 +107,7 @@ class TraineeshipService
         if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date']) {
             throw new ModelNotFoundException('vacancy belum dibuka / sudah ditutup');
         }
+        
         if (isset($request['tanggal_lahir'])) {
             $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
             if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) {
@@ -134,18 +135,18 @@ class TraineeshipService
         return $slug;
     }
 
-    private function delete($traineeship)
+    public function delete($traineeship, $ket)
     {
         $data = collect($traineeship)->merge([
             'tanggal_lamaran'   => $traineeship->created_at,
-            'keterangan'        => 'dihapus karena job vacancy terhapus',
+            'keterangan'        => $ket,
             'status_lamaran'    => $traineeship->status_tahap,
             'is_intern'         => 1,
             'no_tlpn'           => $traineeship->nomor_telepone,
             'role_id'           => $traineeship->role_id,
         ]);
 
-        $this->archiveJobApplicant->create($data->all());
+        $this->archive->create($data->all());
         $this->traineeship->delete($traineeship);
     }
 }
