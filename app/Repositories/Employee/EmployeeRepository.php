@@ -79,18 +79,14 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     {
         return $this->employee
                 ->whereIn('level_id', [3,2])
-                ->whereNotIn('nip', function($q) {
-                    $q->select('manager_divisi')->from('divisions');
-                })
+                ->whereDoesntHave('leaderOf')
                 ->get();
     }
 
     public function getByDivision($divisionId)
     {
         return $this->employee
-                ->whereHas('role', function ($q) use ($divisionId) {
-                    $q->where('divisi_id', $divisionId);
-                })
+                ->whereRelation('division', 'divisi_id', $divisionId)
                 ->get();
     }
 

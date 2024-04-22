@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
@@ -23,7 +24,6 @@ class Employee extends Model
     protected $table = 'employee_personal_informations';
     public $incrementing = false;
     protected $keyType = 'string';
-
     protected $fillable = [
         'id',
         'branch_company_id',
@@ -118,6 +118,16 @@ class Employee extends Model
     public function user(): HasOne
     {
         return $this->hasOne(User::class, 'nip_id', 'nip');
+    }
+
+    public function leaderOf(): HasOne
+    {
+        return $this->hasOne(Division::class, 'manajer_divisi', 'nip');
+    }
+
+    public function division(): HasOneThrough
+    {
+        return $this->hasOneThrough(Division::class, Role::class, 'id', 'id', 'role_id', 'divisi_id');
     }
 
     public function levelStatusAllowance(): HasMany
