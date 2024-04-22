@@ -37,20 +37,19 @@ class EmployeeService
 
     public function getEmployeeArchive()
     {
-        $data = $this->employee->getArchive();
+        return $this->employee->getArchive();
 
-        if (!count($data)) {
-            throw new ModelNotFoundException();
-        } else return $data;
     }
 
     public function findEmployeePersonal($uuid)
     {
-        $data = $this->employee->show($uuid);
+        return $this->employee->find($uuid);
 
-        if (!$data) {
-            throw new ModelNotFoundException();
-        } else return $data;
+    }
+
+    public function getManager()
+    {
+        return $this->employee->getManager();
     }
 
     public function firstForm($request)

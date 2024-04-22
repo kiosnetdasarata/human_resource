@@ -45,6 +45,17 @@ class EmployeeController extends Controller
         }
     }
 
+    public function getManager()
+    {
+        try {
+            $data =  $this->employeeService->getManager();
+
+            return $this->response->success($data);
+        } catch (\Exception $e) {
+            return $this->response->error($e);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */

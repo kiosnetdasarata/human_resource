@@ -29,13 +29,12 @@ class UpdateEmployeeRequest extends FormRequest
     {
         return [
             'alamat' => 'string',
+            'agama' => 'string,in:Islam,Kristen,Katolik,Budha,Hindu',
             'no_tlpn' => 'string|digits_between:10,15',
             'email' => 'email',
             'status_perkawinan' => 'in:Belum Menikah,Menikah',
-            'foto_ktp' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
-            'foto_kk' => [File::types(['jpg','jpeg','png'])->max(2 * 1024),],
             'alamat_sekarang' => 'string',
-            
+
             'nama_bank' => 'string',
             'nomor_rekening' => 'numeric',
             'no_tlpn_darurat' => 'string|digits_between:10,15',
@@ -46,13 +45,13 @@ class UpdateEmployeeRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        // throw new HttpResponseException(
-        //     response()->json([
-        //         'status' => 'error',
-        //         'errors' => $validator->errors(),
-        //         'input' => $this->input(),
-        //         'status_code' => 422,
-        //     ])
-        // );
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+                'status_code' => 422,
+            ])
+        );
     }
 }

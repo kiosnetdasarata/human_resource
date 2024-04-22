@@ -10,11 +10,11 @@ interface EmployeeRepositoryInterface
     public function getArchive();
     public function getManager();
     public function getByDivision($divisionId);
-    public function find($uuid, $var = 'id');
-    public function findBySlug($slug);
+    public function show($uuid, $var);
+    // public function findBySlug($slug);
     public function findWithTrashes();
-    public function findBySlugWithTrashes($slug);
-    public function show($uuid);
+    // public function findBySlugWithTrashes($slug);
+    public function find($uuid);
     public function create($request);
     public function createArchive($request);
     public function update($employee, $request);
