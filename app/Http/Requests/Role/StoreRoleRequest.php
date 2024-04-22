@@ -27,7 +27,7 @@ class StoreRoleRequest extends FormRequest
             'divisi_id' => 'required|exists:divisions,id',
             'kode_jabatan' => 'required|unique:roles,kode_jabatan',
             'nama_jabatan' => 'required|unique:roles,nama_jabatan',
-            'level_id' => 'required|exists:levels,id',
+            // 'level_id' => 'required|exists:levels,id',
             'deskripsi' => 'required|string',
         ];
     }
