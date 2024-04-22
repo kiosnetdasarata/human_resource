@@ -5,11 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\LevelController;
-use App\Http\Controllers\SalesController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\JobVacancyController;
-use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\JobApplicantController;
 use App\Http\Controllers\Employee\EmployeeController;
 use App\Http\Controllers\Internship\InternshipController;
@@ -30,9 +28,6 @@ use App\Http\Controllers\Internship\InternshipContractController;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "api" middleware group. Make something great!
 |
-
-
-Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
 */
 
 // Route get branch
@@ -55,7 +50,7 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 // ---------- Division ----------
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
 Route::get('/division/{division}/employee', [DivisionController::class, 'getEmployee']);
-Route::get('/division/{division}/employee/archive', [DivisionController::class, 'getEmployeeArchive']);
+// Route::get('/division/{division}/employee/archive', [DivisionController::class, 'getEmployeeArchive']);
 Route::apiResource('division', DivisionController::class);
 
 // ---------- Role ----------
@@ -63,19 +58,15 @@ Route::apiresource('role', RoleController::class);
 // ---------- Level ----------
 Route::apiResource('level', LevelController::class);
 
-
-/*
-Sebelum komplain link gabisa jalanin dulu "php artisan route:cache"
-*/
-
 // ---------- Employee ----------
 // Route::middleware(['jwt:api'])->group(function() {
     Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
     Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
+    Route::get('/employee/division-manager', [EmployeeController::class, 'getManager']);
     Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
+    Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
     Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
     Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
-    Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
     Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
     Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
     Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);

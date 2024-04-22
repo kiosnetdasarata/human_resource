@@ -35,7 +35,7 @@ class FirstFormEmployeeRequest extends FormRequest
             'alamat_sekarang' => 'required|string',
             'dusun_id' => 'required|exists:villages,id',
             'tempat_lahir' => 'required|string',
-            'tgl_lahir' => 'required|date_format:Y-m-d',    
+            'tgl_lahir' => 'required|date_format:Y-m-d',
             'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
             'no_tlpn' => 'required|string|digits_between:10,15|unique:employee_personal_informations,no_tlpn',
             'email' => 'required|email|unique:employee_personal_informations,email',
@@ -51,11 +51,11 @@ class FirstFormEmployeeRequest extends FormRequest
             'foto_kk' => ['required', File::types(['jpg','jpeg','png'])->max(2 * 1024),],
             'file_cv' => ['required', File::types(['pdf'])->max(5 * 1024),],
 
-            'pendidikan_terakhir' => 'required|in:Sarjana,SMK/SMA,SMP',
+            'pendidikan_terakhir' => 'required|in:Sarjana,SMK,SMA,SMP',
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required|digits:4',
 
-            'level_sales_id' => 'required_if:role_id,2|exists:level_sales,id', //wajib diisi kalo divisi sales, kalo bukan diisi juga gak bakal masuk database
+            'level_sales_id' => 'required_if:role_id,2|exists:level_sales,id', //wajib diisi kalo divisi sales. kalo bukan, diisi juga gak bakal masuk database
         ];
     }
 

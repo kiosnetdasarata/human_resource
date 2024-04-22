@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use LogicException;
 use App\Helpers\ResponseHelper;
 use App\Interfaces\LevelRepositoryInterface;
 use App\Http\Requests\Level\StoreLevelRequest;
@@ -10,7 +11,7 @@ use App\Http\Requests\Level\UpdateLevelRequest;
 class LevelController extends Controller
 {
     public function __construct(
-        private LevelRepositoryInterface $levelRepositoryInterface,
+        private LevelRepositoryInterface $level,
         private ResponseHelper $response,
     )
     {
@@ -22,7 +23,7 @@ class LevelController extends Controller
     public function index()
     {
         try {
-            $data = $this->levelRepositoryInterface->getAll();
+            $data = $this->level->getAll();
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -35,7 +36,7 @@ class LevelController extends Controller
     public function store(StoreLevelRequest $request)
     {
         try {
-            $this->levelRepositoryInterface->create($request->validated());
+            $this->level->create($request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
@@ -48,7 +49,7 @@ class LevelController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->levelRepositoryInterface->find($id);
+            $data = $this->level->find($id);
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -61,7 +62,7 @@ class LevelController extends Controller
     public function update(UpdateLevelRequest $request, $id)
     {
         try {
-            $this->levelRepositoryInterface->update($this->levelRepositoryInterface->find($id),$request->validated());
+            $this->level->update($this->level->find($id),$request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
@@ -74,7 +75,11 @@ class LevelController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->levelRepositoryInterface->delete($this->levelRepositoryInterface->find($id));
+            $data = $this->level->find($id);
+
+            if ($data->employee) {
+                throw new LogicException('level ini masih memiliki karyawan aktif.');
+            }
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e);

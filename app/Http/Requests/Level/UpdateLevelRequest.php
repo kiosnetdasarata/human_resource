@@ -22,12 +22,12 @@ class UpdateLevelRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
     public function rules(): array
-    {        
+    {
         $level = $this->route('level');
         return [
-            'kode_level' => 'unique:levels,kode_level,'. $level. ',kode_level',
             'nama_level' => 'unique:levels,nama_level,'. $level. ',kode_level',
-            'deskripsi' => 'string'
+            'deskripsi' => 'string',
+            'is_active' => 'in:0,1'
         ];
     }
 

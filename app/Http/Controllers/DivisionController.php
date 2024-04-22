@@ -7,7 +7,6 @@ use App\Http\Requests\Division\StoreDivisionRequest;
 use App\Http\Requests\Division\UpdateDivisionRequest;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use App\Services\DivisionService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DivisionController extends Controller
 {
@@ -63,7 +62,7 @@ class DivisionController extends Controller
         }
     }
 
-    public function getEmployeeArchive($id)
+    public function getEmployee($id)
     {
         try {
             $data = $this->employee->getByDivision($id);
@@ -76,10 +75,10 @@ class DivisionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDivisionRequest $request, string $division)
+    public function update(UpdateDivisionRequest $request, $id)
     {
         try {
-            $this->division->update($division, $request->validated());
+            $this->division->update($id, $request->validated());
 
             return $this->response->success();
         } catch (\Exception $e) {
@@ -90,15 +89,14 @@ class DivisionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    // public function destroy(string $slug)
-    // {
-    //     try {
-    //         $data = $this->division->find($slug);
-    //         $this->division->delete($data);
+    public function destroy($id)
+    {
+        try {
+            $this->division->delete($id);
 
-    //         return $this->response->success();
-    //     } catch (\Exception $e) {
-    //         return $this->response->error($e);
-    //     }
-    // }
+            return $this->response->success();
+        } catch (\Exception $e) {
+            return $this->response->error($e);
+        }
+    }
 }

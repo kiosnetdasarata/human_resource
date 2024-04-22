@@ -41,5 +41,4 @@ class RoleRepository implements RoleRepositoryInterface
     {
         return $role->delete();
     }
-
 }

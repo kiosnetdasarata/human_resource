@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use LogicException;
 use App\Helpers\ResponseHelper;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Http\Requests\Role\StoreRoleRequest;
@@ -10,7 +11,7 @@ use App\Http\Requests\Role\UpdateRoleRequest;
 class RoleController extends Controller
 {
     public function __construct(
-        private RoleRepositoryInterface $roleRepositoryInterface,
+        private RoleRepositoryInterface $role,
         private ResponseHelper $response
     )
     {
@@ -23,7 +24,7 @@ class RoleController extends Controller
     public function index()
     {
         try {
-            $data = $this->roleRepositoryInterface->getAll();
+            $data = $this->role->getAll();
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -36,7 +37,7 @@ class RoleController extends Controller
     public function store(StoreRoleRequest $request)
     {
         try {
-            $this->roleRepositoryInterface->create($request->validated());
+            $this->role->create($request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
@@ -49,7 +50,7 @@ class RoleController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->roleRepositoryInterface->find($id);
+            $data = $this->role->find($id);
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -62,7 +63,7 @@ class RoleController extends Controller
     public function update(UpdateRoleRequest $request, $id)
     {
         try {
-            $this->roleRepositoryInterface->update($this->roleRepositoryInterface->find($id),$request->validated());
+            $this->role->update($this->role->find($id), $request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
@@ -75,7 +76,13 @@ class RoleController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->roleRepositoryInterface->delete($this->roleRepositoryInterface->find($id));
+            $data = $this->role->find($id);
+
+            if ($data->employee) {
+                throw new LogicException('Logic ini masih memiliki karyawan aktif.');
+            }
+
+            $this->role->delete($data);
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e);

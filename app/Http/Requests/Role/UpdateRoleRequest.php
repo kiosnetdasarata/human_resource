@@ -26,10 +26,9 @@ class UpdateRoleRequest extends FormRequest
         $role = $this->route('role');
         return [
             'divisi_id' => 'exists:divisions,id',
-            'kode_jabatan' => 'unique:roles,kode_jabatan,'. $role . ',id',
             'nama_jabatan' => 'unique:roles,nama_jabatan,'. $role . ',id',
-            'level_id' => 'exists:levels,id',
             'deskripsi' => 'string',
+            'is_active' => 'in:0,1'
         ];
     }
 

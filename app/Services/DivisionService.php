@@ -30,9 +30,10 @@ class DivisionService
     {
         return $this->division->findSlug($id);
     }
+
     public function create($request)
     {
-        $manager = $this->employee->find($request['manager_divisi'], 'nip');
+        $manager = $this->employee->show($request['manager_divisi'], 'nip');
         $dataDivision = collect($request)->merge([
             'nama_divisi'   => Str::title($request['nama_divisi']),
             'slug'          => Str::slug($request['nama_divisi'], '_'),
@@ -54,15 +55,22 @@ class DivisionService
         }
 
         if (isset($dataDivision['manager_divisi'])) {
-            $manager = $this->employee->find($request['manager_divisi'], 'nip');
+            $manager = $this->employee->show($request['manager_divisi'], 'nip');
             $dataDivision->put('email', $manager->email)
                          ->put('no_tlpn',$manager->no_tlpn);
         }
 
-        if(isset($dataDivision['is_active']) && !$dataDivision['is_active']){
-            if($old->employee) throw new LogicException('Divisi ini masih memiliki karwawan aktif');
+        return $this->division->update($old, $dataDivision->all());
+    }
+
+    public function delete($id)
+    {
+        $data = $this->division->find($id);
+
+        if ($data->employee) {
+            throw new LogicException('Divisi ini masih memiliki karyawan aktif.');
         }
 
-        return $this->division->update($old, $dataDivision->all());
+        return $this->division->delete($data);
     }
 }

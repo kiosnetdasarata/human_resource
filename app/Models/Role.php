@@ -19,18 +19,13 @@ class Role extends Model
         'divisi_id',
         'kode_jabatan',
         'nama_jabatan',
-        'level_id',
+        // 'level_id',
         'deskripsi',
     ];
-    
+
     public function division():BelongsTo
     {
         return $this->belongsTo(Division::class, 'divisi_id');
-    }
-
-    public function level(): BelongsTo
-    {
-        return $this->belongsTo(Level::class);
     }
 
     public function internship(): HasMany
@@ -46,5 +41,10 @@ class Role extends Model
     public function traineeship(): HasMany
     {
         return $this->hasMany(Traineeship::class);
+    }
+
+    public function employee(): HasMany
+    {
+        return $this->hasMany(Employee::class);
     }
 }
