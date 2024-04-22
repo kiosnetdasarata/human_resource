@@ -102,7 +102,7 @@ class Employee extends Model
 
     public function education(): HasOne
     {
-        return $this->educations()->one()->latestOfMany();
+        return $this->educationHistory()->one()->latestOfMany();
     }
 
     public function sales(): HasOne

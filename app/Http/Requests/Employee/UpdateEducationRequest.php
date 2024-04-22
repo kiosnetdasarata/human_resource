@@ -24,7 +24,7 @@ class UpdateEducationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pendidikan_terakhir' => 'in:Sarjana,SMK/SMA,SMP',
+            'pendidikan_terakhir' => 'in:Sarjana,SMK,SMA,SMP',
             'nama_instansi' => 'string',
             'tahun_lulus' => 'digits:4',
         ];

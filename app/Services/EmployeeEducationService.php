@@ -65,13 +65,14 @@ class EmployeeEducationService
                 $newPendidikan = $request['pendidikan_terakhir'];
                 if ($newPendidikan == 'Sarjana') return;
 
-                if ($oldPendidikan == $newPendidikan) {
-                    throw new LogicException('pendidikan_terakhir jenjang '. $newPendidikan. ' sudah ada');
-                }
+                $arr = [
+                    'Sarjana'   => 3,
+                    'SMA'       => 2,
+                    'SMK'       => 2,
+                    'SMP'       => 1
+                ];
 
-                $arr = ['Sarjana', 'SMK/SMA', 'SMP'];
-                if (array_search($oldPendidikan, $arr) < array_search($newPendidikan, $arr) &&
-                    $data['tahun_lulus'] <= $request['tahun_lulus']) {
+                if (($arr[$oldPendidikan] - $arr[$newPendidikan]) * ($data['tahun_lulus'] - $request['tahun_lulus']) < 0) {
                     throw new LogicException ('tahun lulus tidak valid');
                 }
             }

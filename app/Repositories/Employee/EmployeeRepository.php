@@ -40,44 +40,47 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         return $this->archive->get();
     }
 
-    public function find($uuid, $var = 'id')
+    public function show($uuid, $var)
     {
         return $this->employee->where($var, $uuid)->firstOrFail();
     }
 
-    public function show($uuid)
+    public function find($uuid)
     {
         return $this->employee
                     ->findOrFail($uuid)
                     ->load([
+                        'branch',
+                        'level',
                         'employeeCI',
-                        'role',
+                        'role.division',
                         'contractsHistory',
+                        'village.district.regency.province',
                         'education'
                     ]);
     }
 
-    public function findBySlug($slug)
-    {
-        return $this->employee->where('slug', 'LIKE','%'. $slug.'%')->get();
-    }
+    // public function findBySlug($slug)
+    // {
+    //     return $this->employee->where('slug', 'LIKE','%'. $slug.'%')->get();
+    // }
 
     public function findWithTrashes()
     {
         return $this->employee->withTrashed()->get();
     }
 
-    public function findBySlugWithTrashes($slug)
-    {
-        return $this->employee->withTrashed()->where('slug', 'LIKE','%'. $slug.'%')->get();
-    }
+    // public function findBySlugWithTrashes($slug)
+    // {
+    //     return $this->employee->withTrashed()->where('slug', 'LIKE','%'. $slug.'%')->get();
+    // }
 
     public function getManager()
     {
         return $this->employee
-                ->where('level_id', 3)
-                ->whereNotIn('nip', function($query) {
-                    $query->select('manager_divisi')->from('divisions');;
+                ->whereIn('level_id', [3,2])
+                ->whereNotIn('nip', function($q) {
+                    $q->select('manager_divisi')->from('divisions');
                 })
                 ->get();
     }
@@ -85,8 +88,8 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getByDivision($divisionId)
     {
         return $this->employee
-                ->whereHas('role', function ($query) use ($divisionId) {
-                    $query->where('divisi_id', $divisionId);
+                ->whereHas('role', function ($q) use ($divisionId) {
+                    $q->where('divisi_id', $divisionId);
                 })
                 ->get();
     }
