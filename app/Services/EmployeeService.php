@@ -47,9 +47,9 @@ class EmployeeService
 
     }
 
-    public function getManager()
+    public function getManager($query)
     {
-        return $this->employee->getManager();
+        return $this->employee->getManager($query);
     }
 
     public function firstForm($request)

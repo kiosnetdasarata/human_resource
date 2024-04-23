@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Employee;
 
+use App\Models\Division;
 use App\Models\Employee;
 use App\Models\EmployeeArchive;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
@@ -75,11 +76,17 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     //     return $this->employee->withTrashed()->where('slug', 'LIKE','%'. $slug.'%')->get();
     // }
 
-    public function getManager()
+    public function getManager($request)
     {
         return $this->employee
                 ->whereIn('level_id', [3,2])
-                ->whereDoesntHave('leaderOf')
+                ->whereNotIn('nip', function ($q) use ($request) {
+                    $q->select('manager_divisi')
+                        ->from('divisions')
+                        ->when($request->has('division'), function ($q) use ($request) {
+                            return $q->where('id', '!=', $request->query('division'));
+                        });
+                })
                 ->get();
     }
 

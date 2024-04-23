@@ -45,10 +45,10 @@ class EmployeeController extends Controller
         }
     }
 
-    public function getManager()
+    public function getManager(Request $query)
     {
         try {
-            $data =  $this->employeeService->getManager();
+            $data =  $this->employeeService->getManager($query);
 
             return $this->response->success($data);
         } catch (\Exception $e) {
