@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Internship;
 
+use App\Models\Partnership;
 use App\Models\FilePartnership;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
-use App\Models\Partnership;
 
 class FilePartnershipRepository implements FilePartnershipRepositoryInterface
 {
