@@ -39,5 +39,4 @@ class InternshipContractRepository implements InternshipContractRepositoryInterf
     {
         return $internshipContract->delete();
     }
-
 }
