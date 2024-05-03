@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AllowanceLevelController;
 use App\Http\Controllers\ArchiveApplicantController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
@@ -63,10 +64,17 @@ Route::apiResource('level', LevelController::class);
     Route::post('/employee/store', [EmployeeController::class, 'storeFormOne']);
     Route::get('/employee/archive', [EmployeeController::class, 'getArchive']);
     Route::get('/employee/division-manager', [EmployeeController::class, 'getManager']);
+
+    Route::get('/employee/{uuid}/allowance', [AllowanceLevelController::class, 'index']);
+    Route::get('/employee/{uuid}/eligible-allowance', [AllowanceLevelController::class, 'get']);
+    Route::post('/employee/{uuid}/allowance', [AllowanceLevelController::class, 'store']);
+    Route::post('/employee/{uuid}/delete-allowance', [AllowanceLevelController::class, 'destroy']);
+
     Route::post('/employee/{uuid}/update-complete', [EmployeeController::class, 'storeFormTwo']);
     Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
     Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
     Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
+    
     Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
     Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
     Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);

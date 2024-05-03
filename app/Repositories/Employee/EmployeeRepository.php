@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Employee;
 
-use App\Models\Division;
 use App\Models\Employee;
 use App\Models\EmployeeArchive;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
@@ -21,6 +20,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getAll()
     {
         return $this->employee
+                ->select(['id,nip,nama,role_id,created_at,updated_at'])
                 ->with(['role:id,nama_jabatan,divisi_id','role.division:id,nama_divisi'])
                 ->get()
                 ->map(function ($e) {
@@ -34,6 +34,11 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                         'updated_at' => $e->updated_at
                     ];
                 });
+    }
+
+    public function allowance($uuid)
+    {
+        return $this->find($uuid)->allowance;
     }
 
     public function getArchive()
@@ -79,7 +84,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getManager($request)
     {
         return $this->employee
-                ->whereIn('level_id', [3,2])
+                ->whereRelation('level', function ($q) {
+                    $q->whereIn('kode_level', [2,3]);
+                })
                 ->whereNotIn('nip', function ($q) use ($request) {
                     $q->select('manager_divisi')
                         ->from('divisions')
@@ -93,13 +100,23 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getByDivision($divisionId)
     {
         return $this->employee
-                ->whereRelation('division', 'divisi_id', $divisionId)
-                ->get();
+                    ->whereRelation('division', 'divisi_id', '=', $divisionId)
+                    ->get();
     }
 
     public function create($request)
     {
         return $this->employee->create($request);
+    }
+
+    public function attachAllowance($employee, $allowances)
+    {
+        return $employee->allowance()->syncWithoutDetaching($allowances);
+    }
+
+    public function detachAllowance($employee, $allowances)
+    {
+        return $employee->allowance()->detach($allowances);
     }
 
     public function createArchive($request)

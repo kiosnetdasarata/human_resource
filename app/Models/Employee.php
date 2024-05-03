@@ -2,20 +2,22 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Sales;
 use App\Models\Technician;
 use App\Models\EmployeeContract;
 use App\Models\EmployeeEducation;
 use App\Models\EmployeeContractHistory;
-use App\Models\EmployeeConfidentalInformation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\EmployeeConfidentalInformation;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
@@ -44,6 +46,28 @@ class Employee extends Model
         'status_perkawinan',
         'foto_profil',
     ];
+
+    public function getMasaKerjaAttribute()
+    {
+        $firstContract =  $this->contractsHistory()
+                                ->select('start_kontrak')
+                                ->orderBy('start_kontrak', 'asc')
+                                ->firstOrFail();
+        return Carbon::parse($firstContract->start_kontrak)->diffInMonths(now());
+    }
+
+    public function allowance(): BelongsToMany
+    {
+        return $this->belongsToMany(AllowanceCategory::class, 'employee_allowances', 'nip_pgwi', 'allowance_id', 'nip', 'id')
+                    ->withPivot('tanggal_mulai');
+    }
+
+    public function allowanceLevelEmployee(): BelongsToMany
+    {
+        return $this->belongsToMany(AllowanceCategory::class, 'level_status_allowances', 'nip_id', 'allowance_id', 'nip', 'id')
+                    ->wherePivot('keterangan', 'Employee');
+                    // ->withPivot('keterangan');
+    }
 
     public function branch(): BelongsTo
     {
@@ -128,10 +152,5 @@ class Employee extends Model
     public function division(): HasOneThrough
     {
         return $this->hasOneThrough(Division::class, Role::class, 'id', 'id', 'role_id', 'divisi_id');
-    }
-
-    public function levelStatusAllowance(): HasMany
-    {
-        return $this->hasMany(LevelStatusAllowance::class, 'nip_id', 'nip');
     }
 }

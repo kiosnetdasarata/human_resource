@@ -2,26 +2,30 @@
 
 namespace App\Providers;
 
-use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\ZoneRepository;
+use App\Repositories\LevelRepository;
 use App\Repositories\SalesRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\DivisionRepository;
+use App\Repositories\AllowanceRepository;
 use App\Repositories\JobVacancyRepository;
 use App\Repositories\TechnicianRepository;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ZoneRepositoryInterface;
-use App\Repositories\JobApplicantRepository;
+use App\Interfaces\LevelRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
+use App\Repositories\JobApplicantRepository;
 use App\Repositories\BranchCompanyRepository;
 use App\Interfaces\DivisionRepositoryInterface;
+use App\Interfaces\AllowanceRepositoryInterface;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
 use App\Repositories\Employee\EmployeeRepository;
 use App\Interfaces\JobApplicantRepositoryInterface;
+use App\Repositories\ArchiveJobApplicantRepository;
 use App\Repositories\Employee\EmployeeCIRepository;
 use App\Interfaces\BranchCompanyRepositoryInterface;
 use App\Repositories\Internship\InternshipRepository;
@@ -30,6 +34,7 @@ use App\Repositories\Internship\TraineeshipRepository;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use App\Repositories\Employee\EmployeeContractRepository;
 use App\Repositories\Internship\InterviewPointRepository;
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 use App\Repositories\Employee\EmployeeEducationRepository;
 use App\Repositories\Internship\FilePartnershipRepository;
@@ -42,9 +47,6 @@ use App\Interfaces\Internship\InterviewPointRepositoryInterface;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
 use App\Interfaces\Internship\FilePartnershipRepositoryInterface;
 use App\Interfaces\Internship\InternshipContractRepositoryInterface;
-use App\Interfaces\LevelRepositoryInterface;
-use App\Repositories\ArchiveJobApplicantRepository;
-use App\Repositories\LevelRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -74,6 +76,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(JobApplicantRepositoryInterface::class, JobApplicantRepository::class);
         $this->app->bind(LevelRepositoryInterface::class, LevelRepository::class);
         $this->app->bind(ArchiveJobApplicantRepositoryInterface::class, ArchiveJobApplicantRepository::class);
+        $this->app->bind(AllowanceRepositoryInterface::class, AllowanceRepository::class);
     }
 
     /**
