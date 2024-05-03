@@ -2,13 +2,13 @@
 
 namespace App\Helpers;
 
+use LogicException;
 use Dotenv\Exception\ValidationException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Auth\AuthenticationException;
 use Google\Cloud\Core\Exception\ConflictException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use LogicException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ResponseHelper
