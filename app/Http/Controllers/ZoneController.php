@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
-use App\Interfaces\StatusLevelRepositoryInterface;
 use App\Interfaces\ZoneRepositoryInterface;
 
 class ZoneController extends Controller
@@ -12,7 +11,7 @@ class ZoneController extends Controller
         private ZoneRepositoryInterface $zoneRepositoryInterface,
         private ResponseHelper $response
     )
-    {  
+    {
     }
 
     public function getProvinces()

@@ -14,7 +14,7 @@ class EmployeeEducationController extends Controller
     public function __construct(
         private EmployeeEducationService $employeeService,
         private ResponseHelper $response
-        ) 
+        )
     {
     }
     /**
@@ -22,9 +22,8 @@ class EmployeeEducationController extends Controller
      */
     public function index($id)
     {
-        try {            
+        try {
             $data = $this->employeeService->get($id);
-            if (!count($data)) throw new ModelNotFoundException();
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);

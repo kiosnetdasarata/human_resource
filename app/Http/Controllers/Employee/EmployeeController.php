@@ -10,7 +10,6 @@ use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Requests\Employee\FirstFormEmployeeRequest;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\Employee\SecondFormEmployeeRequest;
 
 class EmployeeController extends Controller
@@ -18,8 +17,10 @@ class EmployeeController extends Controller
     public function __construct(
         private EmployeeService $employeeService,
         private ResponseHelper $response
-        )
-    { }
+    )
+    {
+        //
+    }
 
     /**
      * Display a listing of the resource.
@@ -28,7 +29,7 @@ class EmployeeController extends Controller
     {
         try {
             // $this->authorize('view-any', Employee::class);
-            $data = $this->employeeService->getAllEmployeePersonal();
+            $data = $this->employeeService->get();
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -37,7 +38,7 @@ class EmployeeController extends Controller
     public function getArchive()
     {
         try {
-            $data = $this->employeeService->getEmployeeArchive();
+            $data = $this->employeeService->getArchive();
 
             return $this->response->success($data);
         } catch (\Exception $e) {
@@ -85,7 +86,7 @@ class EmployeeController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->employeeService->findEmployeePersonal($id);
+            $data = $this->employeeService->find($id);
             return $this->response->success($data);
         } catch (\Exception $e) {
             return $this->response->error($e);
@@ -111,14 +112,14 @@ class EmployeeController extends Controller
     public function destroy(Request $request, $uuid)
     {
         try {
-            $data = Validator::make($request->all(), ['status_terminate' => 'required']);
-            if ($data->fails()) throw new ValidationException($data->errors()->first());
+            $data = $request->validate($request->all(), ['status_terminate' => 'required']);
+            // if ($data->fails()) throw new ValidationException($data->errors()->first());
 
             // $this->authorize('delete', Employee::class);
-            $this->employeeService->delete($data->validated(), $uuid);
+            $this->employeeService->delete($data, $uuid);
             return $this->response->success();
         } catch (\Exception $e) {
-            return $this->response->error($e, $data->validated());
+            return $this->response->error($e, $data);
         }
     }
 }
