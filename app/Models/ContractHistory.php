@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ContractHistory extends Model
 {
@@ -19,7 +18,7 @@ class ContractHistory extends Model
         'verify_hr',
     ];
 
-    public function employees(): BelongsTo
+    public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'nip_id', 'nip');
     }

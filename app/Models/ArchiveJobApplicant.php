@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ArchiveJobApplicant extends Model
@@ -25,7 +24,7 @@ class ArchiveJobApplicant extends Model
         'link_sosmed',
         'file_cv',
         'keterangan',
-        'is_intern',        
+        'is_intern',
     ];
     protected $guard = ['id'];
 

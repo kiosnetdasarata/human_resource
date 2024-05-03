@@ -57,13 +57,13 @@ class JobVacancy extends Model
 
     public function archiveJobApplicant(): HasMany
     {
-        return $this->hasMany(JobVacancy::class, 'vacancy_id');
+        return $this->hasMany(ArchiveJobApplicant::class, 'vacancy_id')->where('is_intern', 0);
     }
 
     public function archiveTraineeship(): HasMany
     {
         if ($this->is_intern)
-            return $this->hasMany(Traineeship::class, 'vacancy_id');
+            return $this->hasMany(ArchiveJobApplicant::class, 'vacancy_id')->where('is_intern', 1);
         else throw new \Exception('vacancy ini bukan untuk traineeship');
     }
 

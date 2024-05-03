@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class EmployeeConfidentalInformation extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $table = 'employee_confidential_informations';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -24,7 +23,7 @@ class EmployeeConfidentalInformation extends Model
         'nomor_rekening',
         'no_tlpn_darurat',
         'nama_kontak_darurat',
-        'status_kontak_darurat',      
+        'status_kontak_darurat',
         'foto_ktp',
         'foto_kk',
         'file_cv',
