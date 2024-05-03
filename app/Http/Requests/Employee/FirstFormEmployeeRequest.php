@@ -28,7 +28,7 @@ class FirstFormEmployeeRequest extends FormRequest
     {
         return [
             'branch_company_id' => 'required|exists:mysql3.branch_companies,id',
-            'role_id' => 'required|exists:roles,id',
+            'role_id' => 'required|exists:roles,id,is_active,1',
             'level_id' => 'required|exists:levels,id',
             'nama' => 'required|string',
             'alamat' => 'required|string',

@@ -37,14 +37,14 @@ class UpdateJobApplicantRequest extends FormRequest
             'nama_instansi' => 'required|string',
             'tahun_lulus' => 'required_if:digits,4',
             'link_sosmed' => ['url', new SocialMediaLink], //wajib pake https://www.
-            'role_id' => 'exists:job_vacancies,role_id,is_active,1',
+            // 'role_id' => 'exists:job_vacancies,role_id,is_active,1',
             'pengalaman' => 'string',
             'ekspetasi_gaji' => 'string',
             'file_cv' => [File::types(['pdf'])->max(5 * 1024),],
             'link_portofolio' => 'url',
             'sumber_info' => 'string',
         ];
-        
+
     }
 
     protected function failedValidation(Validator $validator)

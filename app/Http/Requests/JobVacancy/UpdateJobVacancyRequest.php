@@ -26,12 +26,12 @@ class UpdateJobVacancyRequest extends FormRequest
         return [
             'is_active' => 'in:0,1',
             'branch_company_id' => 'int',
-            'role_id' => 'exists:roles,id',
+            'role_id' => 'exists:roles,id,is_active,1',
             'title' => 'string',
             'min_umur' => 'digits_between:1,2',
             'max_umur' => 'digits_between:1,2',
             'keterangan' => 'string',
-            'open_date' => 'date:Y-m-d',            
+            'open_date' => 'date:Y-m-d',
             'close_date' => 'date:Y-m-d',
             'is_intern' => 'in:0,1'
         ];

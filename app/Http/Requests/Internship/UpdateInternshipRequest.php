@@ -36,7 +36,7 @@ class UpdateInternshipRequest extends FormRequest
             'semester' => 'required_if:is_kuliah,1|numeric|max:20',
             'tahun_lulus' => 'required_if:is_kuliah,0',
             'mitra_id' => 'in:partnerships,id',
-            'role_id' => 'exists:roles,id',
+            'role_id' => 'exists:roles,id,is_active,1',
             'status_internship' => 'in:Internship,Magang',
             'status_phase' => 'in:Onboarding,Join,Selesai',
             'supervisor' => 'exists:employee_personal_informations,nip',

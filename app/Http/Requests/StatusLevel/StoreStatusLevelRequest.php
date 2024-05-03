@@ -22,9 +22,9 @@ class StoreStatusLevelRequest extends FormRequest
      */
     public function prepareForValidation(): void
     {
-        $this->merge([
-            'slug' => Str::slug($this->nama_level, '_')
-        ]);
+        // $this->merge([
+        //     'slug' => Str::slug($this->nama_level, '_')
+        // ]);
     }
 
     /**

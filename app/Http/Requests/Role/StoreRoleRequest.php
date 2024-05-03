@@ -24,7 +24,7 @@ class StoreRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'divisi_id' => 'required|exists:divisions,id',
+            'divisi_id' => 'required|exists:divisions,id,is_active,1',
             'kode_jabatan' => 'required|unique:roles,kode_jabatan',
             'nama_jabatan' => 'required|unique:roles,nama_jabatan',
             // 'level_id' => 'required|exists:levels,id',
