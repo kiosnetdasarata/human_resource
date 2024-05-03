@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Interfaces\JobApplicantRepositoryInterface;
 use App\Models\JobApplicant;
+use App\Interfaces\JobApplicantRepositoryInterface;
 
 class JobApplicantRepository implements JobApplicantRepositoryInterface
 {
@@ -48,6 +48,4 @@ class JobApplicantRepository implements JobApplicantRepositoryInterface
     {
         return $jobApplicant->delete();
     }
-
-
 }

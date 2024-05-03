@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -14,27 +14,23 @@ class BranchCompanyRepository implements BranchCompanyRepositoryInterface
 
     public function getAll()
     {
-        return $this->branch->get()->map(function ($item) {
-            return $item->only(['id','kode_branch','nama_branch']);
-        });
-    }
-    
-    public function find($slug)
-    {
+        return $this->branch->select(['id','kode_branch','nama_branch'])->get();
     }
 
-    public function create($request)
-    {
-    }
-    
-    public function update($division, $request)
-    {
-    }
-    
-    public function delete($division)
-    {
-    }
-    
+    // public function find($slug)
+    // {
+    // }
+
+    // public function create($request)
+    // {
+    // }
+
+    // public function update($division, $request)
+    // {
+    // }
+
+    // public function delete($division)
+    // {
+    // }
+
 }
-
-?>

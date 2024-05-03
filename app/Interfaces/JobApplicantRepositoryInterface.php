@@ -2,8 +2,6 @@
 
 namespace App\Interfaces;
 
-use App\Models\JobApplicant;
-
 interface JobApplicantRepositoryInterface
 {
     public function getAll();
@@ -11,6 +9,6 @@ interface JobApplicantRepositoryInterface
     public function findSlug($slug);
     public function create($request);
     public function search($key, $value);
-    public function update(JobApplicant $traineeship, $request);
-    public function delete(JobApplicant $traineeship);
+    public function update($jobApplicant, $request);
+    public function delete($jobApplicant);
 }

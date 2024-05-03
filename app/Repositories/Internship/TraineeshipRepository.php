@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Internship;
 
-use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use App\Models\Traineeship;
+use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 
 class TraineeshipRepository implements TraineeshipRepositoryInterface
 {

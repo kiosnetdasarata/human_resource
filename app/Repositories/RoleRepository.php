@@ -14,12 +14,12 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function getAll($divisionId = null)
     {
-        $query = $this->role->query();
-        $query->when($divisionId, function ($q) use ($divisionId) {
-            return $q->where('status', $divisionId);
-        });
-
-        return $query->with(['division', 'level'])->get();
+        return $this->role
+                ->when($divisionId, function ($q) use ($divisionId) {
+                    return $q->where('divisi_id', $divisionId);
+                })
+                ->with(['division', 'level'])
+                ->get();
     }
 
     public function find($id)

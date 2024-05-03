@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Interfaces;
 
@@ -12,5 +12,3 @@ interface TechnicianRepositoryInterface
     public function delete($id);
 
 }
-
-?>

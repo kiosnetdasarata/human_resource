@@ -12,20 +12,20 @@ class UserRepository implements UserRepositoryInterface
     {
     }
 
-    public function getAll()
-    {
+    // public function getAll()
+    // {
 
-    }
+    // }
 
-    public function find($id)
-    {
+    // public function find($id)
+    // {
 
-    }
+    // }
 
-    public function findByNIP($nip)
-    {
-        return $this->user->where('nip_id', $nip)->firstOrFail();
-    }
+    // public function findByNIP($nip)
+    // {
+    //     return $this->user->where('nip_id', $nip)->firstOrFail();
+    // }
 
     public function create($request)
     {
@@ -34,7 +34,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function setIsactive($user, $status)
     {
-        return $user->update(['is_active' => $status == 0 ? 0:1]);
+        return $user->update(['is_active' => $status ? 1:0]);
     }
 
     public function update($user, $request) {

@@ -1,14 +1,12 @@
-<?php 
+<?php
 
 namespace App\Interfaces\Employee;
 
-use App\Models\EmployeeContract;
-
 interface EmployeeContractRepositoryInterface
 {
-    public function getAll($id);
-    public function find($id);
+    public function getAll($uuid);
+    public function find($uuid);
     public function create($request);
-    public function update(EmployeeContract $employeeContract, $request);
-    public function delete(EmployeeContract $employeeContract);
+    public function update($employeeContract, $request);
+    public function delete($employeeContract);
 }

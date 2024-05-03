@@ -18,22 +18,26 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
     public function getAll()
     {
         return $this->jobVacancy
-                ->with('role:id,nama_jabatan', 'branch:id,nama_branch', 'jobapplicant', 'traineeship')
-                ->get()
-                ->map(function ($e) {
-                    return collect($e)->merge([
-                        'role' => $e->role->nama_jabatan,
-                        'branch' => $e->branch->nama_branch,
-                        'applicant_count' => count($e->jobapplicant) + count($e->traineeship),
-                        'applicant_sum' => $e->countApplicantsByStatus()
-                    ]);
-                });
+                    ->with('role:id,nama_jabatan', 'branch:id,nama_branch', 'jobapplicant', 'traineeship')
+                    ->get()
+                    ->map(function ($e) {
+                        return collect($e)->merge([
+                            'role' => $e->role->nama_jabatan,
+                            'branch' => $e->branch->nama_branch,
+                            'applicant_count' => count($e->jobapplicant) + count($e->traineeship),
+                            'applicant_sum' => $e->countApplicantsByStatus()
+                        ]);
+                    });
     }
 
     public function getRole()
     {
-        $roleId = $this->jobVacancy->where('is_active', 1)->select('role_id')->distinct()->get();
-        return Role::whereIn('id', $roleId)->get();
+        return Role::whereIn('id', function($q) {
+            return $this->jobVacancy
+            ->where('is_active', 1)
+            ->pluck('role_id')
+            ->unique();
+        });
     }
 
     public function find($id)
@@ -53,7 +57,7 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function getTraineeships($id)
     {
-        return $this->find($id)->traineeship ?? throw new ModelNotFoundException('isIntern is false');
+        return $this->find($id)->is_intern ? $this->find($id)->traineeship : throw new ModelNotFoundException('isIntern is false');
     }
 
     public function getJobApplicants($id)
@@ -68,7 +72,10 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
 
     public function findSameRoleOnBranch($roleId, $branch)
     {
-        return $this->jobVacancy->where('role_id', $roleId)->where('branch_company_id', $branch)->first();
+        return $this->jobVacancy
+                    ->where('role_id', $roleId)
+                    ->where('branch_company_id', $branch)
+                    ->first();
     }
 
     public function create($request)
@@ -86,4 +93,3 @@ class JobVacancyRepository implements JobVacancyRepositoryInterface
         return $jobVacancy->delete();
     }
 }
-

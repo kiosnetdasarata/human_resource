@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -21,23 +21,21 @@ class TechnicianRepository implements TechnicianRepositoryInterface
     {
         return $this->technician->find($id);
     }
-    
+
     public function create($request)
     {
         return $this->technician->create($request);
     }
-    
+
     public function update($id, $request)
     {
         $technician = $this->find($id);
         $data = collect($request)->diffAssoc($technician);
         return $technician->update($data->all());
     }
-    
+
     public function delete($technician)
     {
         return $technician->delete();
     }
 }
-
-?>

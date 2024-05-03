@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
@@ -26,17 +26,17 @@ class ZoneRepository implements ZoneRepositoryInterface
     }
 
     public function getRegencies($province)
-    {        
-        return $this->regency->where('province_id',$province)->select('id','name')->get();
+    {
+        return $this->regency->select('id','name')->where('province_id',$province)->get();
     }
 
     public function getDistricts($regency)
     {
-        return $this->district->where('regency_id',$regency)->select('id','name')->get();
+        return $this->district->select('id','name')->where('regency_id',$regency)->get();
     }
 
     public function getVillages($district)
     {
-        return $this->village->where('district_id',$district)->select('id','name')->get();
-    }   
+        return $this->village->select('id','name')->where('district_id',$district)->get();
+    }
 }

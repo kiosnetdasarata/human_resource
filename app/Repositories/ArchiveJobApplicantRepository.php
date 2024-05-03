@@ -7,30 +7,26 @@ use App\Models\ArchiveJobApplicant;
 
 class ArchiveJobApplicantRepository implements ArchiveJobApplicantRepositoryInterface
 {
-    public function __construct(private ArchiveJobApplicant $archive) { }
+    public function __construct(private ArchiveJobApplicant $archive)
+    {
+        //
+    }
 
     public function query($request)
     {
-        $query = $this->archive->query();
-
-        $query->when($request->has('status'), function ($q) use ($request) {
-            return $q->where('status', $request->query('status'));
-        });
-
-        $query->when($request->has('role'), function ($q) use ($request) {
-            return $q->where('role', $request->query('role'));
-        });
-
-        $query->when($request->has('is_intern'), function ($q) use ($request) {
-            return $q->where('is_intern', $request->query('is_intern'));
-        });
-
-        $query->when($request->has('vacancy_id'), function ($q) use ($request) {
-            return $q->where('vacancy_id', $request->query('vacancy_id'));
-        });
-
-        return $query->get();
-
+        return $this->archive
+                    ->when($request->has('status'), function ($q) use ($request) {
+                        return $q->where('status', $request->query('status'));
+                    })
+                    ->when($request->has('role'), function ($q) use ($request) {
+                        return $q->where('role_id', $request->query('role'));
+                    })
+                    ->when($request->has('is_intern'), function ($q) use ($request) {
+                        return $q->where('is_intern', $request->query('is_intern'));
+                    })
+                    ->when($request->has('vacancy_id'), function ($q) use ($request) {
+                        return $q->where('vacancy_id', $request->query('vacancy_id'));
+                    })->get();
     }
 
     public function find($id)

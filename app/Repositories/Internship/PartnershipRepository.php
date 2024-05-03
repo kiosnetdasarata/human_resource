@@ -23,16 +23,19 @@ class PartnershipRepository implements PartnershipRepositoryInterface
 
     public function getInternship($id, $status)
     {
-        return $this->partnership->with(['internships' => function($query) use ($status){
-            $query->where('status_internship', $status);
-        }])->findOrFail($id)->internships;
+        return $this->partnership
+                    ->whereRelation('internships', 'status_internship','=', $status)
+                    ->findOrFail($id)
+                    ->internships;
     }
 
     public function getInternshipArchive($id, $status)
     {
-        return $this->partnership->with(['internships' => function($query) use ($status){
-            $query->where('status_internship', $status)->withTrashed();
-        }])->findOrFail($id)->internships;
+        return $this->partnership
+                    ->whereRelation('internships', function($query) use ($status){
+                        $query->where('status_internship', $status)->withTrashed();
+                    })
+                    ->findOrFail($id)->internships;
     }
 
     public function create($request)

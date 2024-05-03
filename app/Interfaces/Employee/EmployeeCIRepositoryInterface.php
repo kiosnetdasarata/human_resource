@@ -1,16 +1,11 @@
-<?php 
+<?php
 
 namespace App\Interfaces\Employee;
 
-use App\Models\EmployeeConfidentalInformation;
-
 interface EmployeeCIRepositoryInterface
 {
-    public function getAll();
-    public function find($nip);
+    // public function find($uuid);
     public function create($request);
-    public function update(EmployeeConfidentalInformation $employeeConfidentalInformation, $request);
-    public function delete(EmployeeConfidentalInformation $employeeConfidentalInformation);
+    public function update($employeeConfidentalInformation, $request);
+    public function delete($employeeConfidentalInformation);
 }
-
-?>

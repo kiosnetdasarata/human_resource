@@ -23,18 +23,18 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function findBySlug($slug)
     {
-        return $this->internship->where('slug', 'LIKE','%'. $slug.'%')->get();
+        return $this->internship->where('slug', 'LIKE',`%{$slug}%`)->get();
     }
 
     public function find($uuid)
     {
         return $this->internship
-                ->findOrFail($uuid)
-                ->load([
-                    'role',
-                    'partnership',
-                    'contract'
-                ]);
+                    ->findOrFail($uuid)
+                    ->load([
+                        'role',
+                        'partnership',
+                        'contract'
+                    ]);
     }
 
     public function create($request)
@@ -51,5 +51,4 @@ class InternshipRepository implements InternshipRepositoryInterface
     {
         return $internship->delete();
     }
-
 }

@@ -3,9 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Division;
-use Illuminate\Support\Str;
 use App\Interfaces\DivisionRepositoryInterface;
-use Exception;
 
 class DivisionRepository implements DivisionRepositoryInterface
 {
@@ -16,18 +14,21 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function getAll()
     {
-        return $this->division->with(['role:id', 'manager:nip,nama'])->get()->map(function ($e) {
-            return[
-                'id'                => $e->id,
-                'nama_divisi'       => $e->nama_divisi,
-                'kode_divisi'       => $e->kode_divisi,
-                'supervisor'        => $e->manager->nama,
-                'no_tlpn'           => $e->no_tlpn,
-                'jumlah_jabatan'    => count($e->role),
-                'created_at'        => $e->created_at,
-                'updated_at'        => $e->updated_at
-            ];
-        });
+        return $this->division
+                    ->with(['role:id', 'manager:nip,nama'])
+                    ->get()
+                    ->map(function ($e) {
+                        return [
+                            'id'                => $e->id,
+                            'nama_divisi'       => $e->nama_divisi,
+                            'kode_divisi'       => $e->kode_divisi,
+                            'supervisor'        => $e->manager->nama,
+                            'no_tlpn'           => $e->no_tlpn,
+                            'jumlah_jabatan'    => count($e->role),
+                            'created_at'        => $e->created_at,
+                            'updated_at'        => $e->updated_at
+                        ];
+                    });
     }
 
     public function find($id)
@@ -37,7 +38,10 @@ class DivisionRepository implements DivisionRepositoryInterface
 
     public function findSlug($slug)
     {
-        return $this->division->with(['role', 'manager'])->where('kode_divisi', $slug)->firstOrFail();
+        return $this->division
+                    ->with(['role', 'manager'])
+                    ->where('kode_divisi', $slug)
+                    ->firstOrFail();
     }
 
     public function create($request)

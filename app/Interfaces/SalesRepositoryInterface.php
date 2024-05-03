@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Interfaces;
 
@@ -13,5 +13,3 @@ interface SalesRepositoryInterface
     public function delete($id);
 
 }
-
-?>
