@@ -11,7 +11,6 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SalesRepositoryInterface;
 use App\Interfaces\TechnicianRepositoryInterface;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeCIRepositoryInterface;
 
 class EmployeeService
@@ -30,18 +29,18 @@ class EmployeeService
         //
     }
 
-    public function getAllEmployeePersonal($withtrashes = false)
+    public function get($withtrashes = false)
     {
         return $withtrashes ? $this->employee->findWithTrashes() : $this->employee->getAll();
     }
 
-    public function getEmployeeArchive()
+    public function getArchive()
     {
         return $this->employee->getArchive();
 
     }
 
-    public function findEmployeePersonal($uuid)
+    public function find($uuid)
     {
         return $this->employee->find($uuid);
 
@@ -56,7 +55,6 @@ class EmployeeService
     {
         return DB::transaction(function ()  use ($request) {
             $employeePersonal = $this->storePersonal($request);
-
             $employeePersonal = collect($request)->merge($employeePersonal)->all();
 
             $this->storeConfidential($employeePersonal);
@@ -103,10 +101,33 @@ class EmployeeService
         });
     }
 
+    private function storePersonal($request)
+    {
+        $nip = $this->generateNip($request['jenis_kelamin']);
+        $slug = Str::slug($request['nama'], '_');
+
+        $data = collect($request)->merge([
+            'id'            => Uuid::uuid4()->getHex(),
+            'nip'           => $nip,
+            'slug'          => $slug,
+            'foto_profil'   => $this->file->uploadToGCS($request['foto_profil'], $nip.'_cv.pdf','employee/'.$nip),
+        ])->all();
+
+        $data = $this->employee->create($data);
+
+        if ($data['role_id'] == 2) {
+            $this->createSales($data);
+        } elseif ($data['role_id'] == 3) {
+            $this->createTechnician($data);
+        }
+
+        return $data;
+    }
+
     private function generateNip($jenisKelamin)
     {
         $prefix = now()->format('ym') . ($jenisKelamin == 'Laki-Laki' ? '1' : '0');
-        return $prefix . count($this->getAllEmployeePersonal(true));
+        return $prefix . count($this->get(true));
     }
 
     private function createUser($request)
@@ -141,29 +162,6 @@ class EmployeeService
             'slug'      => $employee['slug']
         ];
         return $this->technician->create($data);
-    }
-
-    private function storePersonal($request)
-    {
-        $nip = $this->generateNip($request['jenis_kelamin']);
-        $slug = Str::slug($request['nama'], '_');
-
-        $data = collect($request)->merge([
-            'id'            => Uuid::uuid4()->getHex(),
-            'nip'           => $nip,
-            'slug'          => $slug,
-            'foto_profil'   => $this->file->uploadToGCS($request['foto_profil'], $nip.'_cv.pdf','employee/'.$nip),
-        ])->all();
-
-        $data = $this->employee->create($data);
-
-        if ($data['role_id'] == 2) {
-            $this->createSales($data);
-        } elseif ($data['role_id'] == 3) {
-            $this->createTechnician($data);
-        }
-
-        return $data;
     }
 
     private function updatePersonal($old, $request)

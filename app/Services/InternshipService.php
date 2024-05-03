@@ -5,7 +5,6 @@ use Ramsey\Uuid\Uuid;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
 
 class InternshipService

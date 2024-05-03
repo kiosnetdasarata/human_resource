@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
+use App\Interfaces\RoleRepositoryInterface;
 use LogicException;
 
 class JobVacancyService
@@ -14,7 +15,8 @@ class JobVacancyService
         private JobVacancyRepositoryInterface $jobVacancy,
         private ArchiveJobApplicantRepositoryInterface $archiveJobApplicant,
         private JobApplicantService $jobApplicant,
-        private TraineeshipService $traineeship
+        private TraineeshipService $traineeship,
+        private RoleRepositoryInterface $role,
     )
     {
         //
@@ -80,12 +82,16 @@ class JobVacancyService
         $roleId = isset($request['role_id']) ? $request['role_id'] : $jobVacancy->role_Id;
         $branchId = isset($request['branch_company_id']) ? $request['role_id'] : $jobVacancy->branch_company_id;
 
+        if ($this->role->find('role_id')->division->is_active) {
+            throw new LogicException('Divisi tidak aktif');
+        }
+
         if ($this->jobVacancy->findSameRoleOnBranch($roleId, $branchId)) {
             throw new LogicException('Duplikat role');
         }
 
-        $closeDate = isset($request['close_data']) ? $request['close_data'] : $jobVacancy->close_date;
-        $openDate = isset($request['open_data']) ? $request['open_data'] : $jobVacancy->open_date;
+        $closeDate = isset($request['close_date']) ? $request['close_date'] : $jobVacancy->close_date;
+        $openDate = isset($request['open_date']) ? $request['open_date'] : $jobVacancy->open_date;
 
         if ($closeDate <= $openDate) {
             throw new LogicException('close date tidak sesuai dengan open date');

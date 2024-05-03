@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use LogicException;
 use App\Helpers\FileHelper;
-use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\JobVacancyRepositoryInterface;
 use App\Interfaces\JobApplicantRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use LogicException;
+use App\Interfaces\ArchiveJobApplicantRepositoryInterface;
 
 class JobApplicantService
 {

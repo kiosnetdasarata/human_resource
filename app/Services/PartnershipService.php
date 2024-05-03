@@ -47,8 +47,7 @@ class PartnershipService
             throw new ModelNotFoundException();
         }
 
-        $data = $this->partnership->getInternshipArchive($id,$status);
-        return $data;
+        return $this->partnership->getInternshipArchive($id,$status);
     }
 
     public function create($request)

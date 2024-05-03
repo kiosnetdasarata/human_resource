@@ -60,8 +60,8 @@ class DivisionService
 
             if (isset($dataDivision['manager_divisi'])) {
                 $manager = $this->employee->show($request['manager_divisi'], 'nip');
-                $dataDivision->put('email', $manager->email)
-                             ->put('no_tlpn',$manager->no_tlpn);
+                $dataDivision->put('email', $manager->email);
+                $dataDivision->put('no_tlpn',$manager->no_tlpn);
             }
 
             if (isset($request['is_active']) && !$request['is_active']) {

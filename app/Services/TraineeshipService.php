@@ -54,7 +54,7 @@ class TraineeshipService
             'nama_lengkap'      => Str::title($request['nama_lengkap']),
             'slug'              => $slug,
             'tanggal_lamaran'   => now()->format('Y-m-d'),
-            'file_cv'           => $this->file->uploadToGCS($request['file_cv'], $slug .'_'. $jobVacancy['role']['nama_jabatan'] . '_cv','traineeship/cv')
+            'file_cv'           => $this->file->uploadToGCS($request['file_cv'], $slug . '_' . $jobVacancy['role']['nama_jabatan'] . '_cv', 'traineeship/cv'),
         ]);
 
         return $this->traineeship->create($traineeship->all());
@@ -67,14 +67,14 @@ class TraineeshipService
         $data = collect($request)->diffAssoc($old);
         $this->validateData($data, $old->jobVacancy);
 
-        return DB::transaction(function() use ($old, $data){
+        return DB::transaction(function () use ($old, $data) {
             if (isset($data['nama_lengkap'])) {
                 $data->put('nama_lengkap', Str::title($data['nama_lengkap']))
-                     ->put('slug', $this->generateTraineeshipSlug($data['nama_lengkap']));
+                    ->put('slug', $this->generateTraineeshipSlug($data['nama_lengkap']));
             }
 
             if (isset($data['file_cv'])) {
-                $link = $this->file->uploadToGCS($data['file_cv'], $old->slug .'_'. $old->role->nama_jabatan . '_cv', 'traineeship/file_cv');
+                $link = $this->file->uploadToGCS($data['file_cv'], $old->slug . '_' . $old->role->nama_jabatan . '_cv', 'traineeship/file_cv');
                 $data->put('file_cv', $link);
             }
 
@@ -85,7 +85,9 @@ class TraineeshipService
     public function updateStatus($id, $status)
     {
         $old = $this->traineeship->find($id);
-        if (!$old) throw new ModelNotFoundException();
+        if (!$old) {
+            throw new ModelNotFoundException();
+        }
 
         return DB::transaction(function () use ($old, $status) {
             $oldStatus = $old->status_tahap;
@@ -96,8 +98,8 @@ class TraineeshipService
 
             $this->traineeship->update($old, ['status_tahap' => $status]);
 
-            if ($status == 'Tolak' ||$status == 'Lolos') {
-                $this->delete($old, 'status menjadi' + $status);
+            if ($status == 'Tolak' || $status == 'Lolos') {
+                $this->delete($old, 'status menjadi'+$status);
             }
         });
     }
@@ -107,7 +109,7 @@ class TraineeshipService
         if (now() > $jobVacancy['close_date'] || now() < $jobVacancy['open_date']) {
             throw new ModelNotFoundException('vacancy belum dibuka / sudah ditutup');
         }
-        
+
         if (isset($request['tanggal_lahir'])) {
             $age = Carbon::parse($request['tanggal_lahir'])->diffInYears(now());
             if ($age > $jobVacancy['max_umur'] || $age < $jobVacancy['min_umur']) {
@@ -120,16 +122,15 @@ class TraineeshipService
         }
     }
 
-
     private function generateTraineeshipSlug($name)
     {
         $list = $this->findTraineeshipSlug($name);
 
-        $slug = Str::slug($name,'_');
+        $slug = Str::slug($name, '_');
         if (count($list)) {
-            $int    = $list->sortBy('slug')->last()->slug;
-            $int    = explode('_', $int);
-            $slug   = $slug . '_' . (int) end($int) + 1;
+            $int = $list->sortBy('slug')->last()->slug;
+            $int = explode('_', $int);
+            $slug = $slug . '_' . (int) end($int) + 1;
         }
 
         return $slug;

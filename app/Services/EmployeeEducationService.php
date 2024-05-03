@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use LogicException;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
-use LogicException;
 
 class EmployeeEducationService
 {
@@ -31,16 +31,15 @@ class EmployeeEducationService
     }
 
     public function store($uuid, $request) {
-        $this->validateData($uuid, $request);
-
-        $request['nip_id'] = $this->employee->find($uuid)->nip;
+        $employee = $this->employee->find($uuid);
+        $this->validateData($employee, $request);
 
         return $this->employeeEducation->create($request);
     }
 
     public function update($uuid, $request)
     {
-        $data = collect($request)->diffAssoc($this->employeeEducation->find($uuid))->all();
+        $data = collect($request)->diffAssoc($this->find($uuid))->all();
 
         $this->validateData($uuid, $data);
 
@@ -52,18 +51,19 @@ class EmployeeEducationService
         return $this->employeeEducation->delete($id);
     }
 
-    private function validateData($uuid, $request)
+    private function validateData($employee, $request)
     {
         if (isset($request['tahun_lulus']) && $request['tahun_lulus'] > date('Y')) {
             throw new LogicException('tahun lulus tidak boleh lebih besar dibanding tahun sekarang');
         }
 
-        $history = $this->employeeEducation->getAll($uuid);
+        $history = $employee->educationHistory;
         if (count($history)) {
             foreach ($history as $data) {
-                $oldPendidikan = $data['pendidikan_terakhir'];
                 $newPendidikan = $request['pendidikan_terakhir'];
                 if ($newPendidikan == 'Sarjana') return;
+
+                $oldPendidikan = $data['pendidikan_terakhir'];
 
                 $arr = [
                     'Sarjana'   => 3,
@@ -72,7 +72,7 @@ class EmployeeEducationService
                     'SMP'       => 1
                 ];
 
-                if (($arr[$oldPendidikan] - $arr[$newPendidikan]) * ($data['tahun_lulus'] - $request['tahun_lulus']) < 0) {
+                if (($arr[$oldPendidikan] - $arr[$newPendidikan]) * ($data['tahun_lulus'] - $request['tahun_lulus']) <= 0) {
                     throw new LogicException ('tahun lulus tidak valid');
                 }
             }

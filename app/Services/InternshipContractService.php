@@ -6,8 +6,8 @@ use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use App\Helpers\FileHelper;
 use Illuminate\Support\Facades\DB;
-use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 use App\Interfaces\Internship\InternshipRepositoryInterface;
+use App\Interfaces\Internship\InternshipContractRepositoryInterface;
 
 class InternshipContractService
 {
@@ -15,8 +15,7 @@ class InternshipContractService
         private InternshipContractRepositoryInterface $internshipContract,
         private InternshipRepositoryInterface $internship,
         private FileHelper $file,
-    )
-    {
+    ) {
         //
     }
 
@@ -30,7 +29,7 @@ class InternshipContractService
         return $this->internshipContract->find($id);
     }
 
-    public function create($id,$request)
+    public function create($id, $request)
     {
         return DB::transaction(function () use ($id, $request) {
             $this->deleteExistingContract($id);
@@ -39,11 +38,11 @@ class InternshipContractService
 
             $dateExpired = Carbon::parse($request['date_start'])->addMonths($request['durasi_kontrak']);
             $data = collect($request)->merge([
-                'id'                => Uuid::uuid4()->getHex(),
+                'id' => Uuid::uuid4()->getHex(),
                 'internship_nip_id' => $internship->internship_nip,
-                'role_internship'   => $internship->role_id,
-                'date_expired'      => $dateExpired,
-                'is_expired'        => $dateExpired < now() ? 1 : 0,
+                'role_internship' => $internship->role_id,
+                'date_expired' => $dateExpired,
+                'is_expired' => $dateExpired < now() ? 1 : 0,
             ])->all();
 
             $this->internshipContract->create($data);
@@ -64,7 +63,7 @@ class InternshipContractService
 
             $data = $data->merge([
                 'date_expired' => $date_expired,
-                'is_expired'   => $date_expired < now() ? 1 : 0,
+                'is_expired' => $date_expired < now() ? 1 : 0,
             ])->all();
 
             $this->internshipContract->update($old, $data);

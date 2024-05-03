@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
+use LogicException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Google\Cloud\Core\Exception\ConflictException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\JobApplicantRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Internship\TraineeshipRepositoryInterface;
 use App\Interfaces\Internship\InterviewPointRepositoryInterface;
-use LogicException;
 
 class InterviewPointService
 {
@@ -44,8 +43,7 @@ class InterviewPointService
     {
         $isIntern = $this->validate($isIntern);
 
-        $poin = $this->interviewPoint->find($id, $isIntern);
-        return $poin;
+        return $this->interviewPoint->find($id, $isIntern);
     }
 
     public function update($id, $request, $isIntern)
