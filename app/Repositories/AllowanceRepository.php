@@ -50,21 +50,4 @@ class AllowanceRepository implements AllowanceRepositoryInterface
     {
         return $this->allowance->whereRelation('employee', $uuid);
     }
-
-    public function attachLevel($allowances, $nip, $isIntern)
-    {
-        foreach ($allowances as $allowance){
-            $allowance->level()->attach($nip, [
-                'id'            => Uuid::uuid4()->getHex(),
-                'keterangan'    => $isIntern ? 'Employee' : 'Internship',
-            ]);
-        }
-    }
-
-    public function detachLevel($allowances, $nip)
-    {
-        foreach($allowances as $allowance) {
-            $allowance->level()->detach($nip);
-        }
-    }
 }

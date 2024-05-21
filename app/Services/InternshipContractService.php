@@ -53,7 +53,7 @@ class InternshipContractService
     public function update($id, $request)
     {
         return DB::transaction(function () use ($id, $request) {
-            $old = $this->get($id);
+            $old = $this->internshipContract->getAll($id);
             $data = collect($request)->diffAssoc($old);
 
             $date_start = isset($data['date_start']) ? $data['date_start'] : $old['date_start'];

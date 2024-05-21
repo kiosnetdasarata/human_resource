@@ -15,7 +15,7 @@ class RoleRepository implements RoleRepositoryInterface
     public function getAll($divisionId = null)
     {
         return $this->role
-                ->when($divisionId, function ($q) use ($divisionId) {
+                ->when($divisionId, function ($q, $divisionId) use ($divisionId) {
                     return $q->where('divisi_id', $divisionId);
                 })
                 ->with(['division', 'level'])

@@ -15,11 +15,6 @@ class EmployeeCIRepository implements EmployeeCIRepositoryInterface
         //
     }
 
-    // public function find($uuid)
-    // {
-    //     return $this->employee->findOrFail($uuid)->employeeCI;
-    // }
-
     public function create($request)
     {
         return $this->employeeConfidentalInformation->create($request);

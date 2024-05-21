@@ -31,7 +31,7 @@ class TraineeshipService
 
     public function find($id, $withtrashes = false)
     {
-        return $withtrashes ? $this->traineeship->findWithTrashes($id) : $this->traineeship->find($id);
+        return $this->traineeship->find($id, $withtrashes);
     }
 
     public function findTraineeshipSlug($name)
@@ -57,7 +57,7 @@ class TraineeshipService
             'file_cv'           => $this->file->uploadToGCS($request['file_cv'], $slug . '_' . $jobVacancy['role']['nama_jabatan'] . '_cv', 'traineeship/cv'),
         ]);
 
-        return $this->traineeship->create($traineeship->all());
+        $this->traineeship->create($traineeship->all());
     }
 
     public function update($id, $request)

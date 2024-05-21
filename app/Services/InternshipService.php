@@ -69,7 +69,6 @@ class InternshipService
     {
         return DB::transaction(function () use ($uuid) {
             $this->internshipContract->deleteExistingContract($uuid);
-
             $this->internship->delete($this->find($uuid));
         });
     }
@@ -77,8 +76,8 @@ class InternshipService
     private function generateNip($jk)
     {
         $count = $this->internship->getAllThisYear() + 1;
-        if (($count < 10)) $count = '00'.$count;
-        else if (($count < 100)) $count = '0'.$count;
+        if ($count < 10) $count = '00'.$count;
+        else if ($count < 100) $count = '0'.$count;
 
         return (string) (
             '2'

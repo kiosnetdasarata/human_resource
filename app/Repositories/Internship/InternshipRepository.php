@@ -18,7 +18,7 @@ class InternshipRepository implements InternshipRepositoryInterface
 
     public function getAllThisYear()
     {
-        return count($this->internship->whereYear('created_at', now()->year)->withTrashed()->get());
+        return $this->internship->whereYear('created_at', now()->year)->withTrashed()->count('id');
     }
 
     public function findBySlug($slug)

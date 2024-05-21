@@ -49,7 +49,7 @@ class Employee extends Model
 
     public function getMasaKerjaAttribute()
     {
-        $firstContract =  $this->contractsHistory()
+        $firstContract = $this->contractsHistory()
                                 ->select('start_kontrak')
                                 ->orderBy('start_kontrak', 'asc')
                                 ->firstOrFail();

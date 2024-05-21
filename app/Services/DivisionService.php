@@ -44,7 +44,7 @@ class DivisionService
             'no_tlpn'       => $manager->no_tlpn,
         ])->all();
 
-        return $this->division->create($dataDivision);
+        $this->division->create($dataDivision);
     }
 
     public function update($id, $request)
@@ -72,7 +72,7 @@ class DivisionService
                 }
             }
 
-            return $this->division->update($old, $dataDivision->all());
+            $this->division->update($old, $dataDivision->all());
         });
     }
 
@@ -84,6 +84,6 @@ class DivisionService
             throw new LogicException('Divisi ini masih memiliki karyawan aktif.');
         }
 
-        return $this->division->delete($data);
+        $this->division->delete($data);
     }
 }

@@ -23,7 +23,7 @@ class EmployeeEducationRepository implements EmployeeEducationRepositoryInterfac
 
     public function find($id)
     {
-        return$this->employee->findOrFail($id)->education;
+        return $this->employee->findOrFail($id)->education;
     }
 
     public function create($request)

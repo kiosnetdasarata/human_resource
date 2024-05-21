@@ -66,7 +66,7 @@ class JobApplicantService
             'role_id'       => $jobVacancy['role_id']
         ])->all();
 
-        return $this->jobApplicant->create($data);
+        $this->jobApplicant->create($data);
     }
 
     public function update($id, $request)

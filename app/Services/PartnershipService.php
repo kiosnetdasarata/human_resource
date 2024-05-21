@@ -53,7 +53,7 @@ class PartnershipService
     public function create($request)
     {
         $data = collect($request)->put('nama_mitra', Str::title($request['nama_mitra']))->all();
-        return $this->partnership->create($data);
+        $this->partnership->create($data);
     }
 
     public function update($id, $request)
@@ -64,12 +64,12 @@ class PartnershipService
         if (isset($data['nama_mitra'])) {
             $data->put('nama_mitra', Str::title($request['nama_mitra']))->all();
         }
-        return $this->partnership->update($old, $data);
+        $this->partnership->update($old, $data);
     }
 
     public function delete($partnership)
     {
-        return $this->partnership->delete($partnership);
+        $this->partnership->delete($partnership);
     }
 
     public function findFile($idParnership)
@@ -110,7 +110,7 @@ class PartnershipService
                 'is_expired'    => $dateExpired < now() ? 1 : 0,
             ]);
 
-            return $this->filePartnership->create($filePartnership->all());
+            $this->filePartnership->create($filePartnership->all());
         });
     }
 

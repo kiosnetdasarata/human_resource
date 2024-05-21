@@ -29,20 +29,19 @@ class TraineeshipRepository implements TraineeshipRepositoryInterface
     }
 
 
-    public function find($id)
+    public function find($id, $withtrashed = false)
     {
-        return $this->traineeship->find($id)->load(['interviewPoint']);
+        return $this->traineeship
+                    ->find($id)
+                    ->when($withtrashed, function($q) {
+                        $q->withTrashed();
+                    })->load(['interviewPoint']);
     }
 
-    public function findWithTrashes($id)
-    {
-        return  $this->traineeship->withTrashed()->find($id)->load(['interviewPoint']);
-    }
-
-    public function findByJobVacancy($vacancyId)
-    {
-        return $this->traineeship->where('vacancy_id', $vacancyId)->get();
-    }
+    // public function findByJobVacancy($vacancyId)
+    // {
+    //     return $this->traineeship->where('vacancy_id', $vacancyId)->get();
+    // }
 
     public function create($request)
     {

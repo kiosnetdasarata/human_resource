@@ -66,20 +66,10 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                     ]);
     }
 
-    // public function findBySlug($slug)
-    // {
-    //     return $this->employee->where('slug', 'LIKE','%'. $slug.'%')->get();
-    // }
-
     public function findWithTrashes()
     {
         return $this->employee->withTrashed()->get();
     }
-
-    // public function findBySlugWithTrashes($slug)
-    // {
-    //     return $this->employee->withTrashed()->where('slug', 'LIKE','%'. $slug.'%')->get();
-    // }
 
     public function getManager($request)
     {

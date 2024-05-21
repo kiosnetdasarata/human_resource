@@ -49,8 +49,7 @@ class InterviewPointService
     public function update($id, $request, $isIntern)
     {
         $poin = $this->find($id, $isIntern);
-
-        return $this->interviewPoint->update($poin, $request);
+        $this->interviewPoint->update($poin, $request);
     }
 
     public function delete($interviewPoint)

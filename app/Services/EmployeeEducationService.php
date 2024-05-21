@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use LogicException;
+use Illuminate\Support\Facades\DB;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Interfaces\Employee\EmployeeEducationRepositoryInterface;
@@ -27,28 +28,32 @@ class EmployeeEducationService
         $data = $this->employeeEducation->find($uuid);
 
         if (!$data) throw new ModelNotFoundException();
-        else return $data;
+        return $data;
     }
 
-    public function store($uuid, $request) {
-        $employee = $this->employee->find($uuid);
-        $this->validateData($employee, $request);
+    public function storeData($uuid, $request)
+    {
+        return DB::transaction(function () use ($uuid, $request) {
+            $employee = $this->employee->find($uuid);
+            $this->store($employee, $request);
+        });
+    }
 
-        return $this->employeeEducation->create($request);
+    public function store($employee, $request) {
+        $this->validateData($employee, $request);
+        $this->employeeEducation->create($request);
     }
 
     public function update($uuid, $request)
     {
         $data = collect($request)->diffAssoc($this->find($uuid))->all();
-
         $this->validateData($uuid, $data);
-
         $this->employeeEducation->update($uuid, $data);
     }
 
     public function delete($id)
     {
-        return $this->employeeEducation->delete($id);
+        $this->employeeEducation->delete($id);
     }
 
     private function validateData($employee, $request)
@@ -66,7 +71,8 @@ class EmployeeEducationService
                 $oldPendidikan = $data['pendidikan_terakhir'];
 
                 $arr = [
-                    'Sarjana'   => 3,
+                    'Sarjana'   => 4,
+                    'Diploma'   => 3,
                     'SMA'       => 2,
                     'SMK'       => 2,
                     'SMP'       => 1

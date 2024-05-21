@@ -35,7 +35,6 @@ class AllowanceService
             $this->validate($allowances, $employee);
 
             $this->employee->attachAllowance($employee, $request);
-            $this->allowance->attachLevel($allowances, $employee['nip'], 0);
         });
     }
 
@@ -45,17 +44,13 @@ class AllowanceService
         $masa = $employee->getMasaKerjaAttribute();
 
         foreach($allowances as $allowance) {
-            [$min, $max] = [$allowance->min_level, $allowance->max_level];
+            [$min, $max, $minMaKer] = [$allowance->min_level, $allowance->max_level, $allowance->minimal_masa_kerja];
 
             if ($min < $level || $level < $max) {
                 throw new LogicException('Level tidak sesuai');
             }
-
-            switch ($allowance->id) {
-                case 1: case 2: case 3: if ($masa > 6) break;
-                case 4: if ($masa > 36) break;
-                case 5: if ($masa > 60) break;
-                default: throw new LogicException('syarat tidak sesuai');
+            if ($minMaKer > $masa) {
+                throw new LogicException('Masa Kerja tidak sesuai');
             }
         }
     }
@@ -65,7 +60,6 @@ class AllowanceService
         $employee = $this->employee->find($uuid);
         return DB::transaction(function() use($employee, $request) {
             $this->employee->detachAllowance($employee, $request['allowance_id']);
-            $this->allowance->detachLevel($request['allowance_id'], $employee->nip);
         });
     }
 }

@@ -34,21 +34,20 @@ class EmployeeContractService
     public function store($uuid, $request)
     {
         return DB::transaction(function () use ($uuid, $request) {
-            $this->storeContract($uuid, $request);
+            $employee = $this->employee->find($uuid);
+            $this->storeContract($employee, $request);
         });
     }
 
-    public function storeContract($uuid, $request)
+    public function storeContract($employee, $request)
     {
-        $employee = $this->employee->find($uuid);
-
-        $this->delete($uuid);
+        $this->delete($employee);
 
         $data = collect($request)->merge([
             'id'            => Uuid::uuid4()->getHex(),
             'nip_id'        => $employee->nip,
             'file_terms'    => $this->file->uploadToGCS($request['file_terms'],$employee->nip.'_file_terms_'.$request['start_kontrak'],'employee/file_terms'),
-            'kontrak_ke'    => (count($this->get($uuid)) + 1),
+            'kontrak_ke'    => (count($employee->contractHistory) + 1),
         ])->all();
 
         $this->contract->create($data);
@@ -68,11 +67,9 @@ class EmployeeContractService
         });
     }
 
-    public function delete($uuid)
+    public function delete($employee)
     {
-        $contract = $this->find($uuid);
-
-        $this->user->setIsactive($contract->employee->user, false);
-        $this->contract->delete($contract);
+        $this->user->setIsactive($employee->user, false);
+        $this->contract->delete($employee->contract);
     }
 }

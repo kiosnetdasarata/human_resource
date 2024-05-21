@@ -29,9 +29,9 @@ class EmployeeService
         //
     }
 
-    public function get($withtrashes = false)
+    public function get()
     {
-        return $withtrashes ? $this->employee->findWithTrashes() : $this->employee->getAll();
+        return $this->employee->getAll();
     }
 
     public function getArchive()
@@ -43,7 +43,6 @@ class EmployeeService
     public function find($uuid)
     {
         return $this->employee->find($uuid);
-
     }
 
     public function getManager($query)
@@ -54,12 +53,12 @@ class EmployeeService
     public function firstForm($request)
     {
         return DB::transaction(function ()  use ($request) {
-            $employeePersonal = $this->storePersonal($request);
-            $employeePersonal = collect($request)->merge($employeePersonal)->all();
+            $employee = $this->storePersonal($request);
+            $request = collect($request)->merge($employee)->all();
 
-            $this->storeConfidential($employeePersonal);
-            $this->education->store($employeePersonal['id'], $employeePersonal);
-            $this->createUser($employeePersonal);
+            $this->storeConfidential($request);
+            $this->education->store($employee, $request);
+            $this->createUser($request);
         });
     }
 
@@ -73,7 +72,7 @@ class EmployeeService
             }
 
             $this->updateConfidential($employee->employeeCI, $request);
-            $this->contract->storeContract($uuid, $request);
+            $this->contract->storeContract($employee, $request);
             $this->user->setIsactive($employee->user, true);
         });
     }
@@ -93,10 +92,10 @@ class EmployeeService
         return DB::transaction(function ()  use ($uuid, $request) {
             $employee = $this->employee->find($uuid);
 
-            $this->contract->delete($uuid);
+            $this->contract->delete($employee);
+            $this->user->setIsactive($employee->user, false);
             $this->employeeCI->delete($employee->employeeCI);
             $this->employee->delete($employee);
-            $this->user->setIsactive($employee->user, false);
             $this->storeArchive($employee, $request);
         });
     }
@@ -127,7 +126,7 @@ class EmployeeService
     private function generateNip($jenisKelamin)
     {
         $prefix = now()->format('ym') . ($jenisKelamin == 'Laki-Laki' ? '1' : '0');
-        return $prefix . count($this->get(true));
+        return $prefix . count($this->employee->findWithTrashes());
     }
 
     private function createUser($request)
@@ -151,7 +150,7 @@ class EmployeeService
             'no_tlpn'   => $employee['no_tlpn'],
             'level_id'  => $employee['level_sales_id'],
         ];
-        return $this->sales->create($data);
+        $this->sales->create($data);
     }
 
     private function createTechnician($employee)
@@ -161,7 +160,7 @@ class EmployeeService
             'nip_id'    => $employee['nip'],
             'slug'      => $employee['slug']
         ];
-        return $this->technician->create($data);
+        $this->technician->create($data);
     }
 
     private function updatePersonal($old, $request)

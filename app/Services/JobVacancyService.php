@@ -59,7 +59,7 @@ class JobVacancyService
             'slug'  => Str::slug($request['title'], '_'),
         ]);
 
-        return $this->jobVacancy->create($request);
+        $this->jobVacancy->create($request);
     }
 
     public function update($id, $request)

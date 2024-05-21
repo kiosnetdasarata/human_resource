@@ -36,7 +36,7 @@ class EmployeeEducationController extends Controller
     public function store($uuid, StoreEducationRequest $request)
     {
         try {
-            $this->employeeService->store($uuid, $request);
+            $this->employeeService->storeData($uuid, $request);
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
