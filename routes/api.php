@@ -51,6 +51,7 @@ Route::controller(ZoneController::class)->prefix('zone')->group(function() {
 // ---------- Division ----------
 Route::get('/division/{division}/role', [RoleController::class, 'index']);
 Route::get('/division/{division}/employee', [DivisionController::class, 'getEmployee']);
+Route::get('/division/{division}/employee-archived', [DivisionController::class, 'getEmployeeArchive']);
 // Route::get('/division/{division}/employee/archive', [DivisionController::class, 'getEmployeeArchive']);
 Route::apiResource('division', DivisionController::class);
 
@@ -74,7 +75,7 @@ Route::apiResource('level', LevelController::class);
     Route::patch('/employee/{uuid}/delete', [EmployeeController::class, 'destroy']);
     Route::get('/employee/{uuid}/contract/history', [EmployeeContractController::class, 'index']);
     Route::get('/employee/{uuid}/education/history', [EmployeeEducationController::class, 'index']);
-    
+
     Route::apiSingleton('employee.contract', EmployeeContractController::class)->creatable();
     Route::apiSingleton('employee.education', EmployeeEducationController::class)->creatable();
     Route::apiResource('employee', EmployeeController::class)->except(['store','destroy']);

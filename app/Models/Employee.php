@@ -146,7 +146,7 @@ class Employee extends Model
 
     public function leaderOf(): HasOne
     {
-        return $this->hasOne(Division::class, 'manajer_divisi', 'nip');
+        return $this->hasOne(Division::class, 'manager_divisi', 'nip');
     }
 
     public function division(): HasOneThrough

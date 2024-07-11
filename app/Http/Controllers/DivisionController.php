@@ -72,6 +72,16 @@ class DivisionController extends Controller
         }
     }
 
+    public function getEmployeeArchive($id)
+    {
+        try {
+            $data = $this->employee->getArchiveEmployees($id);
+            return $this->response->success($data);
+        } catch (\Exception $e) {
+            return $this->response->error($e);
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      */

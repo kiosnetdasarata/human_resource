@@ -69,5 +69,13 @@ class FirstFormEmployeeRequest extends FormRequest
                 'status_code' => 422,
             ])
         );
+
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+                'input' => $this->input(),
+            ], 422)
+        );
     }
 }
