@@ -62,11 +62,7 @@ class LevelController extends Controller
     public function update(UpdateLevelRequest $request, $id)
     {
         try {
-            $request = $request->validated();
             $old = $this->level->find($id);
-            if (isset($request['is_active']) && !$request['is_active'] && $old->employee) {
-                throw new LogicException('level ini masih memiliki karyawan aktif.');
-            }
             $this->level->update($old, $request->validated());
             return $this->response->success();
         } catch (\Exception $e) {
@@ -82,7 +78,7 @@ class LevelController extends Controller
         try {
             $data = $this->level->find($id);
 
-            if ($data->employee) {
+            if ($data->employee->first()) {
                 throw new LogicException('level ini masih memiliki karyawan aktif.');
             }
             $this->level->delete($data);

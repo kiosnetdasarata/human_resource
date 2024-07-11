@@ -17,6 +17,13 @@ class UpdateDivisionRequest extends FormRequest
         return $this->isMethod('PATCH');
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'nama_divisi' => Str::title($this->nama_divisi),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,8 +34,7 @@ class UpdateDivisionRequest extends FormRequest
         $division = $this->route('division');
         return [
             'nama_divisi' => 'unique:divisions,nama_divisi,'.$division.',id',
-            'manager_divisi' => 'exists:employee_personal_informations,nip',
-            'is_active' => 'in:0,1',
+            'manager_divisi' => 'exists:employee_personal_informations,nip'
         ];
     }
 
@@ -38,9 +44,8 @@ class UpdateDivisionRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()->all(),
-                'input' => $this->input(),
-                'status_code' => 422,
-            ])
+                'input' => $this->input()
+            ], 422)
         );
     }
 }

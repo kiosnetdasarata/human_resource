@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Division;
 
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -16,6 +17,14 @@ class StoreDivisionRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'kode_divisi' => str_replace(' ', '', strtoupper($this->kode_divisi)),
+            'nama_divisi' => Str::title($this->nama_divisi),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -26,7 +35,7 @@ class StoreDivisionRequest extends FormRequest
         return [
             'nama_divisi' => 'required|unique:divisions,nama_divisi',
             'kode_divisi' => 'required|string|unique:divisions,kode_divisi',
-            'manager_divisi' => 'required|exists:employee_personal_informations,nip',
+            'manager_divisi' => 'required|exists:employee_personal_informations,nip|unique:divisions,manager_divisi',
         ];
     }
 
@@ -36,9 +45,8 @@ class StoreDivisionRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()->all(),
-                'input' => $this->input(),
-                'status_code' => 422,
-            ])
+                'input' => $this->input()
+            ], 422)
         );
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Repositories\Employee;
 
+use App\Models\Division;
 use App\Models\Employee;
 use App\Models\EmployeeArchive;
+use Illuminate\Support\Facades\DB;
 use App\Interfaces\Employee\EmployeeRepositoryInterface;
 
 class EmployeeRepository implements EmployeeRepositoryInterface
@@ -98,7 +100,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                     $q->select('manager_divisi')
                         ->from('divisions')
                         ->when($request->has('division'), function ($q) use ($request) {
-                            return $q->where('id', '!=', $request->query('division'));
+                            return $q->where('id', '=', $request->query('division'));
                         });
                 })
                 ->get();

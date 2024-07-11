@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use LogicException;
+use App\Models\Division;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\RoleRepositoryInterface;
@@ -26,7 +27,7 @@ class DivisionService
 
     public function find($id)
     {
-        return $this->division->find($id);
+        return($this->division->find($id));
     }
 
     public function findSlug($id)
@@ -38,6 +39,7 @@ class DivisionService
     {
         $manager = $this->employee->show($request['manager_divisi'], 'nip');
         $dataDivision = collect($request)->merge([
+            'kode_divisi'   => str_replace(' ', '', strtoupper($request['kode_divisi'])),
             'nama_divisi'   => Str::title($request['nama_divisi']),
             'slug'          => Str::slug($request['nama_divisi'], '_'),
             'email'         => $manager->email,
@@ -80,7 +82,7 @@ class DivisionService
     {
         $data = $this->division->find($id);
 
-        if ($data->employee) {
+        if ($data->employee->first()) {
             throw new LogicException('Divisi ini masih memiliki karyawan aktif.');
         }
 

@@ -37,9 +37,8 @@ class UpdateLevelRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'input' => $this->input(),
-                'status_code' => 422,
-            ])
+                'input' => $this->input()
+            ], 422)
         );
     }
 }

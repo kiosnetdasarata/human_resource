@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use LogicException;
+use Illuminate\Support\Str;
 use App\Helpers\ResponseHelper;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Http\Requests\Role\StoreRoleRequest;
@@ -38,6 +39,7 @@ class RoleController extends Controller
     {
         try {
             $this->role->create($request->validated());
+
             return $this->response->success();
         } catch (\Exception $e) {
             return $this->response->error($e, $request->validated());
@@ -65,9 +67,6 @@ class RoleController extends Controller
         try {
             $request = $request->validated();
             $old = $this->role->find($id);
-            if (isset($request['is_active']) && !$request['is_active'] && $old->employee) {
-                throw new LogicException('Role ini masih memiliki karyawan aktif.');
-            }
             $this->role->update($old, $request->validated());
             return $this->response->success();
         } catch (\Exception $e) {

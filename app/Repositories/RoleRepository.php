@@ -15,17 +15,15 @@ class RoleRepository implements RoleRepositoryInterface
     public function getAll($divisionId = null)
     {
         return $this->role
-                // ->when($divisionId, function ($q, $divisionId) use ($divisionId) {
-                //     return $q->where('divisi_id', $divisionId);
-                // })
-                ->with(['division:id,nama_divisi'])
-                ->withCount('employee')
-                ->get();
+                    ->with(['division:id,nama_divisi'])
+                    ->withCount('employee')
+                    ->where('is_active', 1)
+                    ->get();
     }
 
     public function find($id)
     {
-        return $this->role->findOrFail($id);
+        return $this->role->where([['id' => $id], ['is_active', 1]]);
     }
 
     public function create($request)
@@ -40,6 +38,6 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function delete($role)
     {
-        return $role->delete();
+        return $role->update(['is_active' => 0]);
     }
 }

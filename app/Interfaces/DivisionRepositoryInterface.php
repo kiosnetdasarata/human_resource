@@ -11,6 +11,4 @@ interface DivisionRepositoryInterface
     public function create($request);
     public function update($division, $request);
     public function delete($division);
-
-    public function getManagers();
 }

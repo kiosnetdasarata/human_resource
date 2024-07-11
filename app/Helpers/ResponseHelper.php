@@ -37,7 +37,6 @@ class ResponseHelper
         $response = [
             'status'        => 'error',
             'message'       => $message,
-            'status_code'   => $statusCode,
             'trace'         => $trace    //debug only
         ];
 
@@ -45,13 +44,12 @@ class ResponseHelper
             $response['input'] = $input;
         }
 
-        return response()->json($response);
+        return response()->json($response, $statusCode);
     }
 
     public function success($data = '') {
         $response = [
             'status'        => 'success',
-            'status_code'   => 200
         ];
         if ($data != '') {
             $response['data'] = $data;

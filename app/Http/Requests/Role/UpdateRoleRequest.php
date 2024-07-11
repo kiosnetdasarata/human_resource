@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Role;
 
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -16,6 +17,13 @@ class UpdateRoleRequest extends FormRequest
         return $this->isMethod('PATCH');
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'nama_jabatan' => Str::title($this->nama_jabatan),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -28,7 +36,6 @@ class UpdateRoleRequest extends FormRequest
             'divisi_id' => 'exists:divisions,id,is_active,1',
             'nama_jabatan' => 'unique:roles,nama_jabatan,'. $role . ',id',
             'deskripsi' => 'string',
-            'is_active' => 'in:0,1'
         ];
     }
 
@@ -38,9 +45,8 @@ class UpdateRoleRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'input' => $this->input(),
-                'status_code' => 422,
-            ])
+                'input' => $this->input()
+            ], 422)
         );
     }
 }

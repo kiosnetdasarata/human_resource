@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Role;
 
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -16,6 +17,14 @@ class StoreRoleRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'kode_jabatan' => str_replace(' ', '', strtoupper($this->kode_jabatan)),
+            'nama_jabatan' => Str::title($this->nama_jabatan),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,7 +36,6 @@ class StoreRoleRequest extends FormRequest
             'divisi_id' => 'required|exists:divisions,id,is_active,1',
             'kode_jabatan' => 'required|unique:roles,kode_jabatan',
             'nama_jabatan' => 'required|unique:roles,nama_jabatan',
-            // 'level_id' => 'required|exists:levels,id',
             'deskripsi' => 'required|string',
         ];
     }
@@ -38,9 +46,8 @@ class StoreRoleRequest extends FormRequest
             response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
-                'input' => $this->input(),
-                'status_code' => 422,
-            ])
+                'input' => $this->input()
+            ], 422)
         );
     }
 }

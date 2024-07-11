@@ -24,7 +24,7 @@ class StoreLevelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'kode_level' => 'required|unique:levels,kode_level',
+            'kode_level' => 'required|unique:levels,kode_level|numeric',
             'nama_level' => 'required|unique:levels,nama_level',
             'deskripsi' => 'required|string'
         ];
@@ -37,8 +37,7 @@ class StoreLevelRequest extends FormRequest
                 'status' => 'error',
                 'errors' => $validator->errors(),
                 'input' => $this->input(),
-                'status_code' => 422,
-            ])
+            ], 422)
         );
     }
 }
