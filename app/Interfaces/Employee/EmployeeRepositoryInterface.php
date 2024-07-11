@@ -8,6 +8,7 @@ interface EmployeeRepositoryInterface
     public function getArchive();
     public function getManager($division);
     public function getByDivision($divisionId);
+    public function getArchiveEmployees($divisionId);
     public function show($uuid, $var);
     // public function findBySlug($slug);
     public function allowance($uuid);

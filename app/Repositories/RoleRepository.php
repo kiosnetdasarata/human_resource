@@ -15,10 +15,11 @@ class RoleRepository implements RoleRepositoryInterface
     public function getAll($divisionId = null)
     {
         return $this->role
-                ->when($divisionId, function ($q, $divisionId) use ($divisionId) {
-                    return $q->where('divisi_id', $divisionId);
-                })
-                ->with(['division', 'level'])
+                // ->when($divisionId, function ($q, $divisionId) use ($divisionId) {
+                //     return $q->where('divisi_id', $divisionId);
+                // })
+                ->with(['division:id,nama_divisi'])
+                ->withCount('employee')
                 ->get();
     }
 
